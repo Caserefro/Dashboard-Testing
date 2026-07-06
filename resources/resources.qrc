@@ -1,0 +1,32 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>icons8-edit-pencil-384.png</file>
+    <file>icons8-package-100.png</file>
+    <file>back2.png</file>
+    <file>about2.png</file>
+    <file>home2.png</file>
+    <file>user2.png</file>
+    <file>done2.png</file>
+    <file>preferences2.png</file>
+    <file>menu2.png</file>
+    <file>writing2.png</file>
+    <file>exit2.png</file>
+    <file>icons8-menu-100.png</file>
+    <file>icons8-back-100.png</file>
+    <file>EndMarker.png</file>
+    <file>icons8-about-384.png</file>
+    <file>icons8-close-384.png</file>
+    <file>icons8-done-384.png</file>
+    <file>icons8-exit-100.png</file>
+    <file>icons8-external-link-384.png</file>
+    <file>icons8-home-384.png</file>
+    <file>icons8-menu-384.png</file>
+    <file>icons8-package-100(1).png</file>
+    <file>icons8-preferences-100.png</file>
+    <file>icons8-search-384.png</file>
+    <file>icons8-user-male-100.png</file>
+    <file>icons8-writing-100.png</file>
+    <file>resources.qrc</file>
+    <file>StartMarker.png</file>
+  </qresource>
+</RCC>
