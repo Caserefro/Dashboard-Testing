@@ -28,30 +28,22 @@ from PyQt5.QtGui import QPainter, QFont, QPen, QColor, QPolygonF
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from components.tables.base_table import BaseTableWidget
 from models.table_models import ParetoLogTableModel
+from components.theme import (
+    ADMIN_GOLD_HDR_BG,
+    ADMIN_GOLD_BORDER,
+    ADMIN_GOLD_TEXT,
+    ADMIN_ROW_EVEN,
+    ADMIN_ROW_ODD,
+    ADMIN_BADGE_PALETTE,
+)
 
 _HDR_FONT = QFont("Segoe UI", 8, QFont.Bold)
 _DATA_FONT = QFont("Segoe UI", 8)
 _BADGE_FONT = QFont("Segoe UI", 7, QFont.Bold)
 
-_GOLD_HDR_BG = QColor("#FFF59D")
-_GOLD_BORDER = QColor("#FBC02D")
-_GOLD_TEXT = QColor("#5D4037")
-_ROW_EVEN = QColor("#FFFFFF")
-_ROW_ODD = QColor("#FFFDE7")
-
-# Badge colors for common Pareto categories
-_BADGE_COLOURS = [
-    QColor("#E53935"),  # Red
-    QColor("#FB8C00"),  # Orange
-    QColor("#1E88E5"),  # Blue
-    QColor("#43A047"),  # Green
-    QColor("#8E24AA"),  # Purple
-    QColor("#00897B"),  # Teal
-]
-
 
 class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
-    """Admin Pareto loss log table with yellow theme, filter arrows, and Date/Category/Comment columns."""
+    """Admin Pareto loss log table with yellow theme, filter arrows, and Date/Category/State/Comment columns."""
 
     def __init__(self, model: ParetoLogTableModel, parent: Optional[Any] = None) -> None:
         super().__init__(model, parent)
@@ -59,18 +51,18 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
 
     def _badge_colour(self, category: str) -> QColor:
         if category not in self._badge_map:
-            idx = len(self._badge_map) % len(_BADGE_COLOURS)
-            self._badge_map[category] = _BADGE_COLOURS[idx]
+            idx = len(self._badge_map) % len(ADMIN_BADGE_PALETTE)
+            self._badge_map[category] = ADMIN_BADGE_PALETTE[idx]
         return self._badge_map[category]
 
     @staticmethod
     def _col_widths(total_w: float) -> List[float]:
-        # 3 columns: Date (20%), Category (25%), Comment (55%)
-        ratios = (0.20, 0.25, 0.55)
+        # 4 columns: Date (15%), Category (22%), State (18%), Comment (45%)
+        ratios = (0.15, 0.22, 0.18, 0.45)
         return [total_w * r for r in ratios]
 
     def paint_table(self, painter: QPainter, inner: QRectF) -> None:
-        """Paint the 3-column Pareto admin log table."""
+        """Paint the 4-column Pareto admin log table."""
         m = self.model
         if not m.entries:
             return
@@ -82,18 +74,18 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
 
         # ── Header Row (Gold background + Filter Arrows) ──
         x = tx
-        headers = ["Date (mm/dd)", "Category", "Comment / Root Cause"]
+        headers = ["Date (mm/dd)", "Category", "State", "Comment / Root Cause"]
         for idx, hdr in enumerate(headers):
             cell = QRectF(x, ty, widths[idx], row_h)
             
-            painter.setBrush(_GOLD_HDR_BG)
-            painter.setPen(QPen(_GOLD_BORDER, 1))
+            painter.setBrush(ADMIN_GOLD_HDR_BG)
+            painter.setPen(QPen(ADMIN_GOLD_BORDER, 1))
             painter.drawRect(cell)
             
             painter.setFont(_HDR_FONT)
-            painter.setPen(_GOLD_TEXT)
-            text_rect = cell.adjusted(6, 0, -18, 0) if idx in (0, 2) else cell.adjusted(0, 0, -14, 0)
-            align = (Qt.AlignLeft if idx in (0, 2) else Qt.AlignCenter) | Qt.AlignVCenter
+            painter.setPen(ADMIN_GOLD_TEXT)
+            text_rect = cell.adjusted(6, 0, -18, 0) if idx in (0, 3) else cell.adjusted(0, 0, -14, 0)
+            align = (Qt.AlignLeft if idx in (0, 3) else Qt.AlignCenter) | Qt.AlignVCenter
             painter.drawText(text_rect, align, hdr)
             
             self._draw_filter_arrow(painter, cell)
@@ -103,11 +95,11 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
         for i, entry in enumerate(m.entries):
             ry = ty + (i + 1) * row_h
             x = tx
-            texts = [entry.date, entry.category, entry.comment]
+            texts = [entry.date, entry.category, entry.state, entry.comment]
 
             for col_idx, txt in enumerate(texts):
                 cell = QRectF(x, ry, widths[col_idx], row_h)
-                row_bg = _ROW_EVEN if i % 2 == 0 else _ROW_ODD
+                row_bg = ADMIN_ROW_EVEN if i % 2 == 0 else ADMIN_ROW_ODD
                 
                 painter.setBrush(row_bg)
                 painter.setPen(QPen(QColor("#FFE082"), 0.8))
@@ -116,11 +108,14 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
                 if col_idx == 1:
                     # Draw Category badge
                     self._draw_badge(painter, cell, txt)
+                elif col_idx == 2:
+                    # Draw State badge/pill
+                    self._draw_state_badge(painter, cell, txt)
                 else:
                     painter.setFont(_DATA_FONT)
-                    painter.setPen(_GOLD_TEXT if col_idx == 0 else QColor("#212121"))
-                    align = (Qt.AlignLeft if col_idx in (0, 2) else Qt.AlignCenter) | Qt.AlignVCenter
-                    text_rect = cell.adjusted(6, 0, -6, 0) if col_idx in (0, 2) else cell
+                    painter.setPen(ADMIN_GOLD_TEXT if col_idx == 0 else QColor("#212121"))
+                    align = (Qt.AlignLeft if col_idx in (0, 3) else Qt.AlignCenter) | Qt.AlignVCenter
+                    text_rect = cell.adjusted(6, 0, -6, 0) if col_idx in (0, 3) else cell
                     painter.drawText(text_rect, align, txt)
                 
                 x += widths[col_idx]
@@ -144,6 +139,35 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
         p.setPen(Qt.white)
         p.drawText(badge_rect, Qt.AlignCenter, text)
 
+    def _draw_state_badge(self, p: QPainter, cell: QRectF, state: str) -> None:
+        if not state:
+            return
+        p.setFont(_BADGE_FONT)
+        fm = p.fontMetrics()
+        tw = fm.horizontalAdvance(state) + 14
+        th = fm.height() + 4
+        bx = cell.center().x() - tw / 2
+        by = cell.center().y() - th / 2
+        badge_rect = QRectF(bx, by, tw, th)
+
+        # Pick color based on state
+        s_lower = state.lower()
+        if "open" in s_lower or "pending" in s_lower or "critical" in s_lower:
+            colour = QColor("#E53935")  # Red
+        elif "progress" in s_lower or "investigat" in s_lower:
+            colour = QColor("#1E88E5")  # Blue
+        elif "resolv" in s_lower or "clos" in s_lower or "done" in s_lower:
+            colour = QColor("#43A047")  # Green
+        else:
+            colour = QColor("#FB8C00")  # Orange/Amber
+
+        p.setBrush(colour)
+        p.setPen(Qt.NoPen)
+        p.drawRoundedRect(badge_rect, int(th / 2), int(th / 2))  # Pill shape (rounded ends)
+
+        p.setPen(Qt.white)
+        p.drawText(badge_rect, Qt.AlignCenter, state)
+
     @staticmethod
     def _draw_filter_arrow(p: QPainter, cell: QRectF) -> None:
         """Draw a small admin filter arrow [v] in the gold header cell."""
@@ -154,7 +178,7 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
         box_rect = QRectF(bx, by, box_size, box_size)
         
         p.setBrush(QColor("#FFFFFF"))
-        p.setPen(QPen(_GOLD_BORDER, 0.8))
+        p.setPen(QPen(ADMIN_GOLD_BORDER, 0.8))
         p.drawRoundedRect(box_rect, 2, 2)
         
         ax = bx + box_size / 2.0
@@ -164,6 +188,6 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
             QPointF(ax + 2.5, ay - 1.5),
             QPointF(ax, ay + 1.5)
         ])
-        p.setBrush(_GOLD_TEXT)
+        p.setBrush(ADMIN_GOLD_TEXT)
         p.setPen(Qt.NoPen)
         p.drawPolygon(triangle)

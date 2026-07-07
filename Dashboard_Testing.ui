@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <ui version="4.0">
  <class>ProliverMapsHome</class>
  <widget class="QMainWindow" name="ProliverMapsHome">
@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
-    <height>932</height>
+    <width>1079</width>
+    <height>951</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -66,36 +66,47 @@
           <string notr="true">background-color: rgb(0, 0, 0);</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
-          <property name="spacing">
-           <number>15</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
-           <widget class="QLabel" name="Logo_S">
-            <property name="font">
-             <font>
-              <family>FONTSPRING DEMO - HongKong</family>
-              <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
+           <widget class="QPushButton" name="Home_S_2">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>74</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton:checked{
+background-color:white;
+border-radius:3px;
+}
+QPushButton:hover{
+icon: url(:/newPrefix/icons8-menu-384.png);
+color:rgb(0, 169, 204);
+}</string>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;proliver&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string />
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="icon">
+             <iconset resource="../Prolivermaps/src/resources/resources.qrc">
+                <normaloff>:/newPrefix/icons8-menu-384.png</normaloff>
+                <normalon>:/newPrefix/icons8-menu-384.png</normalon>
+               </iconset>
+               </property>
+            <property name="iconSize">
+             <size>
+              <width>64</width>
+              <height>64</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -108,6 +119,15 @@
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>11</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QPushButton" name="Home_S">
                <property name="maximumSize">
@@ -122,17 +142,18 @@ background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/home2.png);
+icon: url(:/newPrefix/home_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-home-384.png</normaloff>
-                 <normalon>:/newPrefix/home2.png</normalon>:/newPrefix/icons8-home-384.png</iconset>
+                <normaloff>:/newPrefix/home_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/home_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -152,24 +173,25 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="Pedidos_S">
+              <widget class="QPushButton" name="Safety_S">
                <property name="styleSheet">
                 <string notr="true">QPushButton:checked{
 background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/icons8-package-100.png);
+icon: url(:/newPrefix/sentiment_excited_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-package-100(1).png</normaloff>
-                 <normalon>:/newPrefix/icons8-package-100.png</normalon>:/newPrefix/icons8-package-100(1).png</iconset>
+                <normaloff>:/newPrefix/sentiment_excited_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/sentiment_excited_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -189,24 +211,25 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="Clientes_S">
+              <widget class="QPushButton" name="Pareto_S">
                <property name="styleSheet">
                 <string notr="true">QPushButton:checked{
 background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/user2.png);
+icon: url(:/newPrefix/edit_note_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-user-male-100.png</normaloff>
-                 <normalon>:/newPrefix/user2.png</normalon>:/newPrefix/icons8-user-male-100.png</iconset>
+                <normaloff>:/newPrefix/edit_note_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/edit_note_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -226,24 +249,25 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="Safety">
+              <widget class="QPushButton" name="Data_S">
                <property name="styleSheet">
                 <string notr="true">QPushButton:checked{
 background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/user2.png);
+icon: url(:/newPrefix/data_table_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-user-male-100.png</normaloff>
-                 <normalon>:/newPrefix/user2.png</normalon>:/newPrefix/icons8-user-male-100.png</iconset>
+                <normaloff>:/newPrefix/data_table_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/data_table_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -263,24 +287,25 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="Cuotas_S">
+              <widget class="QPushButton" name="Users_S">
                <property name="styleSheet">
                 <string notr="true">QPushButton:checked{
 background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/writing2.png);
+icon: url(:/newPrefix/account_circle_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-writing-100.png</normaloff>
-                 <normalon>:/newPrefix/writing2.png</normalon>:/newPrefix/icons8-writing-100.png</iconset>
+                <normaloff>:/newPrefix/account_circle_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/account_circle_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -300,24 +325,25 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="Parametros_S">
+              <widget class="QPushButton" name="Calculations_S">
                <property name="styleSheet">
                 <string notr="true">QPushButton:checked{
 background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/preferences2.png);
+icon: url(:/newPrefix/calculate_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-preferences-100.png</normaloff>
-                 <normalon>:/newPrefix/preferences2.png</normalon>:/newPrefix/icons8-preferences-100.png</iconset>
+                <normaloff>:/newPrefix/calculate_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/calculate_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -337,24 +363,63 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="Acerca_de_S">
+              <widget class="QPushButton" name="Settings_S">
                <property name="styleSheet">
                 <string notr="true">QPushButton:checked{
 background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/about2.png);
+icon: url(:/newPrefix/settings_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-about-384.png</normaloff>
-                 <normalon>:/newPrefix/about2.png</normalon>:/newPrefix/icons8-about-384.png</iconset>
+                <normaloff>:/newPrefix/settings_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/settings_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>64</width>
+                 <height>64</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="About_S">
+               <property name="styleSheet">
+                <string notr="true">QPushButton:checked{
+background-color:white;
+border-radius:3px;
+}
+QPushButton:hover{
+icon: url(:/newPrefix/info_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(0, 169, 204);
+}</string>
+               </property>
+               <property name="text">
+                <string />
+               </property>
+               <property name="icon">
+                <iconset resource="../Prolivermaps/src/resources/resources.qrc">
+                <normaloff>:/newPrefix/info_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/info_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -394,16 +459,18 @@ background-color:white;
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/exit2.png);
+icon: url(:/newPrefix/disabled_by_default_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
 color:rgb(0, 169, 204);
 }</string>
                </property>
                <property name="text">
-                <string/>
+                <string />
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-exit-100.png</normaloff>:/newPrefix/icons8-exit-100.png</iconset>
+                <normaloff>:/newPrefix/disabled_by_default_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/disabled_by_default_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -435,20 +502,46 @@ color:rgb(0, 169, 204);
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLabel" name="Logo_L">
-            <property name="font">
-             <font>
-              <family>FONTSPRING DEMO - HongKong</family>
-              <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
+           <widget class="QPushButton" name="Home_S_3">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>74</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton:checked{
+background-color:white;
+border-radius:3px;
+}
+QPushButton:hover{
+icon: url(:/newPrefix/icons8-menu-384.png);
+color:rgb(0, 169, 204);
+}</string>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ffffff;&quot;&gt;proliver&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string />
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="icon">
+             <iconset resource="../Prolivermaps/src/resources/resources.qrc">
+                <normaloff>:/newPrefix/icons8-menu-384.png</normaloff>
+                <normalon>:/newPrefix/icons8-menu-384.png</normalon>
+               </iconset>
+               </property>
+            <property name="iconSize">
+             <size>
+              <width>64</width>
+              <height>64</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoExclusive">
+             <bool>true</bool>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -456,7 +549,7 @@ color:rgb(0, 169, 204);
            <widget class="QWidget" name="widget_4" native="true">
             <layout class="QVBoxLayout" name="verticalLayout_5">
              <item>
-              <widget class="QPushButton" name="pushButton_11">
+              <widget class="QPushButton" name="Home_Ex">
                <property name="font">
                 <font>
                  <family>Yu Gothic UI Semibold</family>
@@ -478,8 +571,8 @@ color:rgb(0, 169, 204);
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/home2.png);
-color:rgb(0, 169, 204);
+icon: url(:/newPrefix/home_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
 }</string>
                </property>
                <property name="text">
@@ -487,8 +580,9 @@ color:rgb(0, 169, 204);
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-home-384.png</normaloff>
-                 <normalon>:/newPrefix/home2.png</normalon>:/newPrefix/icons8-home-384.png</iconset>
+                <normaloff>:/newPrefix/home_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/home_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -508,7 +602,7 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_12">
+              <widget class="QPushButton" name="Safety_Ex">
                <property name="font">
                 <font>
                  <family>Yu Gothic UI Semibold</family>
@@ -527,106 +621,8 @@ color:rgb(0, 169, 204);
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/icons8-package-100.png);
-color:rgb(0, 169, 204);
-}</string>
-               </property>
-               <property name="text">
-                <string>Data           </string>
-               </property>
-               <property name="icon">
-                <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-package-100(1).png</normaloff>
-                 <normalon>:/newPrefix/icons8-package-100.png</normalon>:/newPrefix/icons8-package-100(1).png</iconset>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>64</width>
-                 <height>64</height>
-                </size>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-               <property name="autoExclusive">
-                <bool>true</bool>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_13">
-               <property name="font">
-                <font>
-                 <family>Yu Gothic UI Semibold</family>
-                 <pointsize>12</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton{
-color:rgb(255, 255, 255);
-}
-QPushButton:checked{
-background-color:white;
-color:rgb(0, 169, 204);
-border-radius:3px;
-}
-QPushButton:hover{
-icon: url(:/newPrefix/user2.png);
-color:rgb(0, 169, 204);
-}</string>
-               </property>
-               <property name="text">
-                <string>Users          </string>
-               </property>
-               <property name="icon">
-                <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-user-male-100.png</normaloff>
-                 <normalon>:/newPrefix/user2.png</normalon>:/newPrefix/icons8-user-male-100.png</iconset>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>64</width>
-                 <height>64</height>
-                </size>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-               <property name="autoExclusive">
-                <bool>true</bool>
-               </property>
-               <property name="flat">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_15">
-               <property name="font">
-                <font>
-                 <family>Yu Gothic UI Semibold</family>
-                 <pointsize>12</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton{
-color:rgb(255, 255, 255);
-}
-QPushButton:checked{
-background-color:white;
-color:rgb(0, 169, 204);
-border-radius:3px;
-}
-QPushButton:hover{
-icon: url(:/newPrefix/user2.png);
-color:rgb(0, 169, 204);
+icon: url(:/newPrefix/sentiment_excited_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
 }</string>
                </property>
                <property name="text">
@@ -634,8 +630,9 @@ color:rgb(0, 169, 204);
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-user-male-100.png</normaloff>
-                 <normalon>:/newPrefix/user2.png</normalon>:/newPrefix/icons8-user-male-100.png</iconset>
+                <normaloff>:/newPrefix/sentiment_excited_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/sentiment_excited_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -655,7 +652,7 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_9">
+              <widget class="QPushButton" name="Pareto_Ex">
                <property name="font">
                 <font>
                  <family>Yu Gothic UI Semibold</family>
@@ -674,8 +671,158 @@ color:rgb(0, 169, 204);
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/writing2.png);
+icon: url(:/newPrefix/edit_note_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
+}</string>
+               </property>
+               <property name="text">
+                <string>Pareto          </string>
+               </property>
+               <property name="icon">
+                <iconset resource="../Prolivermaps/src/resources/resources.qrc">
+                <normaloff>:/newPrefix/edit_note_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/edit_note_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>64</width>
+                 <height>64</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="Data_Ex">
+               <property name="font">
+                <font>
+                 <family>Yu Gothic UI Semibold</family>
+                 <pointsize>12</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+color:rgb(255, 255, 255);
+}
+QPushButton:checked{
+background-color:white;
 color:rgb(0, 169, 204);
+border-radius:3px;
+}
+QPushButton:hover{
+icon: url(:/newPrefix/data_table_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
+}</string>
+               </property>
+               <property name="text">
+                <string>Data           </string>
+               </property>
+               <property name="icon">
+                <iconset resource="../Prolivermaps/src/resources/resources.qrc">
+                <normaloff>:/newPrefix/data_table_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/data_table_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>64</width>
+                 <height>64</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="Users_Ex">
+               <property name="font">
+                <font>
+                 <family>Yu Gothic UI Semibold</family>
+                 <pointsize>12</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+color:rgb(255, 255, 255);
+}
+QPushButton:checked{
+background-color:white;
+color:rgb(0, 169, 204);
+border-radius:3px;
+}
+QPushButton:hover{
+icon: url(:/newPrefix/account_circle_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
+}</string>
+               </property>
+               <property name="text">
+                <string>Users          </string>
+               </property>
+               <property name="icon">
+                <iconset resource="../Prolivermaps/src/resources/resources.qrc">
+                <normaloff>:/newPrefix/account_circle_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/account_circle_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>64</width>
+                 <height>64</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+               <property name="flat">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="Calculations_Ex">
+               <property name="font">
+                <font>
+                 <family>Yu Gothic UI Semibold</family>
+                 <pointsize>12</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+color:rgb(255, 255, 255);
+}
+QPushButton:checked{
+background-color:white;
+color:rgb(0, 169, 204);
+border-radius:3px;
+}
+QPushButton:hover{
+icon: url(:/newPrefix/calculate_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
 }</string>
                </property>
                <property name="text">
@@ -683,8 +830,9 @@ color:rgb(0, 169, 204);
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-writing-100.png</normaloff>
-                 <normalon>:/newPrefix/writing2.png</normalon>:/newPrefix/icons8-writing-100.png</iconset>
+                <normaloff>:/newPrefix/calculate_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/calculate_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -704,7 +852,7 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_14">
+              <widget class="QPushButton" name="Settings_Ex">
                <property name="font">
                 <font>
                  <family>Yu Gothic UI Semibold</family>
@@ -723,8 +871,8 @@ color:rgb(0, 169, 204);
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/preferences2.png);
-color:rgb(0, 169, 204);
+icon: url(:/newPrefix/settings_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
 }</string>
                </property>
                <property name="text">
@@ -732,8 +880,9 @@ color:rgb(0, 169, 204);
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-preferences-100.png</normaloff>
-                 <normalon>:/newPrefix/preferences2.png</normalon>:/newPrefix/icons8-preferences-100.png</iconset>
+                <normaloff>:/newPrefix/settings_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/settings_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -753,7 +902,7 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_10">
+              <widget class="QPushButton" name="About_Ex">
                <property name="font">
                 <font>
                  <family>Yu Gothic UI Semibold</family>
@@ -772,8 +921,8 @@ color:rgb(0, 169, 204);
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/about2.png);
-color:rgb(0, 169, 204);
+icon: url(:/newPrefix/info_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
 }</string>
                </property>
                <property name="text">
@@ -781,8 +930,9 @@ color:rgb(0, 169, 204);
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-about-384.png</normaloff>
-                 <normalon>:/newPrefix/about2.png</normalon>:/newPrefix/icons8-about-384.png</iconset>
+                <normaloff>:/newPrefix/info_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/info_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -815,7 +965,7 @@ color:rgb(0, 169, 204);
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_8">
+              <widget class="QPushButton" name="Close_Ex">
                <property name="font">
                 <font>
                  <family>Yu Gothic UI Semibold</family>
@@ -834,8 +984,8 @@ color:rgb(0, 169, 204);
 border-radius:3px;
 }
 QPushButton:hover{
-icon: url(:/newPrefix/exit2.png);
-color:rgb(0, 169, 204);
+icon: url(:/newPrefix/disabled_by_default_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png);
+color:rgb(31, 105, 255);
 }</string>
                </property>
                <property name="text">
@@ -843,8 +993,9 @@ color:rgb(0, 169, 204);
                </property>
                <property name="icon">
                 <iconset resource="../Prolivermaps/src/resources/resources.qrc">
-                 <normaloff>:/newPrefix/icons8-exit-100.png</normaloff>
-                 <normalon>:/newPrefix/exit2.png</normalon>:/newPrefix/icons8-exit-100.png</iconset>
+                <normaloff>:/newPrefix/disabled_by_default_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</normaloff>
+                <normalon>:/newPrefix/disabled_by_default_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</normalon>
+               </iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -924,7 +1075,7 @@ color:rgb(0, 169, 204);
                    </font>
                   </property>
                   <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Vista Previa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-size:14pt;"&gt;Vista Previa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
@@ -935,7 +1086,7 @@ color:rgb(0, 169, 204);
               </widget>
              </item>
              <item>
-              <widget class="QWidget" name="Widget_Area" native="true"/>
+              <widget class="QWidget" name="Widget_Area" native="true" />
              </item>
             </layout>
            </widget>
@@ -950,7 +1101,7 @@ color:rgb(0, 169, 204);
   </widget>
  </widget>
  <resources>
-  <include location="../Prolivermaps/src/resources/resources.qrc"/>
+  <include location="../Prolivermaps/src/resources/resources.qrc" />
  </resources>
- <connections/>
+ <connections />
 </ui>

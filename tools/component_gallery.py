@@ -40,6 +40,10 @@ from models.table_models import (
     ParetoTableModel,
     ParetoLogEntryModel,
     ParetoLogTableModel,
+    ParetoCategoryEntryModel,
+    ParetoCategoryTableModel,
+    ParetoLogCreateEntryModel,
+    ParetoLogCreateTableModel,
     SafetyTableModel,
     SafetySummaryTableModel,
     SafetyFieldModel,
@@ -60,6 +64,8 @@ from components.charts.safety_bar_chart import SafetyBarChartWidget, StackedSafe
 from components.tables.pareto.pareto_table import ParetoTable
 from components.tables.pareto.pareto_table_user import ParetoTableUser
 from components.tables.pareto.pareto_table_admin import ParetoTableAdmin
+from components.tables.pareto.pareto_category_table import ParetoCategoryTable
+from components.tables.pareto.pareto_table_create import ParetoTableCreate
 from components.tables.safety.safety_table import SafetyTable
 from components.tables.safety.safety_table_dashboard import SafetyTableDashboard
 from components.tables.safety.safety_table_admin import SafetyTableAdmin
@@ -107,16 +113,44 @@ def generate_pareto_table() -> ParetoTableModel:
 
 
 def generate_pareto_admin_table() -> ParetoLogTableModel:
-    """Generate an Admin Pareto Loss Log table with Date/Category/Comment and Inputs/Outputs."""
+    """Generate an Admin Pareto Loss Log table with Date/Category/State/Comment and Inputs/Outputs."""
     return ParetoLogTableModel(
         title="Pareto Loss Admin Log",
-        principal="Sarah Jenkins (Line Admin)",
+        principal="Line Admin Review",
         entries=[
-            ParetoLogEntryModel(date="07/01", category="Machine Breakdown", comment="Conveyor belt jammed on Line 2; maintenance replaced bearing.", inputs="500 units", outputs="420 units"),
-            ParetoLogEntryModel(date="07/02", category="Lack of Materials", comment="Late delivery of packaging film from supplier.", inputs="500 units", outputs="450 units"),
-            ParetoLogEntryModel(date="07/03", category="Quality Defect", comment="Seal temperature drift caused rejected pouches.", inputs="520 units", outputs="480 units"),
-            ParetoLogEntryModel(date="07/04", category="Operator Error", comment="Misaligned sensor during shift changeover.", inputs="500 units", outputs="465 units"),
-            ParetoLogEntryModel(date="07/05", category="Machine Breakdown", comment="Hydraulic pressure drop on stamping press.", inputs="500 units", outputs="410 units"),
+            ParetoLogEntryModel(date="07/01", category="Machine Breakdown", state="Resolved", comment="Conveyor belt jammed on Line 2; maintenance replaced bearing.", inputs="500 units", outputs="420 units"),
+            ParetoLogEntryModel(date="07/02", category="Lack of Materials", state="In Progress", comment="Late delivery of packaging film from supplier.", inputs="500 units", outputs="450 units"),
+            ParetoLogEntryModel(date="07/03", category="Quality Defect", state="Open", comment="Seal temperature drift caused rejected pouches.", inputs="520 units", outputs="480 units"),
+            ParetoLogEntryModel(date="07/04", category="Operator Error", state="Resolved", comment="Misaligned sensor during shift changeover.", inputs="500 units", outputs="465 units"),
+            ParetoLogEntryModel(date="07/05", category="Machine Breakdown", state="Open", comment="Hydraulic pressure drop on stamping press.", inputs="500 units", outputs="410 units"),
+        ],
+    )
+
+
+def generate_pareto_category_table() -> ParetoCategoryTableModel:
+    """Generate a Pareto category reference table with 2 columns (Category & Description)."""
+    return ParetoCategoryTableModel(
+        title="Pareto Loss Categories & Definitions",
+        entries=[
+            ParetoCategoryEntryModel("Machine Breakdown", "Unplanned mechanical or electrical equipment failure halting production line."),
+            ParetoCategoryEntryModel("Lack of Materials", "Production delay caused by missing raw materials or component stock-outs."),
+            ParetoCategoryEntryModel("Quality Defect", "Rejected units, out-of-spec packaging, or seal integrity failures."),
+            ParetoCategoryEntryModel("Operator Error", "Process disruption resulting from incorrect setup or procedural deviation."),
+            ParetoCategoryEntryModel("Planned Maintenance", "Scheduled preventative maintenance or tooling changeover."),
+        ],
+    )
+
+
+def generate_pareto_create_table() -> ParetoLogCreateTableModel:
+    """Generate a Pareto loss creation table (without State column, filled by text)."""
+    return ParetoLogCreateTableModel(
+        title="Pareto Loss Creation Log",
+        principal="Shift Operator Input",
+        entries=[
+            ParetoLogCreateEntryModel("07/07", "Machine Breakdown", "Conveyor belt jammed on Line 2 during morning startup."),
+            ParetoLogCreateEntryModel("07/07", "Lack of Materials", "Waiting 25 minutes for secondary carton packaging delivery."),
+            ParetoLogCreateEntryModel("07/07", "Quality Defect", "Top seal misaligned on 15 consecutive pouches."),
+            ParetoLogCreateEntryModel("07/07", "Operator Error", "Sensor calibration knocked out of alignment during cleaning."),
         ],
     )
 
@@ -278,6 +312,8 @@ COMPONENT_REGISTRY = [
     ("Pareto Table (Dashboard)", "table", lambda: ParetoTable(generate_pareto_table())),
     ("Pareto Table (User)",      "table", lambda: ParetoTableUser(generate_pareto_table())),
     ("Pareto Table (Admin Loss Log - Yellow Theme)", "table", lambda: ParetoTableAdmin(generate_pareto_admin_table())),
+    ("Pareto Category Table (2-Column Reference)", "table", lambda: ParetoCategoryTable(generate_pareto_category_table())),
+    ("Pareto Table Create (Loss Log - Without State)", "table", lambda: ParetoTableCreate(generate_pareto_create_table())),
     # ── Safety Tables ──
     ("Safety Table (Dashboard Summary - Week 5)", "table", lambda: SafetyTableDashboard(generate_safety_summary_table())),
     ("Safety Table (Admin Concern Log - Yellow Theme)", "table", lambda: SafetyTableAdmin(generate_safety_table())),

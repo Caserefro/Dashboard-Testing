@@ -5,11 +5,17 @@ Table graphic component family for the dashboard.
 
 Re-exports every public table widget so consumers can do::
 
-    from components.tables import ParetoTable, SafetyTable
+    from components.tables import ParetoTable, SafetyTable, ParetoCategoryTable
 """
 
 from .base_table import BaseTableWidget
-from .pareto import ParetoTable, ParetoTableUser, ParetoTableAdmin
+from .pareto import (
+    ParetoTable,
+    ParetoTableUser,
+    ParetoTableAdmin,
+    ParetoCategoryTable,
+    ParetoTableCreate,
+)
 from .safety import (
     SafetyTable,
     SafetyTableUser,
@@ -25,6 +31,8 @@ __all__ = [
     "ParetoTable",
     "ParetoTableUser",
     "ParetoTableAdmin",
+    "ParetoCategoryTable",
+    "ParetoTableCreate",
     "SafetyTable",
     "SafetyTableUser",
     "SafetyTableFocal",

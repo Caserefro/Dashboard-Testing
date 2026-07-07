@@ -24,16 +24,17 @@ from typing import Any, Optional, List
 from PyQt5.QtGui import QPainter, QFont, QPen, QColor, QPolygonF
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from components.tables.safety.safety_table import SafetyTable, SafetyTableModel
+from components.theme import (
+    ADMIN_GOLD_HDR_BG,
+    ADMIN_GOLD_BORDER,
+    ADMIN_GOLD_TEXT,
+    ADMIN_ROW_EVEN,
+    ADMIN_ROW_ODD,
+)
 
 _HDR_FONT = QFont("Segoe UI", 8, QFont.Bold)
 _DATA_FONT = QFont("Segoe UI", 8)
 _BADGE_FONT = QFont("Segoe UI", 7, QFont.Bold)
-
-_GOLD_HDR_BG = QColor("#FFF59D")
-_GOLD_BORDER = QColor("#FBC02D")
-_GOLD_TEXT = QColor("#5D4037")
-_ROW_EVEN = QColor("#FFFFFF")
-_ROW_ODD = QColor("#FFFDE7")
 
 
 class SafetyTableAdmin(SafetyTable):
@@ -59,12 +60,12 @@ class SafetyTableAdmin(SafetyTable):
         for idx, hdr in enumerate(headers):
             cell = QRectF(x, ty, widths[idx], row_h)
             
-            painter.setBrush(_GOLD_HDR_BG)
-            painter.setPen(QPen(_GOLD_BORDER, 1))
+            painter.setBrush(ADMIN_GOLD_HDR_BG)
+            painter.setPen(QPen(ADMIN_GOLD_BORDER, 1))
             painter.drawRect(cell)
             
             painter.setFont(_HDR_FONT)
-            painter.setPen(_GOLD_TEXT)
+            painter.setPen(ADMIN_GOLD_TEXT)
             text_rect = cell.adjusted(6, 0, -18, 0) if idx in (0, 3) else cell.adjusted(0, 0, -14, 0)
             align = (Qt.AlignLeft if idx in (0, 3) else Qt.AlignCenter) | Qt.AlignVCenter
             painter.drawText(text_rect, align, hdr)
@@ -80,7 +81,7 @@ class SafetyTableAdmin(SafetyTable):
 
             for col_idx, txt in enumerate(texts):
                 cell = QRectF(x, ry, widths[col_idx], row_h)
-                row_bg = _ROW_EVEN if i % 2 == 0 else _ROW_ODD
+                row_bg = ADMIN_ROW_EVEN if i % 2 == 0 else ADMIN_ROW_ODD
                 
                 painter.setBrush(row_bg)
                 painter.setPen(QPen(QColor("#FFE082"), 0.8))
@@ -90,7 +91,7 @@ class SafetyTableAdmin(SafetyTable):
                     self._draw_badge(painter, cell, txt)
                 else:
                     painter.setFont(_DATA_FONT)
-                    painter.setPen(_GOLD_TEXT if col_idx == 0 else QColor("#212121"))
+                    painter.setPen(ADMIN_GOLD_TEXT if col_idx == 0 else QColor("#212121"))
                     align = (Qt.AlignLeft if col_idx in (0, 3) else Qt.AlignCenter) | Qt.AlignVCenter
                     text_rect = cell.adjusted(6, 0, -6, 0) if col_idx in (0, 3) else cell
                     painter.drawText(text_rect, align, txt)
@@ -107,7 +108,7 @@ class SafetyTableAdmin(SafetyTable):
         box_rect = QRectF(bx, by, box_size, box_size)
         
         p.setBrush(QColor("#FFFFFF"))
-        p.setPen(QPen(_GOLD_BORDER, 0.8))
+        p.setPen(QPen(ADMIN_GOLD_BORDER, 0.8))
         p.drawRoundedRect(box_rect, 2, 2)
         
         ax = bx + box_size / 2.0
@@ -117,6 +118,6 @@ class SafetyTableAdmin(SafetyTable):
             QPointF(ax + 2.5, ay - 1.5),
             QPointF(ax, ay + 1.5)
         ])
-        p.setBrush(_GOLD_TEXT)
+        p.setBrush(ADMIN_GOLD_TEXT)
         p.setPen(Qt.NoPen)
         p.drawPolygon(triangle)

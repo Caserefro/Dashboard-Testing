@@ -1,5 +1,24 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>info_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>info_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>disabled_by_default_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>disabled_by_default_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>calculate_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>calculate_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>settings_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>settings_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>edit_note_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>edit_note_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>sentiment_excited_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>sentiment_excited_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>data_table_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>data_table_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>account_circle_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>account_circle_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>home_64dp_1F69FF_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>home_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
+    <file>home_64dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.png</file>
     <file>icons8-edit-pencil-384.png</file>
     <file>icons8-package-100.png</file>
     <file>back2.png</file>

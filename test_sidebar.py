@@ -49,6 +49,8 @@ from components.charts.safety_bar_chart import SafetyBarChartWidget, StackedSafe
 from components.tables.pareto.pareto_table import ParetoTable
 from components.tables.pareto.pareto_table_user import ParetoTableUser
 from components.tables.pareto.pareto_table_admin import ParetoTableAdmin
+from components.tables.pareto.pareto_category_table import ParetoCategoryTable
+from components.tables.pareto.pareto_table_create import ParetoTableCreate
 from components.tables.safety.safety_table import SafetyTable
 from components.tables.safety.safety_table_dashboard import SafetyTableDashboard
 from components.tables.safety.safety_table_admin import SafetyTableAdmin
@@ -64,6 +66,8 @@ from tools.component_gallery import (
     generate_progress_chart,
     generate_pareto_table,
     generate_pareto_admin_table,
+    generate_pareto_category_table,
+    generate_pareto_create_table,
     generate_safety_table,
     generate_safety_summary_table,
     generate_safety_guide_table,
@@ -99,22 +103,23 @@ class SidebarDemoApp(QMainWindow):
         self.menu_S.show()
         self.is_expanded = False
 
-        # Connect Logo_S and Logo_L to toggle/expand the sidebar!
-        self.Logo_S.setCursor(Qt.PointingHandCursor)
-        self.Logo_L.setCursor(Qt.PointingHandCursor)
-        self.Logo_S.mousePressEvent = lambda event: self.toggle_sidebar()
-        self.Logo_L.mousePressEvent = lambda event: self.toggle_sidebar()
+        # Connect Home_S_2 and Home_S_3 (top logo buttons) to toggle/expand the sidebar!
+        self.Home_S_2.setCursor(Qt.PointingHandCursor)
+        self.Home_S_3.setCursor(Qt.PointingHandCursor)
+        self.Home_S_2.mousePressEvent = lambda event: self.toggle_sidebar()
+        self.Home_S_3.mousePressEvent = lambda event: self.toggle_sidebar()
 
         # ── 2. Setup Menu Button Synchronisation ──
         # Map menu index -> (small_button, big_button, page_title)
         self.menu_items = [
-            (self.Home_S,       self.pushButton_11, "Home — Executive Agile Dashboard (Where graphs exist)"),
-            (self.Pedidos_S,    self.pushButton_12, "Data — Operations & Efficiency (Empty)"),
-            (self.Clientes_S,   self.pushButton_13, "Users — Loss & Pareto Analysis (Empty)"),
-            (self.Safety,       self.pushButton_15, "Safety — Physiological Assessment (Empty)"),
-            (self.Cuotas_S,     self.pushButton_9,  "Calculations — Burndown & Safety (Empty)"),
-            (self.Parametros_S, self.pushButton_14, "Settings — System & Controls (Empty)"),
-            (self.Acerca_de_S,  self.pushButton_10, "Acerca de — No-Code Grid Architecture (Empty)"),
+            (self.Home_S,         self.Home_Ex,         "Home — Executive Agile Dashboard (Where graphs exist)"),
+            (self.Safety_S,       self.Safety_Ex,       "Safety — Complete Physiological Assessment View"),
+            (self.Pareto_S,       self.Pareto_Ex,       "Pareto — Loss Analysis & Audit Log"),
+            (self.Data_S,         self.Data_Ex,         "Data — Operations & Efficiency (Empty)"),
+            (self.Users_S,        self.Users_Ex,        "Users — User Management & Access (Empty)"),
+            (self.Calculations_S, self.Calculations_Ex, "Calculations — Burndown & Safety Metrics (Empty)"),
+            (self.Settings_S,     self.Settings_Ex,     "Settings — System & Controls (Empty)"),
+            (self.About_S,        self.About_Ex,        "About — No-Code Grid Architecture (Empty)"),
         ]
 
         for idx, (btn_s, btn_b, title) in enumerate(self.menu_items):
@@ -123,7 +128,7 @@ class SidebarDemoApp(QMainWindow):
 
         # Connect close buttons
         self.Close_S.clicked.connect(self.close)
-        self.pushButton_8.clicked.connect(self.close)
+        self.Close_Ex.clicked.connect(self.close)
 
         # ── 3. Integrate Scrollable Dashboard Grids into UI Container ──
         # Widget_Area is the main content container in Dashboard_Testing.ui inside widget_5
@@ -138,83 +143,71 @@ class SidebarDemoApp(QMainWindow):
         # Row 0: Global Dashboard Filter
         self.grid_home.add_widget(DynamicSelectWidget(title="Global Dashboard Filter:", num_fields=3, show_count_selector=True), row=0, col=0, col_span=2, min_height=85)
         # Row 1: SQDP Board
-        self.grid_home.add_widget(Sprint1WSqdpWidget(generate_sqdp_board("sprint_1w")), row=1, col=0, col_span=2, min_height=260)
-        # Row 2 & 3: Burndown Chart (left) and SQDP Bar Chart + Aspect Selector (right)
-        self.grid_home.add_widget(BurndownChartWidget(generate_burndown_chart()), row=2, col=0, row_span=2, min_height=465)
-        self.grid_home.add_widget(SqdpBarChartWidget(generate_bar_chart()), row=2, col=1, min_height=380)
-        self.grid_home.add_widget(
-            DynamicSelectWidget(
-                title="SQDP Aspect Filter:",
-                field_labels=["Aspect:"],
-                available_fields=["Safety (S)", "Quality (Q)", "Delivery (D)", "Productivity (P)"],
-                num_fields=1,
-                show_count_selector=False
-            ),
-            row=3, col=1, min_height=85
-        )
-        # Row 4 & 5: Progress Bar Chart + Period Selector (left) and Pareto Table (right)
-        self.grid_home.add_widget(ProgressBarChartWidget(generate_progress_chart()), row=4, col=0, min_height=380)
-        self.grid_home.add_widget(
-            DynamicSelectWidget(
-                title="Period Filter:",
-                field_labels=["Start Period:", "End Period:"],
-                available_fields=["Sprint 1 (Jan 1 - Jan 14)", "Sprint 2 (Jan 15 - Jan 28)", "Sprint 3 (Jan 29 - Feb 11)", "Sprint 4 (Feb 12 - Feb 25)", "Sprint 5 (Feb 26 - Mar 11)"],
-                num_fields=2,
-                show_count_selector=False
-            ),
-            row=5, col=0, min_height=85
-        )
-        self.grid_home.add_widget(ParetoTable(generate_pareto_table()), row=4, col=1, row_span=2, min_height=465)
-        # Row 6: Revamped Safety Table Dashboard across bottom (Image 1 Summary Table)
-        self.grid_home.add_widget(SafetyTableDashboard(generate_safety_summary_table()), row=6, col=0, col_span=2, min_height=140)
-        # Row 7: Psychological Safety Metric Guide Table
-        self.grid_home.add_widget(TextGuideTable(generate_safety_guide_table()), row=7, col=0, col_span=2, min_height=340)
-        # Row 8: Safety Table Admin (Yellow Concern Log - Image 2 style, preserving old structure!)
-        self.grid_home.add_widget(SafetyTableAdmin(generate_safety_table()), row=8, col=0, col_span=2, min_height=360)
-        # Row 9: Pareto Table Admin (Yellow Loss Log with Inputs/Outputs!)
-        self.grid_home.add_widget(ParetoTableAdmin(generate_pareto_admin_table()), row=9, col=0, col_span=2, min_height=360)
+        self.grid_home.add_widget(Sprint1WSqdpWidget(generate_sqdp_board("sprint_1w")), row=1, col=0, col_span=2, min_height=210)
+        # Row 2: Charts (Efficiency & Progress Side-by-Side)
+        self.grid_home.add_widget(SqdpBarChartWidget(generate_bar_chart()), row=2, col=0, min_height=380)
+        self.grid_home.add_widget(ProgressBarChartWidget(generate_progress_chart()), row=2, col=1, min_height=380)
+        # Row 3: Charts (Burndown & Safety Bar Chart Side-by-Side)
+        self.grid_home.add_widget(BurndownChartWidget(generate_burndown_chart()), row=3, col=0, min_height=380)
+        self.grid_home.add_widget(SafetyBarChartWidget(generate_safety_bar_chart()), row=3, col=1, min_height=380)
+        # Row 4: Revamped Safety Table Dashboard across bottom (Summary Table)
+        self.grid_home.add_widget(SafetyTableDashboard(generate_safety_summary_table()), row=4, col=0, col_span=2, min_height=140)
+        # Row 5: Pareto Table (Dashboard Loss Analysis)
+        self.grid_home.add_widget(ParetoTable(generate_pareto_table()), row=5, col=0, col_span=2, min_height=465)
+        # Row 6: Pareto Table Admin (Yellow Loss Log with Date, Category, Comment!)
+        self.grid_home.add_widget(ParetoTableAdmin(generate_pareto_admin_table()), row=6, col=0, col_span=2, min_height=360)
 
-        # ── PAGE 1: Data — Loss & Pareto Analysis ──
+        # ── PAGE 1: Data — Empty Screen ──
         self.grid_data = ScrollableDashboardGrid(columns=2)
-        self.grid_data.add_widget(ParetoTableAdmin(generate_pareto_admin_table()), row=0, col=0, col_span=2, min_height=360)
-        self.grid_data.add_widget(ParetoTable(generate_pareto_table()), row=1, col=0, col_span=2, min_height=465)
 
         # ── PAGE 2: Users — Empty Screen ──
         self.grid_users = ScrollableDashboardGrid(columns=2)
-        self.grid_users.add_widget(TextGuideTable(generate_safety_guide_table()), row=0, col=0, col_span=2, min_height=340)
 
         # ── PAGE 3: Safety — Complete Physiological Assessment View ──
+        # ── PAGE 2: Safety — Assessment View ──
         self.grid_safety = ScrollableDashboardGrid(columns=2)
-        # Row 0: Psychological Safety Metric Guide Table
-        self.grid_safety.add_widget(TextGuideTable(generate_safety_guide_table()), row=0, col=0, col_span=2, min_height=340)
-        # Row 1: Revamped Safety Table Dashboard (Week 5 Summary Matrix)
-        self.grid_safety.add_widget(SafetyTableDashboard(generate_safety_summary_table()), row=1, col=0, col_span=2, min_height=140)
-        # Row 2: Interactive Answer Safety Questionnaire Widget (Active State)
-        self.grid_safety.add_widget(SafetyAnswerWidget(generate_safety_questionnaire(already_filled=False)), row=2, col=0, col_span=2, min_height=350)
-        # Row 3: Safety Answer Widget (Already Submitted State - Showing Completed Message)
-        self.grid_safety.add_widget(SafetyAnswerWidget(generate_safety_questionnaire(already_filled=True)), row=3, col=0, col_span=2, min_height=180)
-        # Row 4: Safety Table Admin (Yellow Concern Log - Image 2 style, preserving old structure!)
-        self.grid_safety.add_widget(SafetyTableAdmin(generate_safety_table()), row=4, col=0, col_span=2, min_height=360)
-        # Row 5: Safety Table Detailed Log (Old Standard Blue View)
-        self.grid_safety.add_widget(SafetyTable(generate_safety_table()), row=5, col=0, col_span=2, min_height=360)
 
-        # ── PAGE 4: Calculations — Empty Screen ──
+        # Row 0: Timeframe Selector
+        self.grid_safety.add_widget(DynamicSelectWidget(num_fields=2, show_count_selector=False), row=0, col=0, col_span=2, min_height=85)
+        # Row 1: Safety Table Dashboard
+        self.grid_safety.add_widget(SafetyTableDashboard(generate_safety_summary_table()), row=1, col=0, col_span=2,
+                                    min_height=140)
+        # Row 2: Questionnaire
+        self.grid_safety.add_widget(SafetyAnswerWidget(generate_safety_questionnaire(already_filled=False)), row=2,
+                                    col=0, col_span=2, min_height=350)
+        # Row 3: Admin Concern Log
+        self.grid_safety.add_widget(SafetyTableAdmin(generate_safety_table()), row=3, col=0, col_span=2, min_height=360)
+
+        # ✅ Row 4: Safety Bar Chart (Full Width)
+        self.grid_safety.add_widget(
+            SafetyBarChartWidget(generate_safety_bar_chart()),
+            row=4, col=0, col_span=2, min_height=380
+        )
+
+        # ── PAGE 4: Pareto — Loss Analysis & Audit Log ──
+        self.grid_pareto = ScrollableDashboardGrid(columns=2)
+        self.grid_pareto.add_widget(ParetoCategoryTable(generate_pareto_category_table()), row=0, col=0, col_span=2, min_height=250)
+        self.grid_pareto.add_widget(ParetoTableAdmin(generate_pareto_admin_table()), row=1, col=0, col_span=2, min_height=300)
+        self.grid_pareto.add_widget(ParetoTable(generate_pareto_table()), row=2, col=0, col_span=2, min_height=400)
+
+        # ── PAGE 5: Calculations — Empty Screen ──
         self.grid_calc = ScrollableDashboardGrid(columns=2)
 
-        # ── PAGE 5: Settings — Empty Screen ──
+        # ── PAGE 6: Settings — Empty Screen ──
         self.grid_settings = ScrollableDashboardGrid(columns=2)
 
-        # ── PAGE 6: About — Empty Screen ──
+        # ── PAGE 7: About — Empty Screen ──
         self.grid_about = ScrollableDashboardGrid(columns=2)
 
-        # Add all grids to the content stack
+        # Add all grids to the content stack in the updated menu order
         self.content_stack.addWidget(self.grid_home)     # Index 0: Home
-        self.content_stack.addWidget(self.grid_data)     # Index 1: Data
-        self.content_stack.addWidget(self.grid_users)    # Index 2: Users
-        self.content_stack.addWidget(self.grid_safety)   # Index 3: Safety
-        self.content_stack.addWidget(self.grid_calc)     # Index 4: Calculations
-        self.content_stack.addWidget(self.grid_settings) # Index 5: Settings
-        self.content_stack.addWidget(self.grid_about)    # Index 6: About
+        self.content_stack.addWidget(self.grid_safety)   # Index 1: Safety
+        self.content_stack.addWidget(self.grid_pareto)   # Index 2: Pareto
+        self.content_stack.addWidget(self.grid_data)     # Index 3: Data
+        self.content_stack.addWidget(self.grid_users)    # Index 4: Users
+        self.content_stack.addWidget(self.grid_calc)     # Index 5: Calculations
+        self.content_stack.addWidget(self.grid_settings) # Index 6: Settings
+        self.content_stack.addWidget(self.grid_about)    # Index 7: About
 
         # Select the first item by default
         self.on_menu_clicked(0)

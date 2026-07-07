@@ -195,6 +195,7 @@ class ParetoLogEntryModel:
         comment: Description or root cause of the loss.
         inputs: Planned or target input value (e.g. '500 units' or '8.0 hrs').
         outputs: Actual output achieved (e.g. '420 units' or '6.5 hrs').
+        state: Current status/state of the issue (e.g. 'Open', 'In Progress', 'Resolved').
     """
 
     date: str
@@ -202,6 +203,7 @@ class ParetoLogEntryModel:
     comment: str
     inputs: str
     outputs: str
+    state: str = "Open"
 
 
 @dataclass
@@ -219,4 +221,61 @@ class ParetoLogTableModel:
     entries: List[ParetoLogEntryModel] = field(default_factory=list)
 
 
+@dataclass
+class ParetoCategoryEntryModel:
+    """Single entry for a Pareto category definition.
 
+    Attributes:
+        category: Name of the loss category (e.g. 'Machine Breakdown').
+        description: Detailed explanation of what falls under this category.
+    """
+
+    category: str
+    description: str
+
+
+@dataclass
+class ParetoCategoryTableModel:
+    """Data model for a Pareto category reading/reference table.
+
+    Attributes:
+        title: Table title (e.g. 'Pareto Loss Categories & Descriptions').
+        entries: List of ParetoCategoryEntryModel items.
+    """
+
+    title: str
+    entries: List[ParetoCategoryEntryModel] = field(default_factory=list)
+
+
+@dataclass
+class ParetoLogCreateEntryModel:
+    """Single log entry for Pareto loss creation / logging (without State column).
+
+    Attributes:
+        date: Date of the logged incident (e.g. '07/02').
+        category: Pareto loss category (e.g. 'Machine Breakdown').
+        comment: Description or root cause of the loss.
+        inputs: Planned or target input value (e.g. '500 units').
+        outputs: Actual output achieved (e.g. '420 units').
+    """
+
+    date: str
+    category: str
+    comment: str
+    inputs: str = ""
+    outputs: str = ""
+
+
+@dataclass
+class ParetoLogCreateTableModel:
+    """Data model for Pareto Table Create (Incident & Loss Log without State column).
+
+    Attributes:
+        title: Table title (e.g. 'Pareto Loss Creation Log').
+        principal: Responsible person / user logger.
+        entries: List of ParetoLogCreateEntryModel items.
+    """
+
+    title: str
+    principal: str
+    entries: List[ParetoLogCreateEntryModel] = field(default_factory=list)
