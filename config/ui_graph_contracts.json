@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UI Graph Contracts Schema",
+  "description": "Static CI contract specification defining required data structures, keys, and validation rules for every graph used in the dashboard.",
+  "graphs": {
+    "burndown_curve": {
+      "type": "xy_line_chart",
+      "description": "Tracks remaining agile points vs ideal burndown over time.",
+      "required_fields": [
+        {
+          "name": "date",
+          "type": "string_iso8601",
+          "description": "ISO-8601 formatted date string (e.g., '2026-07-01')."
+        },
+        {
+          "name": "remaining_points",
+          "type": "float",
+          "min_value": 0.0,
+          "description": "Actual backlog points remaining at this timestamp."
+        },
+        {
+          "name": "ideal_points",
+          "type": "float",
+          "min_value": 0.0,
+          "description": "Target/ideal burndown baseline points at this timestamp."
+        }
+      ]
+    },
+    "first_time_yield_gauge": {
+      "type": "gauge",
+      "description": "Displays the First Time Yield (FTY) quality percentage.",
+      "required_fields": [
+        {
+          "name": "fty_percentage",
+          "type": "float",
+          "min_value": 0.0,
+          "max_value": 100.0,
+          "description": "First time yield quality pass percentage (0.0 to 100.0)."
+        }
+      ]
+    },
+    "tickets_per_day_chart": {
+      "type": "bar_chart",
+      "description": "Bar chart tracking completed/merged tickets per day or sprint.",
+      "required_fields": [
+        {
+          "name": "day_label",
+          "type": "string",
+          "description": "Day or time period label (e.g., 'Mon', 'Tue', 'W1')."
+        },
+        {
+          "name": "tickets_merged",
+          "type": "integer",
+          "min_value": 0,
+          "description": "Count of tickets merged/completed during this period."
+        }
+      ]
+    },
+    "safety_avg_chart": {
+      "type": "bar_chart",
+      "description": "Bar chart tracking weekly average safety scores and physiological audit averages.",
+      "required_fields": [
+        {
+          "name": "time_period",
+          "type": "string",
+          "description": "Time period identifier (e.g., 'Sprint 1', 'Week 12')."
+        },
+        {
+          "name": "safety_avg_score",
+          "type": "float",
+          "min_value": 0.0,
+          "max_value": 100.0,
+          "description": "Overall average safety compliance score (0.0 to 100.0)."
+        },
+        {
+          "name": "avg_incidents",
+          "type": "float",
+          "min_value": 0.0,
+          "description": "Average number of incidents per period."
+        },
+        {
+          "name": "avg_near_misses",
+          "type": "float",
+          "min_value": 0.0,
+          "description": "Average number of near misses per period."
+        }
+      ]
+    }
+  }
+}

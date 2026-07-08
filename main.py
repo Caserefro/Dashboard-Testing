@@ -1,6 +1,6 @@
 """
-test_sidebar.py — Collapsible Sidebar Demo & Graphic Widget Integration
-=======================================================================
+main.py — Dashboard Testing Main Application Entry Point
+========================================================
 
 Loads `Dashboard_Testing.ui` (from Qt Designer) and implements:
 1. **Sidebar Collapse & Expand**: Toggles between the compact icon-only
@@ -13,7 +13,7 @@ Loads `Dashboard_Testing.ui` (from Qt Designer) and implements:
    UI container (`widget_3`) using a `QStackedWidget`.
 
 Usage:
-    python test_sidebar.py
+    python main.py
 """
 
 import sys
@@ -58,6 +58,7 @@ from components.tables.safety.safety_question_widget import SafetyAnswerWidget, 
 from components.tables.guide_table import TextGuideTable
 from components.selection_widget import DynamicSelectWidget
 from components.dashboard_grid import ScrollableDashboardGrid, GridItemConfig
+from components.json_viewer_widget import JsonContractViewerWidget
 
 # Mock data generators
 from tools.component_gallery import (
@@ -77,7 +78,7 @@ from tools.component_gallery import (
 )
 
 
-class SidebarDemoApp(QMainWindow):
+class MainDashboardApp(QMainWindow):
     """Demonstration app combining the Qt Designer UI and SOLID graphic widgets.
 
     Features:
@@ -94,7 +95,7 @@ class SidebarDemoApp(QMainWindow):
         ui_path = os.path.join(os.path.dirname(__file__), "Dashboard_Testing.ui")
         uic.loadUi(ui_path, self)
 
-        self.setWindowTitle("ProliverMaps — Collapsible Sidebar & Scrollable Dashboard Grids")
+        self.setWindowTitle("Dashboard Testing — Collapsible Sidebar & Scrollable Dashboard Grids")
 
         # ── 1. Initialize Sidebar State (Start Collapsed) ──
         # menu_S = small icon-only menu (width 90)
@@ -190,8 +191,9 @@ class SidebarDemoApp(QMainWindow):
         self.grid_pareto.add_widget(ParetoTableAdmin(generate_pareto_admin_table()), row=1, col=0, col_span=2, min_height=300)
         self.grid_pareto.add_widget(ParetoTable(generate_pareto_table()), row=2, col=0, col_span=2, min_height=400)
 
-        # ── PAGE 5: Calculations — Empty Screen ──
+        # ── PAGE 5: Calculations — CI Contract Viewer ──
         self.grid_calc = ScrollableDashboardGrid(columns=2)
+        self.grid_calc.add_widget(JsonContractViewerWidget(), row=0, col=0, col_span=2, min_height=680)
 
         # ── PAGE 6: Settings — Empty Screen ──
         self.grid_settings = ScrollableDashboardGrid(columns=2)
@@ -238,9 +240,13 @@ class SidebarDemoApp(QMainWindow):
                 self.content_stack.setCurrentIndex(i)
 
 
+# Backwards compatibility alias
+SidebarDemoApp = MainDashboardApp
+
+
 def main() -> None:
     app = QApplication(sys.argv)
-    win = SidebarDemoApp()
+    win = MainDashboardApp()
     win.show()
     sys.exit(app.exec_())
 
@@ -250,6 +256,7 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         import traceback
-        print(f"CRITICAL ERROR: Failed to launch Sidebar Demo.\nDetails: {e}")
+        print(f"CRITICAL ERROR: Failed to launch Main Dashboard Application.\nDetails: {e}")
         traceback.print_exc()
         sys.exit(1)
+
