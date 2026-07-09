@@ -93,6 +93,20 @@ class BurndownChartWidget(BaseChartWidget):
         cx, cy = rect.x(), rect.y()
         cw, ch = rect.width(), rect.height()
 
+        if not m.x_categories:
+            # Render elegant fallback/unsupported notice when Fiscal Weeks is not selected!
+            painter.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            painter.setPen(QColor("#D90429"))
+            painter.drawText(rect.adjusted(0, 40, 0, -40), Qt.AlignCenter, "Sprint Burndown Unavailable")
+            painter.setFont(QFont("Segoe UI", 9.5))
+            painter.setPen(QColor("#6C757D"))
+            painter.drawText(
+                rect.adjusted(30, 90, -30, 0),
+                Qt.AlignHCenter | Qt.AlignTop | Qt.TextWordWrap,
+                f"Sprint Burndown tracking is supported only under 'Fiscal Weeks' (FW) granularity.\n\nCurrently selected: '{m.title.split('—')[-1].strip() if '—' in m.title else 'Days'}'.\nPlease switch to Fiscal Weeks in the top filter bar above to view sprint glide paths and delta metrics."
+            )
+            return
+
         # 1 ─ Y gridlines (0 -> y_max, step 20, labels every 20)
         step = max(10.0, m.y_max / 5.0)
         self._draw_gridlines(painter, cx, cy, cw, ch, m.y_max, step, step)

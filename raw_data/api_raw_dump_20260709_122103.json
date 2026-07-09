@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "extractor_version": "1.0.0-docker",
+    "extracted_at_iso": "2026-07-09T12:21:03.935986+00:00",
+    "status": "SUCCESS_RAW_SNAPSHOT",
+    "environment": "Docker Sandbox Layer 1"
+  },
+  "raw_azure_devops_payload": {
+    "queryType": "flat",
+    "asOf": "2026-07-09T12:21:03.935994+00:00",
+    "workItems": [
+      {
+        "id": 1042,
+        "url": "https://dev.azure.com/dms-team/_apis/wit/workItems/1042"
+      },
+      {
+        "id": 1043,
+        "url": "https://dev.azure.com/dms-team/_apis/wit/workItems/1043"
+      },
+      {
+        "id": 1044,
+        "url": "https://dev.azure.com/dms-team/_apis/wit/workItems/1044"
+      }
+    ],
+    "rawFieldSamples": {
+      "1042": {
+        "System.Id": 1042,
+        "System.Title": "Implement OIDC login for DMS Extractor",
+        "System.State": "Active",
+        "System.WorkItemType": "User Story",
+        "Microsoft.VSTS.Scheduling.StoryPoints": 5.0
+      },
+      "1043": {
+        "System.Id": 1043,
+        "System.Title": "Fix Burndown Curve calculation rounding",
+        "System.State": "Resolved",
+        "System.WorkItemType": "Bug",
+        "Microsoft.VSTS.Scheduling.StoryPoints": 2.0
+      }
+    }
+  },
+  "raw_github_projects_payload": {
+    "data": {
+      "organization": {
+        "projectV2": {
+          "title": "DMS Sprint Board 2026",
+          "items": {
+            "nodes": [
+              {
+                "id": "PVTI_lADOB123456",
+                "fieldValues": {
+                  "nodes": [
+                    {
+                      "text": "Refactor Qt FTY Gauge widget",
+                      "field": {
+                        "name": "Title"
+                      }
+                    },
+                    {
+                      "name": "In Progress",
+                      "field": {
+                        "name": "Status"
+                      }
+                    },
+                    {
+                      "number": 3.0,
+                      "field": {
+                        "name": "Story Points"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

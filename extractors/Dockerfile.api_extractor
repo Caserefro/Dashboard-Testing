@@ -1,0 +1,31 @@
+# ==============================================================================
+# DMS Layer 1: API Extractor Docker Container Definition
+# ==============================================================================
+# This Dockerfile defines our Admin-Managed, Network-Enabled API Extractor.
+# Its sole purpose is querying raw Azure DevOps and GitHub APIs, authenticating
+# via OIDC or injected environment secrets, and dumping 100% raw JSON payloads
+# to the shared volume bridge (/app/raw_data).
+# ==============================================================================
+
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV RAW_DATA_OUTPUT_DIR=/app/raw_data
+
+# Create application directory and raw data output directory
+WORKDIR /app
+RUN mkdir -p /app/raw_data
+
+# Copy extractor script into container
+COPY api_extractor.py /app/api_extractor.py
+
+# Create non-root user for execution safety
+RUN useradd -u 10001 -m extractor_user && \
+    chown -R extractor_user:extractor_user /app
+
+USER extractor_user
+
+# Run extraction script when container launches
+ENTRYPOINT ["python", "/app/api_extractor.py"]
