@@ -6,30 +6,12 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont, QPainter
 from PyQt5.QtCore import Qt, pyqtSignal
 
-from components.base import BaseGraphicWidget
+from components.base import BaseGraphicContainer
 from components.theme import HEADER_CLR, SUBTEXT
+from models.query_models import PeriodQueryModel
 
 
-@dataclass
-class PeriodQueryModel:
-    """
-    Immutable query data model emitted by PeriodFilterWidget when the user clicks 'Update Dashboard'.
-    
-    Attributes:
-        granularity: 'Fiscal Weeks' or 'Days' (or parameter choice)
-        period_window: e.g., 'Q3 (Weeks 27–39)' or 'July (Days 1–31)'
-        fiscal_year: e.g., 'FY 2026'
-        team_selection: e.g., 'Cell 4 (Assembly)' or 'Lobby: XR9-8B2'
-        room_code: Optional 6-8 char room code if joined via Among Us style room code
-    """
-    granularity: str
-    period_window: str
-    fiscal_year: str
-    team_selection: str
-    room_code: Optional[str] = None
-
-
-class PeriodFilterWidget(BaseGraphicWidget):
+class PeriodFilterWidget(BaseGraphicContainer):
     """
     Domain-Specific Period, Timeframe & Team Scope Query Widget (100% Parameterized & Reusable).
     
@@ -257,7 +239,12 @@ class PeriodFilterWidget(BaseGraphicWidget):
         self.btn_update.clicked.connect(self._emit_query)
         layout.addWidget(self.btn_update, alignment=Qt.AlignBottom)
 
-        # Populate combo_window initially
+        # Connect dropdown changes for immediate real-time reactivity (granularity handled by _on_granularity_changed)
+        self.combo_window.currentIndexChanged.connect(lambda _: self._emit_query())
+        self.combo_year.currentIndexChanged.connect(lambda _: self._emit_query())
+        self.combo_team.currentIndexChanged.connect(lambda _: self._emit_query())
+
+        # Populate combo_window initially (which calls _emit_query cleanly once)
         self._on_granularity_changed(0)
 
     def _combo_stylesheet(self) -> str:
@@ -283,10 +270,13 @@ class PeriodFilterWidget(BaseGraphicWidget):
     def _on_granularity_changed(self, idx: int) -> None:
         """Cascading logic: populate time window dropdown based on Granularity selection from options_map."""
         granularity = self.combo_granularity.currentText()
+        self.combo_window.blockSignals(True)
         self.combo_window.clear()
         items = self.options_map.get(granularity, [])
         if items:
             self.combo_window.addItems(items)
+        self.combo_window.blockSignals(False)
+        self._emit_query()
 
     def _on_join_room_clicked(self) -> None:
         """Among Us / Lobby style room code joining logic."""
@@ -309,6 +299,8 @@ class PeriodFilterWidget(BaseGraphicWidget):
 
     def _emit_query(self) -> None:
         """Build and emit the PeriodQueryModel."""
+        if not self.combo_window.currentText() or not self.combo_granularity.currentText():
+            return
         team_text = self.combo_team.currentText()
         room_code = None
         if team_text.startswith("Lobby: "):

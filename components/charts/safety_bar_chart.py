@@ -37,7 +37,7 @@ _SEGMENT_COLORS = [
 ]
 
 
-class SafetyBarChartWidget(BaseChartWidget):
+class SafetyBarChartWidget(BaseChartWidget[SafetyBarChartModel]):
     """Stacked safety bar chart with binary threshold outer edges.
 
     Parameters
@@ -53,21 +53,15 @@ class SafetyBarChartWidget(BaseChartWidget):
         model: SafetyBarChartModel,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super().__init__(parent)
-        self._model: SafetyBarChartModel = model
-
-    def set_data(self, model: SafetyBarChartModel) -> None:
-        """Replace the current data model and repaint."""
-        self._model = model
-        self.update()
+        super().__init__(model, parent)
 
     def get_title(self) -> str:
         """Return the title from the current model."""
-        return self._model.title
+        return self.model.title
 
     def draw_chart(self, painter: QPainter, rect: QRectF) -> None:
         """Render gridlines, target line, stacked bars with outer pillars, labels, and legend."""
-        m = self._model
+        m = self.model
         cx, cy = rect.x(), rect.y()
         cw, ch = rect.width(), rect.height()
         n = len(m.categories)
@@ -140,7 +134,7 @@ class SafetyBarChartWidget(BaseChartWidget):
 
     def _draw_legend(self, p: QPainter, chart_rect: QRectF) -> None:
         """Draw threshold meanings and 4 stacked metric swatches at top right."""
-        m = self._model
+        m = self.model
         card_rect = QRectF(4, 4, self.width() - 10, self.height() - 10)
         p.setFont(QFont("Segoe UI", 7, QFont.Bold))
         bx = 10  # swatch size

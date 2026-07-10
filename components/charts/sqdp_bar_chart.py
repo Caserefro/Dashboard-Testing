@@ -34,19 +34,19 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QFont, QPen, QLinearGradient
 from PyQt5.QtCore import Qt, QRectF, QPointF
 
-from components.theme import GREEN, RED, HEADER_CLR
+from components.theme import GREEN, RED, HEADER_CLR, GRID_LINE
 from models.chart_models import BarChartModel
 
 from .base_chart import BaseChartWidget
 
 
-class SqdpBarChartWidget(BaseChartWidget):
+class SqdpBarChartWidget(BaseChartWidget[BarChartModel]):
     """Bar chart coloured by binary target threshold (Green vs Red).
 
     Parameters
     ----------
     model : BarChartModel
-        Pre-computed data to render.  Can be replaced later via
+        Pre-computed data to render. Can be replaced later via
         :meth:`set_data`.
     parent : QWidget | None
         Optional Qt parent widget.
@@ -57,27 +57,13 @@ class SqdpBarChartWidget(BaseChartWidget):
         model: BarChartModel,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super().__init__(parent)
-        self._model: BarChartModel = model
-
-    # ── public API ──────────────────────────────────────────────
-
-    def set_data(self, model: BarChartModel) -> None:
-        """Replace the current data model and repaint.
-
-        Parameters
-        ----------
-        model : BarChartModel
-            New data to render.
-        """
-        self._model = model
-        self.update()
+        super().__init__(model, parent)
 
     # ── BaseChartWidget hooks ───────────────────────────────────
 
     def get_title(self) -> str:
         """Return the title from the current model."""
-        return self._model.title
+        return self.model.title
 
     def draw_chart(self, painter: QPainter, rect: QRectF) -> None:
         """Render gridlines, threshold, bars, labels, and legend.
@@ -89,44 +75,35 @@ class SqdpBarChartWidget(BaseChartWidget):
         rect : QRectF
             Data area inside the card margins.
         """
-        m = self._model
+        m = self.model
         cx, cy = rect.x(), rect.y()
         cw, ch = rect.width(), rect.height()
         n = len(m.values)
         if n == 0:
             return
 
-        # 1 ─ Y gridlines  (0 → y_max, step 0.1, labels every 0.2)
-        self._draw_gridlines(painter, cx, cy, cw, ch, m.y_max, 0.1, 0.2)
+        # 1 ─ Y gridlines  (0 → y_max, step 0.2, labels every 0.2)
+        self._draw_gridlines(painter, cx, cy, cw, ch, m.y_max, 0.2, 0.2)
 
-        # 2 ─ target threshold dashed line
-        yy = cy + ch - (m.target_threshold / m.y_max) * ch
-        painter.setPen(QPen(GREEN, 1.8, Qt.DashLine))
-        painter.drawLine(QPointF(cx, yy), QPointF(cx + cw, yy))
+        slot_w = cw / n
 
-        # 3 ─ bars with binary gradient fill (Green vs Red)
-        bar_area = cw / n
-        bar_w = bar_area * 0.65
+        # 2 ─ Target threshold dashed line
+        th_y = cy + ch - (m.target_threshold / m.y_max) * ch
+        painter.setPen(QPen(GRID_LINE, 1, Qt.DashLine))
+        painter.drawLine(QPointF(cx, th_y), QPointF(cx + cw, th_y))
 
-        for i, v in enumerate(m.values):
-            bx = cx + i * bar_area + (bar_area - bar_w) / 2
-            bh = (v / m.y_max) * ch
+        # 3 ─ Coloured bars
+        bar_w = slot_w * 0.55
+        for i, val in enumerate(m.values):
+            bx = cx + i * slot_w + (slot_w - bar_w) / 2
+            bh = (val / m.y_max) * ch
             by = cy + ch - bh
-            bar_rect = QRectF(bx, by, bar_w, bh)
-
-            if v >= m.target_threshold:
-                colour = GREEN
-            else:
-                colour = RED
-
-            grad = QLinearGradient(QPointF(bx, by), QPointF(bx, by + bh))
-            grad.setColorAt(0, colour.lighter(115))
-            grad.setColorAt(1, colour)
-            painter.setBrush(grad)
+            colour = GREEN if val >= m.target_threshold else RED
+            painter.setBrush(colour)
             painter.setPen(Qt.NoPen)
-            painter.drawRoundedRect(bar_rect, 2, 2)
+            painter.drawRoundedRect(QRectF(bx, by, bar_w, bh), 3, 3)
 
-        # 4 ─ x-axis category labels
+        # 4 ─ X category labels + axis title
         self._draw_x_labels(painter, cx, cy + ch, cw, m.categories, m.x_label)
 
         # 5 ─ legend
@@ -136,7 +113,7 @@ class SqdpBarChartWidget(BaseChartWidget):
 
     def _draw_legend(self, p: QPainter, chart_rect: QRectF) -> None:
         """Draw binary threshold-colour legend swatches at the top of the card."""
-        m = self._model
+        m = self.model
         card_rect = QRectF(4, 4, self.width() - 10, self.height() - 10)
         p.setFont(QFont("Segoe UI", 7, QFont.Bold))
         bx = 10  # swatch size

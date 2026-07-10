@@ -5,14 +5,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont, QPainter, QColor
 from PyQt5.QtCore import Qt, pyqtSignal
 
-from components.base import BaseGraphicWidget
+from components.base import BaseGraphicContainer
 from components.charts.sqdp_bar_chart import SqdpBarChartWidget
 from components.charts.safety_bar_chart import SafetyBarChartWidget
 from models.chart_models import BarChartModel
 from tools.component_gallery import generate_bar_chart, generate_safety_bar_chart
 
 
-class SqdpAspectChartWidget(BaseGraphicWidget):
+class SqdpAspectChartWidget(BaseGraphicContainer):
     """
     Self-Contained SQDP Aspect Analysis & Chart Container.
     

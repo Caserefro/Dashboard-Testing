@@ -15,10 +15,12 @@ from .base_sqdp import BaseSqdpWidget
 from .sprint_1w_sqdp import Sprint1WSqdpWidget
 from .sprint_2w_sqdp import Sprint2WSqdpWidget
 from .daily_sqdp import DailySqdpWidget
+from .sqdp_board_widget import SqdpBoardWidget
 
 __all__ = [
     "BaseSqdpWidget",
     "Sprint1WSqdpWidget",
     "Sprint2WSqdpWidget",
     "DailySqdpWidget",
+    "SqdpBoardWidget",
 ]

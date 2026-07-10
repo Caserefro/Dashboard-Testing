@@ -28,6 +28,7 @@ from PyQt5.QtGui import QPainter, QFont, QPen, QColor, QPolygonF
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from components.tables.base_table import BaseTableWidget
 from models.table_models import ParetoLogTableModel
+from models.time_context import TimeSpanContext
 from components.theme import (
     ADMIN_GOLD_HDR_BG,
     ADMIN_GOLD_BORDER,
@@ -48,6 +49,15 @@ class ParetoTableAdmin(BaseTableWidget[ParetoLogTableModel]):
     def __init__(self, model: ParetoLogTableModel, parent: Optional[Any] = None) -> None:
         super().__init__(model, parent)
         self._badge_map: dict[str, QColor] = {}
+
+    def on_time_period_changed(self, ctx: TimeSpanContext) -> None:
+        """Subscriber Slot: update table title based on active time context."""
+        new_model = ParetoLogTableModel(
+            title=f"Pareto Loss Log Admin — {ctx.team_scope} ({ctx.window_label})",
+            principal=self.model.principal,
+            entries=self.model.entries
+        )
+        self.set_data(new_model)
 
     def _badge_colour(self, category: str) -> QColor:
         if category not in self._badge_map:

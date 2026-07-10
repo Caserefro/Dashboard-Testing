@@ -57,6 +57,7 @@ from models.table_models import (
 from components.sqdp.sprint_1w_sqdp import Sprint1WSqdpWidget
 from components.sqdp.sprint_2w_sqdp import Sprint2WSqdpWidget
 from components.sqdp.daily_sqdp import DailySqdpWidget
+from components.sqdp.sqdp_board_widget import SqdpBoardWidget
 from components.charts.sqdp_bar_chart import SqdpBarChartWidget
 from components.charts.progress_bar_chart import ProgressBarChartWidget
 from components.charts.burndown_chart import BurndownChartWidget
@@ -300,6 +301,7 @@ def create_demo_grid() -> ScrollableDashboardGrid:
 COMPONENT_REGISTRY = [
     # (display_name, icon_emoji, factory_function)
     # ── SQDP Family ──
+    ("SQDP Unified Board Widget (Dynamic 13/31-cell)", "sqdp", lambda: SqdpBoardWidget(generate_sqdp_board("daily"))),
     ("SQDP Sprint 1 Week",    "sqdp",  lambda: Sprint1WSqdpWidget(generate_sqdp_board("sprint_1w"))),
     ("SQDP Sprints / Quarter (13 Weeks)", "sqdp", lambda: Sprint2WSqdpWidget(generate_sqdp_board("sprint_2w"))),
     ("SQDP Daily (31 cells)", "sqdp",  lambda: DailySqdpWidget(generate_sqdp_board("daily"))),

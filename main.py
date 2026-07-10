@@ -39,9 +39,12 @@ except ImportError:
 from models.sqdp_models import SqdpBoardModel
 from models.chart_models import BarChartModel, ProgressBarChartModel, BurndownChartModel
 from models.table_models import ParetoTableModel, ParetoLogTableModel, SafetyTableModel, SafetySummaryTableModel
+from models.time_context import TimeSpanContext
+from services.time_registry import time_registry
 from components.sqdp.sprint_1w_sqdp import Sprint1WSqdpWidget
 from components.sqdp.sprint_2w_sqdp import Sprint2WSqdpWidget
 from components.sqdp.daily_sqdp import DailySqdpWidget
+from components.sqdp.sqdp_board_widget import SqdpBoardWidget
 from components.charts.sqdp_bar_chart import SqdpBarChartWidget
 from components.charts.sqdp_aspect_chart import SqdpAspectChartWidget
 from components.charts.progress_bar_chart import ProgressBarChartWidget
@@ -137,37 +140,39 @@ class MainDashboardApp(QMainWindow):
         # Widget_Area is the main content container in Dashboard_Testing.ui inside widget_5
         layout = QVBoxLayout(self.Widget_Area)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
         
+        # ── Global Pinned Timeframe & Scope Filter (Visible on ALL Tabs) ──
+        self.global_filter = PeriodFilterWidget()
+        self.global_filter.query_changed.connect(self._on_home_filter_changed)
+        layout.addWidget(self.global_filter)
+
         self.content_stack = QStackedWidget()
         layout.addWidget(self.content_stack)
 
         # ── PAGE 0: Home — Where ALL the graphs exist ──
         self.grid_home = ScrollableDashboardGrid(columns=2)
-        # Row 0: Global Timeframe / Period Filter
-        self.filter_home = PeriodFilterWidget()
-        self.filter_home.query_changed.connect(self._on_home_filter_changed)
-        self.grid_home.add_widget(self.filter_home, row=0, col=0, col_span=2, min_height=100)
-        # Row 1: SQDP Board
-        self.sqdp_board_home = Sprint1WSqdpWidget(generate_sqdp_board("sprint_1w"))
-        self.grid_home.add_widget(self.sqdp_board_home, row=1, col=0, col_span=2, min_height=210)
-        # Row 2: Interactive SQDP Aspect Chart (Full Width across 2 columns)
+        # Row 0: Unified SQDP Board (Dynamic 13/31 cells with TimeAware)
+        self.sqdp_board_home = SqdpBoardWidget(generate_sqdp_board("daily"))
+        self.grid_home.add_widget(self.sqdp_board_home, row=0, col=0, col_span=2, min_height=210)
+        # Row 1: Interactive SQDP Aspect Chart (Full Width across 2 columns)
         self.aspect_chart_home = SqdpAspectChartWidget()
-        self.grid_home.add_widget(self.aspect_chart_home, row=2, col=0, col_span=2, min_height=420)
-        # Row 3: Efficiency & Progress Combo Chart (Full Width across 2 columns)
+        self.grid_home.add_widget(self.aspect_chart_home, row=1, col=0, col_span=2, min_height=620)
+        # Row 2: Efficiency & Progress Combo Chart (Full Width across 2 columns)
         self.progress_home = ProgressBarChartWidget(generate_progress_chart())
-        self.grid_home.add_widget(self.progress_home, row=3, col=0, col_span=2, min_height=380)
-        # Row 4: Burndown Curve Chart (Full Width across 2 columns)
+        self.grid_home.add_widget(self.progress_home, row=2, col=0, col_span=2, min_height=380)
+        # Row 3: Burndown Curve Chart (Full Width across 2 columns)
         self.burndown_home = BurndownChartWidget(generate_burndown_chart())
-        self.grid_home.add_widget(self.burndown_home, row=4, col=0, col_span=2, min_height=380)
-        # Row 5: Revamped Safety Table Dashboard across bottom (Summary Table)
+        self.grid_home.add_widget(self.burndown_home, row=3, col=0, col_span=2, min_height=380)
+        # Row 4: Revamped Safety Table Dashboard across bottom (Summary Table)
         self.safety_summary_home = SafetyTableDashboard(generate_safety_summary_table())
-        self.grid_home.add_widget(self.safety_summary_home, row=5, col=0, col_span=2, min_height=140)
-        # Row 6: Pareto Table (Dashboard Loss Analysis)
+        self.grid_home.add_widget(self.safety_summary_home, row=4, col=0, col_span=2, min_height=140)
+        # Row 5: Pareto Table (Dashboard Loss Analysis)
         self.pareto_home = ParetoTable(generate_pareto_table())
-        self.grid_home.add_widget(self.pareto_home, row=6, col=0, col_span=2, min_height=465)
-        # Row 7: Pareto Table Admin (Yellow Loss Log with Date, Category, Comment!)
+        self.grid_home.add_widget(self.pareto_home, row=5, col=0, col_span=2, min_height=465)
+        # Row 6: Pareto Table Admin (Yellow Loss Log with Date, Category, Comment!)
         self.pareto_admin_home = ParetoTableAdmin(generate_pareto_admin_table())
-        self.grid_home.add_widget(self.pareto_admin_home, row=7, col=0, col_span=2, min_height=360)
+        self.grid_home.add_widget(self.pareto_admin_home, row=6, col=0, col_span=2, min_height=360)
 
         # ── PAGE 1: Data — Empty Screen ──
         self.grid_data = ScrollableDashboardGrid(columns=2)
@@ -176,25 +181,15 @@ class MainDashboardApp(QMainWindow):
         self.grid_users = ScrollableDashboardGrid(columns=2)
 
         # ── PAGE 3: Safety — Complete Physiological Assessment View ──
-        # ── PAGE 2: Safety — Assessment View ──
         self.grid_safety = ScrollableDashboardGrid(columns=2)
-
-        # Row 0: Timeframe Selector
-        self.grid_safety.add_widget(PeriodFilterWidget(), row=0, col=0, col_span=2, min_height=100)
-        # Row 1: Safety Table Dashboard
-        self.grid_safety.add_widget(SafetyTableDashboard(generate_safety_summary_table()), row=1, col=0, col_span=2,
-                                    min_height=140)
-        # Row 2: Questionnaire
-        self.grid_safety.add_widget(SafetyAnswerWidget(generate_safety_questionnaire(already_filled=False)), row=2,
-                                    col=0, col_span=2, min_height=350)
-        # Row 3: Admin Concern Log
-        self.grid_safety.add_widget(SafetyTableAdmin(generate_safety_table()), row=3, col=0, col_span=2, min_height=360)
-
-        # ✅ Row 4: Safety Bar Chart (Full Width)
-        self.grid_safety.add_widget(
-            SafetyBarChartWidget(generate_safety_bar_chart()),
-            row=4, col=0, col_span=2, min_height=380
-        )
+        # Row 0: Safety Table Dashboard
+        self.grid_safety.add_widget(SafetyTableDashboard(generate_safety_summary_table()), row=0, col=0, col_span=2, min_height=140)
+        # Row 1: Questionnaire
+        self.grid_safety.add_widget(SafetyAnswerWidget(generate_safety_questionnaire(already_filled=False)), row=1, col=0, col_span=2, min_height=350)
+        # Row 2: Admin Concern Log
+        self.grid_safety.add_widget(SafetyTableAdmin(generate_safety_table()), row=2, col=0, col_span=2, min_height=360)
+        # Row 3: Safety Bar Chart (Full Width)
+        self.grid_safety.add_widget(SafetyBarChartWidget(generate_safety_bar_chart()), row=3, col=0, col_span=2, min_height=380)
 
         # ── PAGE 4: Pareto — Loss Analysis & Audit Log ──
         self.grid_pareto = ScrollableDashboardGrid(columns=2)
@@ -225,6 +220,9 @@ class MainDashboardApp(QMainWindow):
         # Select the first item by default
         self.on_menu_clicked(0)
 
+        # Broadcast initial filter state to synchronize all subscribed widgets
+        self.global_filter._emit_query()
+
     def toggle_sidebar(self) -> None:
         """Toggle between collapsed (menu_S) and expanded (menu_B) sidebar."""
         if self.is_expanded:
@@ -254,52 +252,9 @@ class MainDashboardApp(QMainWindow):
         """Reactive Slot: dynamically refreshes Home tab widgets when time or team query changes."""
         print(f"[UI REACTIVE LOOP] Updating Home Dashboard -> Granularity: {query.granularity} | Window: {query.period_window} | Scope: {query.team_selection}")
         
-        # 1. Dynamically adapt Burndown curve X-axis and baseline based on selected time window!
-        if query.granularity == "Fiscal Weeks":
-            new_burndown = BurndownChartModel(
-                title=f"Burndown Curve ({query.period_window}) — {query.team_selection}",
-                x_label="Quarter Progress (Fiscal Weeks)",
-                y_label="Remaining Backlog Points",
-                x_categories=["W1", "W3", "W5", "W7", "W9", "W11", "W13"],
-                x_smooth=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
-                line_master=[500.0, 400.0, 300.0, 200.0, 100.0, 0.0],
-                x_live=[0.0, 0.2, 0.4],
-                y_live=[500.0, 420.0, 310.0],
-                x_future=[0.4, 0.6, 0.8, 1.0],
-                line_slip=[310.0, 220.0, 130.0, 40.0],
-                line_catchup=[310.0, 200.0, 100.0, 0.0],
-                y_max=550.0,
-                deadline_delta=40.0
-            )
-        else:
-            new_burndown = BurndownChartModel(
-                title=f"Burndown Curve ({query.period_window}) — {query.team_selection}",
-                x_label="Sprint Burndown Unavailable",
-                y_label="",
-                x_categories=[],
-                x_smooth=[],
-                line_master=[],
-                x_live=[],
-                y_live=[],
-                x_future=[],
-                line_slip=[],
-                line_catchup=[],
-                y_max=100.0,
-                deadline_delta=0.0
-            )
-        self.burndown_home.set_data(new_burndown)
-        
-        # 2. Update Progress Chart Title & Targets to match exact room code/team!
-        new_progress = ProgressBarChartModel(
-            title=f"Efficiency & Progress Ratio — {query.team_selection} ({query.fiscal_year})",
-            x_label="Sectors / Work Cells",
-            categories=["Cell A", "Cell B", "Cell C", "Cell D", "Cell E", "Cell F"],
-            bar_values=[0.92, 0.88, 0.95, 0.84, 0.91, 0.96],
-            line_completed=[0.90, 0.85, 0.94, 0.82, 0.89, 0.95],
-            line_total=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-            y_max=1.0
-        )
-        self.progress_home.set_data(new_progress)
+        # Broadcast new time context to all subscribed widgets via TimePeriodRegistry!
+        ctx = TimeSpanContext.from_query(query)
+        time_registry.broadcast_period(ctx)
 
 
 # Backwards compatibility alias

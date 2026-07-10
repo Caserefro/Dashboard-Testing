@@ -17,6 +17,10 @@ time_range
     ``'daily'`` (31 cells), ``'sprint_1w'`` (7), ``'sprint_2w'`` (14).
 """
 
+# Time context & query models
+from .query_models import PeriodQueryModel
+from .time_context import TimeSpanContext
+
 # SQDP board models
 from .sqdp_models import SqdpLetterModel, SqdpBoardModel
 
@@ -35,6 +39,9 @@ from .table_models import (
 )
 
 __all__ = [
+    # Time context & queries
+    "PeriodQueryModel",
+    "TimeSpanContext",
     # SQDP
     "SqdpLetterModel",
     "SqdpBoardModel",

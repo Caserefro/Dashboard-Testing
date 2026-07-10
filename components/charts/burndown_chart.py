@@ -31,6 +31,8 @@ from PyQt5.QtCore import Qt, QRectF, QPointF
 
 from components.theme import HEADER_CLR, SUBTEXT
 from models.chart_models import BurndownChartModel
+from models.time_context import TimeSpanContext
+from components.mixins import TimeAware
 from .base_chart import BaseChartWidget
 
 
@@ -40,7 +42,7 @@ _SLIP_CLR = QColor("#F4A261")
 _CATCHUP_CLR = QColor("#1D3557")
 
 
-class BurndownChartWidget(BaseChartWidget):
+class BurndownChartWidget(BaseChartWidget[BurndownChartModel], TimeAware):
     """Approximating Burndown Curve chart component.
 
     Parameters
@@ -57,27 +59,65 @@ class BurndownChartWidget(BaseChartWidget):
         model: BurndownChartModel,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super().__init__(parent)
-        self._model: BurndownChartModel = model
+        super().__init__(model, parent)
 
-    # ── public API ──────────────────────────────────────────────
+    def on_time_period_changed(self, ctx: TimeSpanContext) -> None:
+        """Subscriber Slot: autonomously update burndown curve when active time period changes."""
+        if not ctx.is_sprint_capable:
+            fallback_model = BurndownChartModel(
+                title=f"Burndown Curve ({ctx.window_label}) — {ctx.team_scope}",
+                x_label="Sprint Burndown Unavailable",
+                y_label="",
+                x_categories=[],
+                x_smooth=[],
+                line_master=[],
+                x_live=[],
+                y_live=[],
+                x_future=[],
+                line_slip=[],
+                line_catchup=[],
+                y_max=100.0,
+                deadline_delta=0.0
+            )
+            self.set_data(fallback_model)
+        else:
+            active_categories = ctx.valid_sub_intervals
+            # Build adaptive burndown model matching valid_sub_intervals
+            n = len(active_categories)
+            smooth = [i / (n - 1) if n > 1 else 0.0 for i in range(n)]
+            master = [500.0 * (1.0 - i / (n - 1)) if n > 1 else 0.0 for i in range(n)]
+            
+            live_len = max(1, n // 2)
+            live_x = smooth[:live_len]
+            live_y = [500.0, 420.0, 310.0, 240.0, 180.0, 120.0, 60.0][:live_len] if live_len <= 7 else master[:live_len]
+            
+            future_x = smooth[live_len - 1:]
+            last_y = live_y[-1] if live_y else 310.0
+            slip_y = [last_y - (last_y - 40.0) * (i / (len(future_x) - 1)) if len(future_x) > 1 else last_y for i in range(len(future_x))]
+            catchup_y = [last_y * (1.0 - i / (len(future_x) - 1)) if len(future_x) > 1 else 0.0 for i in range(len(future_x))]
 
-    def set_data(self, model: BurndownChartModel) -> None:
-        """Replace the current data model and repaint.
-
-        Parameters
-        ----------
-        model : BurndownChartModel
-            New burndown data to render.
-        """
-        self._model = model
-        self.update()
+            new_model = BurndownChartModel(
+                title=f"Burndown Curve ({ctx.window_label}) — {ctx.team_scope}",
+                x_label="Quarter Progress (Fiscal Weeks)",
+                y_label="Remaining Backlog Points",
+                x_categories=active_categories,
+                x_smooth=smooth,
+                line_master=master,
+                x_live=live_x,
+                y_live=live_y,
+                x_future=future_x,
+                line_slip=slip_y,
+                line_catchup=catchup_y,
+                y_max=550.0,
+                deadline_delta=40.0
+            )
+            self.set_data(new_model)
 
     # ── BaseChartWidget hooks ───────────────────────────────────
 
     def get_title(self) -> str:
         """Return the title from the current model."""
-        return self._model.title
+        return self.model.title
 
     def draw_chart(self, painter: QPainter, rect: QRectF) -> None:
         """Render gridlines, curves, checkpoints, labels, legend, and callouts.
@@ -89,7 +129,7 @@ class BurndownChartWidget(BaseChartWidget):
         rect : QRectF
             Data area inside the card margins.
         """
-        m = self._model
+        m = self.model
         cx, cy = rect.x(), rect.y()
         cw, ch = rect.width(), rect.height()
 

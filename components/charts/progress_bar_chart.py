@@ -38,20 +38,21 @@ from PyQt5.QtCore import Qt, QRectF, QPointF
 
 from components.theme import ACCENT_BLUE, HEADER_CLR
 from models.chart_models import ProgressBarChartModel
-
+from models.time_context import TimeSpanContext
+from components.mixins import TimeAware
 from .base_chart import BaseChartWidget
 
 
 _COMPLETED_CLR = QColor("#212121")
 
 
-class ProgressBarChartWidget(BaseChartWidget):
+class ProgressBarChartWidget(BaseChartWidget[ProgressBarChartModel], TimeAware):
     """Combo chart with blue bars and two tracking lines.
 
     Parameters
     ----------
     model : ProgressBarChartModel
-        Pre-computed data to render.  Can be replaced later via
+        Pre-computed data to render. Can be replaced later via
         :meth:`set_data`.
     parent : QWidget | None
         Optional Qt parent widget.
@@ -62,27 +63,27 @@ class ProgressBarChartWidget(BaseChartWidget):
         model: ProgressBarChartModel,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super().__init__(parent)
-        self._model: ProgressBarChartModel = model
+        super().__init__(model, parent)
 
-    # ── public API ──────────────────────────────────────────────
-
-    def set_data(self, model: ProgressBarChartModel) -> None:
-        """Replace the current data model and repaint.
-
-        Parameters
-        ----------
-        model : ProgressBarChartModel
-            New data to render.
-        """
-        self._model = model
-        self.update()
+    def on_time_period_changed(self, ctx: TimeSpanContext) -> None:
+        """Subscriber Slot: autonomously update progress combo chart when active time period changes."""
+        # Adapt title and targets to the active time context
+        new_progress = ProgressBarChartModel(
+            title=f"Efficiency & Progress Ratio — {ctx.team_scope} ({ctx.fiscal_year} • {ctx.window_label})",
+            x_label="Sectors / Work Cells",
+            categories=["Cell A", "Cell B", "Cell C", "Cell D", "Cell E", "Cell F"],
+            bar_values=[0.92, 0.88, 0.95, 0.84, 0.91, 0.96],
+            line_completed=[0.90, 0.85, 0.94, 0.82, 0.89, 0.95],
+            line_total=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            y_max=1.0
+        )
+        self.set_data(new_progress)
 
     # ── BaseChartWidget hooks ───────────────────────────────────
 
     def get_title(self) -> str:
         """Return the title from the current model."""
-        return self._model.title
+        return self.model.title
 
     def draw_chart(self, painter: QPainter, rect: QRectF) -> None:
         """Render gridlines, bars, tracking lines, labels, and legend.
@@ -94,7 +95,7 @@ class ProgressBarChartWidget(BaseChartWidget):
         rect : QRectF
             Data area inside the card margins.
         """
-        m = self._model
+        m = self.model
         cx, cy = rect.x(), rect.y()
         cw, ch = rect.width(), rect.height()
         n = len(m.categories)

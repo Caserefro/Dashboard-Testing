@@ -39,34 +39,12 @@ from PyQt5.QtGui import QPainter
 from PyQt5.QtCore import Qt, QRectF
 
 from components.tables.base_table import BaseTableWidget
+from models.time_context import TimeSpanContext
+from models.table_models import ParetoTableModel
+from components.mixins import TimeAware
 
 
-@dataclass
-class ParetoTableModel:
-    """Typed DTO that carries all data for a Pareto table.
-
-    Attributes
-    ----------
-    title : str
-        Text shown in the top-left header cell.
-    categories : List[str]
-        Row labels — one per loss category.
-    columns : List[str]
-        Column headers — typically ISO-week numbers as strings.
-    values : List[List[float]]
-        2-D grid of counts, shape ``(len(categories), len(columns))``.
-    averages : List[float]
-        One average value per category, rendered in the final column.
-    """
-
-    title: str
-    categories: List[str]
-    columns: List[str]
-    values: List[List[float]] = field(default_factory=list)
-    averages: List[float] = field(default_factory=list)
-
-
-class ParetoTable(BaseTableWidget["ParetoTableModel"]):
+class ParetoTable(BaseTableWidget[ParetoTableModel], TimeAware):
     """Read-only Pareto table for the main dashboard display.
 
     Renders weekly loss counts per category in a fixed grid.
@@ -88,10 +66,23 @@ class ParetoTable(BaseTableWidget["ParetoTableModel"]):
     ) -> None:
         super().__init__(model, parent)
 
-    # ── set_data convenience alias ──────────────────────────────
-    def set_data(self, model: ParetoTableModel) -> None:
-        """Replace the current model and repaint."""
-        super().set_data(model)
+    def on_time_period_changed(self, ctx: TimeSpanContext) -> None:
+        """Subscriber Slot: autonomously adapt table columns and title to the active time period."""
+        cols = ctx.valid_sub_intervals
+        n_cols = len(cols)
+        # Adapt table values grid to match n_cols
+        categories = ["1. Safety / Env", "2. Quality Defects", "3. Machine Down", "4. Material Shortage", "5. Speed Loss"]
+        values = [[round((i + j + 1) * 1.5, 1) for j in range(n_cols)] for i in range(len(categories))]
+        averages = [round(sum(row) / len(row) if row else 0.0, 1) for row in values]
+
+        new_model = ParetoTableModel(
+            title=f"Where Pareto — {ctx.team_scope} ({ctx.window_label})",
+            categories=categories,
+            columns=cols,
+            values=values,
+            averages=averages
+        )
+        self.set_data(new_model)
 
     # ── core rendering ──────────────────────────────────────────
     def paint_table(self, painter: QPainter, inner: QRectF) -> None:
