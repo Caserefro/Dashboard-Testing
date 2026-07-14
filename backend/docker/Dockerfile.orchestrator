@@ -1,0 +1,28 @@
+# 24/7 Orchestrator Daemon Container (`orchestrator:latest`)
+# 
+# DooD (Docker-out-of-Docker) Daemon Image:
+# - Includes lightweight Docker CLI (`docker.io`)
+# - Mounts `/var/run/docker.sock` to spawn sibling containers (`analytics-worker:latest`)
+# - Manages database SQL UPSERT cycles (`metrics_json`)
+
+FROM python:3.11-slim
+
+# Install Docker CLI client (`docker-cli`) so daemon.py can run `docker run analytics-worker:latest` via DooD socket
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    docker-cli \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy models and orchestrator daemon logic
+COPY backend/models /app/backend/models
+COPY backend/orchestrator /app/backend/orchestrator
+COPY backend/worker /app/backend/worker
+COPY backend/__init__.py /app/backend/__init__.py
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Entrypoint invokes our daemon entrypoint or sync cycle loop
+ENTRYPOINT ["python", "-m", "backend.orchestrator.daemon"]

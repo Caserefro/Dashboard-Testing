@@ -1,0 +1,957 @@
+/* ==========================================================================
+   styles.css — Executive Agile & SQDP Web Dashboard Design System
+   ========================================================================== */
+
+/* ── 1. CSS Custom Variables & Theme Tokens ── */
+:root {
+    /* Obsidian Dark Theme (Default) */
+    --bg-app: #0E1117;
+    --bg-card: #161B22;
+    --bg-card-hover: #1C2129;
+    --bg-sidebar: #0B0E14;
+    --bg-header: rgba(22, 27, 34, 0.88);
+    --border-color: #30363D;
+    --border-light: #21262D;
+    
+    --text-primary: #F0F6FC;
+    --text-secondary: #8B949E;
+    --text-muted: #6E7681;
+    --text-on-accent: #000000;
+
+    /* Vibrant Status & Action Accents */
+    --accent-blue: #58A6FF;
+    --accent-blue-hover: #3182CE;
+    --status-green: #00E676;
+    --status-red: #FF5252;
+    --status-yellow: #FFAB00;
+    --status-grey: #484F58;
+    --status-navy: #1D3557;
+    --status-orange: #F4A261;
+
+    /* Shadows & Transitions */
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.45);
+    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.6);
+    --shadow-header: 0 2px 12px rgba(0, 0, 0, 0.5);
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar Widths */
+    --sidebar-collapsed-width: 90px;
+    --sidebar-expanded-width: 240px;
+}
+
+[data-theme="light"] {
+    /* Executive Light Theme */
+    --bg-app: #F4F6F9;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F8FAFC;
+    --bg-sidebar: #1E293B;
+    --bg-header: rgba(255, 255, 255, 0.88);
+    --border-color: #E2E8F0;
+    --border-light: #F1F5F9;
+    
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --text-on-accent: #FFFFFF;
+
+    --accent-blue: #2563EB;
+    --accent-blue-hover: #1D4ED8;
+    --status-green: #10B981;
+    --status-red: #EF4444;
+    --status-yellow: #F59E0B;
+    --status-grey: #94A3B8;
+
+    --shadow-card: 0 4px 15px rgba(15, 23, 42, 0.06);
+    --shadow-hover: 0 10px 25px rgba(15, 23, 42, 0.12);
+    --shadow-header: 0 2px 10px rgba(15, 23, 42, 0.05);
+}
+
+/* ── 2. Global Reset & Base Typography ── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-app);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* ── 3. Application Layout Structure ── */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100vw;
+}
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: margin-left var(--transition-smooth);
+}
+
+/* ── 4. Collapsible Sidebar ── */
+.sidebar {
+    width: var(--sidebar-expanded-width);
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: width var(--transition-smooth);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 100;
+    user-select: none;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-header {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-logo-btn {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.logo-icon {
+    font-size: 1.6rem;
+    min-width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-accent {
+    color: var(--accent-blue);
+}
+
+.sidebar.collapsed .logo-text {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 18px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #8B949E;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
+
+.nav-item.active {
+    background-color: rgba(88, 166, 255, 0.15);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.nav-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 4px;
+    background-color: var(--accent-blue);
+    border-radius: 0 4px 4px 0;
+}
+
+.nav-icon {
+    font-size: 1.35rem;
+    min-width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+    line-height: 1;
+    transition: font-variation-settings var(--transition-fast), color var(--transition-fast);
+}
+
+.nav-item:hover .material-symbols-outlined {
+    color: var(--accent-blue);
+}
+
+.nav-item.active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    color: var(--accent-blue);
+}
+
+.nav-label {
+    transition: opacity var(--transition-fast);
+}
+
+.sidebar.collapsed .nav-label {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Sidebar Tooltip when Collapsed */
+.nav-tooltip {
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-8px);
+    background: #1C2129;
+    color: #FFFFFF;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-fast);
+    z-index: 1000;
+}
+
+.sidebar.collapsed .nav-item:hover .nav-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+.sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ── 5. Sticky Top Header & Global Filter Bar ── */
+.top-header {
+    height: 72px;
+    background-color: var(--bg-header);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    box-shadow: var(--shadow-header);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-left h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: rgba(0, 230, 118, 0.15);
+    color: var(--status-green);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+}
+.status-badge.pulse {
+    animation: pulse 2.5s infinite ease-in-out;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 4px 12px;
+    border-radius: 8px;
+    transition: border-color var(--transition-fast);
+}
+
+.filter-group:focus-within {
+    border-color: var(--accent-blue);
+}
+
+.filter-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.filter-select {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    padding-right: 4px;
+}
+
+.filter-select option {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.btn-theme {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-theme:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-1px);
+}
+
+/* ── 6. Main Dashboard Container & Grid ── */
+.content-container {
+    flex: 1;
+    padding: 28px;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.stacked-views {
+    position: relative;
+}
+
+.tab-view {
+    display: none;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+.tab-view.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.col-span-2 {
+    grid-column: span 2 / span 2;
+}
+
+/* ── 7. Universal Card Styles ── */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+    overflow: hidden;
+}
+
+.card:hover {
+    border-color: rgba(88, 166, 255, 0.35);
+    box-shadow: var(--shadow-hover);
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border-light);
+    gap: 16px;
+}
+
+.header-titles h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* ── 8. Unified SQDP Board Grid Component (`SqdpBoardWidget`) ── */
+.sqdp-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+}
+.bg-green { background-color: var(--status-green); }
+.bg-red { background-color: var(--status-red); }
+.bg-yellow { background-color: var(--status-yellow); }
+.bg-grey { background-color: var(--status-grey); }
+
+.sqdp-grid-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.sqdp-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.sqdp-row-badge {
+    width: 165px;
+    flex-shrink: 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sqdp-row-badge.badge-S { background-color: #2E7D32; border-left: 5px solid #00E676; }
+.sqdp-row-badge.badge-Q { background-color: #E65100; border-left: 5px solid #FFAB00; }
+.sqdp-row-badge.badge-D { background-color: #1565C0; border-left: 5px solid #448AFF; }
+.sqdp-row-badge.badge-P { background-color: #1B5E20; border-left: 5px solid #00C853; }
+
+.sqdp-cells-track {
+    flex: 1;
+    display: grid;
+    gap: 6px;
+}
+
+/* Dynamically styled in JS depending on cols: 13 (weekly) or 31 (daily) */
+.sqdp-cell {
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    user-select: none;
+    color: #FFFFFF;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sqdp-cell.cell-green { background-color: #2E7D32; border: 1px solid #4CAF50; }
+.sqdp-cell.cell-red { background-color: #C62828; border: 1px solid #FF5252; }
+.sqdp-cell.cell-yellow { background-color: #F57F17; border: 1px solid #FFD54F; color: #000; font-weight: 800; }
+.sqdp-cell.cell-grey { background-color: #37474F; border: 1px solid #546E7A; color: #B0BEC5; }
+
+.sqdp-cell:hover {
+    transform: scale(1.18);
+    z-index: 20;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* ── 9. Interactive Charts & Aspect Switcher ── */
+.aspect-header {
+    align-items: center;
+}
+
+.aspect-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-aspect {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-aspect:hover {
+    border-color: var(--btn-color);
+    color: var(--text-primary);
+}
+
+.btn-aspect.active {
+    background-color: var(--btn-color);
+    border-color: var(--btn-color);
+    color: #000000;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.chart-canvas-box {
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    align-items: center;
+}
+
+.line-swatch {
+    font-weight: 900;
+    margin-right: 4px;
+}
+.solid-dark { color: #F0F6FC; }
+.dashed-blue { color: var(--accent-blue); }
+.dashed-grey { color: #8D99AE; }
+.solid-red { color: var(--status-red); }
+.dashed-orange { color: var(--status-orange); }
+.solid-navy { color: #58A6FF; }
+
+/* ── 10. KPI Summary Row (`SafetyTableDashboard`) ── */
+.kpi-cards-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.kpi-card {
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--kpi-color, var(--accent-blue));
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.kpi-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+}
+
+.kpi-subtext {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* ── 11. Data Tables (`ParetoTable`, `ParetoTableAdmin`, `SafetyTable`) ── */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background-color: var(--bg-app);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+}
+
+.data-table tbody tr {
+    transition: background-color var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-card-hover);
+}
+
+/* Severity Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-critical { background: rgba(255, 82, 82, 0.18); color: var(--status-red); border: 1px solid rgba(255, 82, 82, 0.4); }
+.badge-high { background: rgba(255, 171, 0, 0.18); color: var(--status-yellow); border: 1px solid rgba(255, 171, 0, 0.4); }
+.badge-medium { background: rgba(88, 166, 255, 0.18); color: var(--accent-blue); border: 1px solid rgba(88, 166, 255, 0.4); }
+.badge-low { background: rgba(0, 230, 118, 0.18); color: var(--status-green); border: 1px solid rgba(0, 230, 118, 0.4); }
+
+/* Buttons & Actions */
+.btn-action {
+    background-color: var(--accent-blue);
+    color: #FFFFFF;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-action:hover {
+    background-color: var(--accent-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(88, 166, 255, 0.35);
+}
+
+.btn-secondary {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent-blue);
+    background-color: var(--bg-card-hover);
+}
+
+/* ── 12. Interactive Physiological Questionnaire (`SafetyAnswerWidget`) ── */
+.questionnaire-score-box {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.questionnaire-score-box strong {
+    color: var(--status-green);
+    font-size: 1.15rem;
+    margin-left: 4px;
+}
+
+.questionnaire-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.q-item {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.q-item:hover {
+    border-color: var(--accent-blue);
+}
+
+.q-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--status-green);
+    cursor: pointer;
+    margin-top: 2px;
+}
+
+.q-text h4 {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.q-text p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+/* ── 13. JSON Contract Viewer (`JsonContractViewerWidget`) ── */
+.json-viewer-container {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: "Fira Code", monospace;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    line-height: 1.7;
+}
+
+.json-key { color: #79C0FF; font-weight: 600; }
+.json-string { color: #A5D6FF; }
+.json-number { color: #FF7B72; }
+.json-boolean { color: #FFA657; font-weight: 700; }
+.json-null { color: #8B949E; font-style: italic; }
+
+/* ── 14. Placeholder Cards (Data, Users, Settings) ── */
+.placeholder-card {
+    padding: 48px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 700px;
+    margin: 40px auto;
+    gap: 16px;
+}
+
+.placeholder-icon {
+    font-size: 3.8rem;
+    margin-bottom: 8px;
+    color: var(--accent-blue);
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
+}
+
+.placeholder-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.about-card {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.about-body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.about-box {
+    background: var(--bg-app);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.about-box h4 {
+    color: var(--accent-blue);
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+}
+
+/* ── 15. Custom Floating Tooltip ── */
+.custom-tooltip {
+    position: fixed;
+    background-color: #1C2129;
+    color: #FFFFFF;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-blue);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    font-size: 0.88rem;
+    z-index: 10000;
+    pointer-events: none;
+    max-width: 320px;
+    line-height: 1.45;
+    transition: opacity 0.15s ease;
+}
+
+.custom-tooltip h5 {
+    font-size: 0.95rem;
+    color: var(--accent-blue);
+    margin-bottom: 6px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* ── 16. Responsive Breakpoints ── */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .col-span-2 {
+        grid-column: span 1;
+    }
+    .kpi-cards-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-header {
+        flex-direction: column;
+        height: auto;
+        padding: 16px;
+        gap: 12px;
+    }
+    .filter-bar {
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: space-between;
+    }
+    .kpi-cards-row {
+        grid-template-columns: 1fr;
+    }
+    .questionnaire-grid {
+        grid-template-columns: 1fr;
+    }
+}

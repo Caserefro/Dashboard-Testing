@@ -1,0 +1,27 @@
+# Sandboxed Analytics Worker Container (`analytics-worker:latest`)
+# 
+# Immutable CI Gatekeeper Image:
+# - Zero network access (`--network=none`)
+# - Strict memory limit (`--memory=512m`)
+# - Pure Factory execution (`sys.stdin -> sys.stdout`)
+
+FROM python:3.11-slim
+
+# Create non-root user for security
+RUN useradd -m -s /bin/bash workeruser
+WORKDIR /app
+
+# Copy only the exact models and worker pipeline stages required
+COPY backend/models /app/backend/models
+COPY backend/worker /app/backend/worker
+COPY backend/__init__.py /app/backend/__init__.py
+
+# Ensure Python knows where /app root is
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Switch to non-root worker user
+USER workeruser
+
+# Entrypoint directly invokes our Pure Factory container main() method via sys.stdin -> sys.stdout
+ENTRYPOINT ["python", "-m", "backend.worker.worker_factory"]
