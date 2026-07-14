@@ -57,16 +57,25 @@ class Normalizer:
             fields = item.get("fields", item)
             ticket_id = str(item.get("id", fields.get("System.Id", "UNKNOWN")))
 
-            unit_type = cls._normalize_unit_type(fields.get("System.WorkItemType", "Task"))
-            status_norm = cls._normalize_status(fields.get("System.State", "To Do"))
+            # Multi-vendor Type detection: checks Azure `System.WorkItemType` then GitHub/Jira `type` or labels
+            unit_type_raw = fields.get("System.WorkItemType", fields.get("type", "Task"))
+            unit_type = cls._normalize_unit_type(unit_type_raw)
 
+            # Multi-vendor State detection: checks Azure `System.State` then GitHub `state` (`closed`/`open`)
+            status_raw = fields.get("System.State", fields.get("state", item.get("state", "To Do")))
+            status_norm = cls._normalize_status(status_raw)
+
+            # Multi-vendor Story Points: checks Azure `Microsoft.VSTS.Scheduling.StoryPoints` then GitHub/custom `story_points`
             story_points = cls._parse_story_points(
-                fields.get("Microsoft.VSTS.Scheduling.StoryPoints", fields.get("story_points", 0))
+                fields.get("Microsoft.VSTS.Scheduling.StoryPoints", fields.get("story_points", item.get("story_points", 0)))
             )
 
-            created_date = str(fields.get("System.CreatedDate", default_record_date))[:10]
+            # Multi-vendor Created Date: checks Azure `System.CreatedDate` then GitHub `created_at`
+            created_raw = fields.get("System.CreatedDate", fields.get("created_at", item.get("created_at", default_record_date)))
+            created_date = str(created_raw)[:10]
 
-            completed_date_raw = fields.get("Microsoft.VSTS.Common.ClosedDate", fields.get("completed_date"))
+            # Multi-vendor Closed Date: checks Azure `ClosedDate` then GitHub `closed_at` / `completed_date`
+            completed_date_raw = fields.get("Microsoft.VSTS.Common.ClosedDate", fields.get("closed_at", fields.get("completed_date", item.get("closed_at"))))
             if completed_date_raw:
                 completed_date = str(completed_date_raw)[:10]
             else:
@@ -87,7 +96,7 @@ class Normalizer:
                 completed_date=completed_date,
                 is_first_time_yield=is_fty,
                 board_id=board_id,
-                comments=fields.get("System.Title", fields.get("title", ""))
+                comments=fields.get("System.Title", fields.get("title", item.get("title", "")))
             ))
 
         return tickets
@@ -106,17 +115,66 @@ class Normalizer:
         return tickets
 
     @classmethod
+    def normalize_prs(cls, raw_json: Dict[str, Any], board_id: int, default_record_date: str) -> List[Any]:
+        """
+        Scrubs exact Azure DevOps pullRequests package (`pullRequestId`, `status`, `creationDate`, `commentCount`, `commitsAfterCreation`)
+        and GitHub PR payloads into canonical NormalizedPR instances.
+        """
+        from backend.models.process_data_models import NormalizedPR
+
+        prs: List[NormalizedPR] = []
+        pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))
+        repo_name = str(raw_json.get("repo", "UNKNOWN"))
+
+        for item in pull_requests:
+            pr_id = str(item.get("pullRequestId", item.get("id", item.get("number", "UNKNOWN"))))
+            title = str(item.get("title", ""))
+            
+            # Multi-vendor PR status: Azure (`active`/`completed`) vs GitHub (`open`/`closed`/`merged`)
+            status_raw = str(item.get("status", item.get("state", "active"))).upper()
+
+            if status_raw in ("COMPLETED", "MERGED", "CLOSED"):
+                status_norm = "MERGED" if status_raw != "ABANDONED" else "CLOSED"
+            elif status_raw in ("ABANDONED", "CANCELLED", "REJECTED"):
+                status_norm = "CLOSED"
+            else:
+                status_norm = "OPEN"
+
+            created_date_raw = str(item.get("creationDate", item.get("created_at", default_record_date)))[:10]
+            merged_date = created_date_raw if status_norm == "MERGED" else None
+
+            comment_count = int(item.get("commentCount", item.get("comments", 0)))
+            commits_after = int(item.get("commitsAfterCreation", item.get("review_commits", 0)))
+
+            prs.append(NormalizedPR(
+                pr_id=pr_id,
+                title=title,
+                repository=repo_name,
+                status_normalized=status_norm,
+                lines_added=0,
+                lines_removed=0,
+                created_date=created_date_raw,
+                merged_date=merged_date,
+                board_id=board_id,
+                comment_count=comment_count,
+                commits_after_creation=commits_after
+            ))
+
+        return prs
+
+    @classmethod
     def normalize_all(
         cls,
         raw_json: Dict[str, Any],
         orchestrator_data_od: List[Dict[str, Any]],
         board_id: int,
         record_date: str
-    ) -> Tuple[List[NormalizedTicket], List[NormalizedTicket]]:
+    ) -> Tuple[List[NormalizedTicket], List[NormalizedTicket], List[Any]]:
         """
-        Master Normalizer entrypoint. Returns `(new_tickets, old_tickets)` cleanly in RAM.
+        Master Normalizer entrypoint. Returns `(new_tickets, old_tickets, new_prs)` cleanly in RAM.
         Zero memory copy: pointer lists are concatenated directly by caller `O(1)`.
         """
         new_tickets = cls.normalize_raw_json(raw_json, board_id, record_date)
         old_tickets = cls.normalize_db_od(orchestrator_data_od)
-        return new_tickets, old_tickets
+        new_prs = cls.normalize_prs(raw_json, board_id, record_date)
+        return new_tickets, old_tickets, new_prs

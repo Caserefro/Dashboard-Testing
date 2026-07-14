@@ -105,7 +105,8 @@ class Formatter:
             computed_kpis: Dict[str, Any],
             tickets: List[Any],
             total_ideal_points: Any,
-            output_format: str = "graphic_contract"
+            output_format: str = "graphic_contract",
+            prs: List[Any] = None
     ) -> Dict[str, Any]:
         """
         Master Stage 3 Formatter entrypoint (`Gives Shape to Data`).
@@ -118,7 +119,7 @@ class Formatter:
             board_id=board_id,
             record_date=record_date,
             tickets=tickets,
-            prs=[],
+            prs=prs or [],
             issues=[],
             total_ideal_points=total_ideal_points
         )

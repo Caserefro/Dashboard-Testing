@@ -56,6 +56,23 @@ SAMPLE_OD = [
 ]
 
 
+SAMPLE_AZURE_PR_JSON = {
+    "team": "smth",
+    "repo": "Team",
+    "cutoff": "2026-04-01T00:00:00+00:00",
+    "pullRequests": [
+        {
+            "pullRequestId": 571,
+            "title": "Task571",
+            "status": "active",
+            "creationDate": "2026-07-13T16:35:06.1245666Z",
+            "commentCount": 0,
+            "commitsAfterCreation": 1
+        }
+    ]
+}
+
+
 def test_normalizer_entity():
     """Test Stage 1: Normalizer entity."""
     print("--- Stage 1: Normalizer ---")
@@ -70,11 +87,17 @@ def test_normalizer_entity():
     assert len(old_tickets) == 1 and old_tickets[0].ticket_id == "AZ-099"
     print(f"  [PASS] Normalizer.normalize_db_od() -> {len(old_tickets)} clean tickets from historical OD")
 
+    new_prs = Normalizer.normalize_prs(SAMPLE_AZURE_PR_JSON, board_id=10, default_record_date="2026-07-12")
+    assert len(new_prs) == 1
+    assert new_prs[0].pr_id == "571" and new_prs[0].status_normalized == "OPEN"
+    assert new_prs[0].comment_count == 0 and new_prs[0].commits_after_creation == 1
+    print(f"  [PASS] Normalizer.normalize_prs() -> {len(new_prs)} clean PRs from Azure DevOps screenshot schema")
+
 
 def test_analyzer_entity():
     """Test Stage 2: Analyzer entity."""
     print("\n--- Stage 2: Analyzer ---")
-    new_tickets, old_tickets = Normalizer.normalize_all(SAMPLE_RAW_JSON, SAMPLE_OD, 10, "2026-07-12")
+    new_tickets, old_tickets, new_prs = Normalizer.normalize_all(SAMPLE_RAW_JSON, SAMPLE_OD, 10, "2026-07-12")
     combined = old_tickets + new_tickets
 
     fty = Analyzer.first_time_yield(combined)
@@ -93,7 +116,7 @@ def test_analyzer_entity():
 def test_formatter_entity():
     """Test Stage 3: Formatter entity."""
     print("\n--- Stage 3: Formatter ---")
-    new_tickets, old_tickets = Normalizer.normalize_all(SAMPLE_RAW_JSON, SAMPLE_OD, 10, "2026-07-12")
+    new_tickets, old_tickets, new_prs = Normalizer.normalize_all(SAMPLE_RAW_JSON, SAMPLE_OD, 10, "2026-07-12")
     kpis = Analyzer.measure_all(old_tickets + new_tickets, "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
 
     contract = Formatter.to_graphic_contract(kpis)

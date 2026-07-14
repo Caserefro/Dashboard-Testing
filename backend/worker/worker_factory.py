@@ -40,9 +40,10 @@ class AnalyticsWorkerFactory:
         end_date = payload.get("end_date", record_date)
 
         # ============================================================== #
+        # ============================================================== #
         #  STAGE 1: NORMALIZER (`Creates Process Data`)
         # ============================================================== #
-        new_tickets, old_tickets = Normalizer.normalize_all(
+        new_tickets, old_tickets, new_prs = Normalizer.normalize_all(
             raw_json=raw_json,
             orchestrator_data_od=orchestrator_data_od,
             board_id=board_id,
@@ -70,6 +71,7 @@ class AnalyticsWorkerFactory:
             record_date=record_date,
             computed_kpis=computed_kpis,
             tickets=combined_tickets,
+            prs=new_prs,
             total_ideal_points=kpi_config.get("total_ideal_points"),
             output_format=output_format
         )

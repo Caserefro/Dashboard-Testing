@@ -47,6 +47,8 @@ class NormalizedPR:
     created_date: str               # ISO-8601 date string YYYY-MM-DD
     merged_date: Optional[str]      # ISO-8601 date string YYYY-MM-DD if merged, else None
     board_id: int                   # FK to BOARDS.board_id
+    comment_count: int = 0          # Number of comments on the PR
+    commits_after_creation: int = 0 # Commits pushed after initial creation (rework loops)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

@@ -9,6 +9,7 @@ As defined in the Miro architecture:
 5. Executes SQL `UPSERT` (`INSERT ... ON CONFLICT DO UPDATE`) to save `KPI_Record for DB` (`process_data_json`).
 """
 
+import sys
 import subprocess
 import json
 import base64
@@ -105,31 +106,20 @@ class DockerWorkerOrchestrator:
         }
 
         if not self.use_docker_containers:
-            # Fallback for local RAM testing: return simulated raw vendor dump
-            return {
-                "workItems": [
-                    {
-                        "id": f"AZ-{1000 + idx}",
-                        "fields": {
-                            "System.WorkItemType": "User Story",
-                            "System.State": "Done",
-                            "Microsoft.VSTS.Scheduling.StoryPoints": 3.0,
-                            "System.CreatedDate": date_str,
-                            "Microsoft.VSTS.Common.ClosedDate": date_str,
-                            "System.Title": f"Simulated Story for {date_str}"
-                        }
-                    }
-                    for idx, date_str in enumerate(missing_dates)
-                ]
-            }
+            # Single Container / Subprocess Mode (`python -m backend.extractors.azure_extractor`)
+            module_name = "backend.extractors.azure_extractor"
+            if "github" in extractor_image_or_script.lower():
+                module_name = "backend.extractors.github_extractor"
+            cmd = [sys.executable, "-m", module_name]
+        else:
+            # Multi-Container DooD Mode (`docker run -i --rm azure-extractor:latest`)
+            cmd = ["docker", "run", "-i", "--rm", extractor_image_or_script]
 
-        # Enterprise Docker Memory Pipe execution (`docker run -i --rm ...`)
-        cmd = ["docker", "run", "-i", "--rm", extractor_image_or_script]
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout_val, stderr_val = process.communicate(input=json.dumps(extractor_payload))
         
         if process.returncode != 0:
-            raise RuntimeError(f"Extractor container failed: {stderr_val}")
+            raise RuntimeError(f"Extractor process ({cmd[0]}) failed: {stderr_val}")
         
         return json.loads(stdout_val)
 
