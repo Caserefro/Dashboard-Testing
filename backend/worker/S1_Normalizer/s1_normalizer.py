@@ -7,7 +7,7 @@ traps anomalies/human entry typos (`"TBD"` in numeric fields, null dates), and r
 """
 
 from typing import List, Dict, Any, Tuple
-from backend.models.process_data_models import NormalizedTicket
+from backend.domain.process_data_models import NormalizedTicket
 
 
 class Normalizer:
@@ -41,6 +41,8 @@ class Normalizer:
             return "DONE"
         elif upper in ("IN PROGRESS", "DOING", "ACTIVE"):
             return "IN_PROGRESS"
+        elif upper in ("IN REVIEW", "REVIEW", "IN_REVIEW"):
+            return "IN_REVIEW"
         elif upper in ("CANCELLED", "REJECTED", "REMOVED"):
             return "CANCELLED"
         return "TODO"
@@ -52,22 +54,40 @@ class Normalizer:
         """
         tickets: List[NormalizedTicket] = []
         work_items = raw_json.get("workItems", raw_json.get("value", []))
+        if not work_items and "sampleItems" in raw_json:
+            work_items = raw_json["sampleItems"]
 
         for item in work_items:
             fields = item.get("fields", item)
-            ticket_id = str(item.get("id", fields.get("System.Id", "UNKNOWN")))
+            sprint_name = None
+            
+            # Handle new GitHub schema with populatedFields or fieldValues
+            gh_fields = {}
+            if "populatedFields" in item:
+                gh_fields = {f["fieldName"]: f.get("value") for f in item["populatedFields"]}
+            elif "content" in item and "fieldValues" in item["content"]:
+                gh_fields = {f["fieldName"]: f.get("value") for f in item["content"]["fieldValues"]}
+            
+            if gh_fields:
+                fields = item.get("content", item)
+                fields.update(gh_fields)
+                fields["id"] = item.get("id", fields.get("id"))
+                fields["type"] = item.get("type", item.get("projectItemType"))
+                sprint_name = gh_fields.get("Sprint")
+
+            ticket_id = str(item.get("id", fields.get("System.Id", fields.get("id", "UNKNOWN"))))
 
             # Multi-vendor Type detection: checks Azure `System.WorkItemType` then GitHub/Jira `type` or labels
             unit_type_raw = fields.get("System.WorkItemType", fields.get("type", "Task"))
             unit_type = cls._normalize_unit_type(unit_type_raw)
 
-            # Multi-vendor State detection: checks Azure `System.State` then GitHub `state` (`closed`/`open`)
-            status_raw = fields.get("System.State", fields.get("state", item.get("state", "To Do")))
+            # Multi-vendor State detection: checks Azure `System.State` then GitHub `state` (`closed`/`open`), and Status
+            status_raw = fields.get("System.State", fields.get("Status", fields.get("state", item.get("state", "To Do"))))
             status_norm = cls._normalize_status(status_raw)
 
-            # Multi-vendor Story Points: checks Azure `Microsoft.VSTS.Scheduling.StoryPoints` then GitHub/custom `story_points`
+            # Multi-vendor Story Points: checks Azure, then GitHub `story_points`, then GitHub `Estimate`
             story_points = cls._parse_story_points(
-                fields.get("Microsoft.VSTS.Scheduling.StoryPoints", fields.get("story_points", item.get("story_points", 0)))
+                fields.get("Microsoft.VSTS.Scheduling.StoryPoints", fields.get("story_points", fields.get("Estimate", item.get("story_points", 0))))
             )
 
             # Multi-vendor Created Date: checks Azure `System.CreatedDate` then GitHub `created_at`
@@ -96,6 +116,7 @@ class Normalizer:
                 completed_date=completed_date,
                 is_first_time_yield=is_fty,
                 board_id=board_id,
+                sprint=sprint_name,
                 comments=fields.get("System.Title", fields.get("title", item.get("title", "")))
             ))
 
@@ -120,7 +141,7 @@ class Normalizer:
         Scrubs exact Azure DevOps pullRequests package (`pullRequestId`, `status`, `creationDate`, `commentCount`, `commitsAfterCreation`)
         and GitHub PR payloads into canonical NormalizedPR instances.
         """
-        from backend.models.process_data_models import NormalizedPR
+        from backend.domain.process_data_models import NormalizedPR
 
         prs: List[NormalizedPR] = []
         pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))

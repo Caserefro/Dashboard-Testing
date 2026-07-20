@@ -25,6 +25,7 @@ class NormalizedTicket:
     completed_date: Optional[str]   # ISO-8601 date string YYYY-MM-DD if completed, else None
     is_first_time_yield: bool       # True if completed without reopening/rejection loops
     board_id: int                   # FK to BOARDS.board_id
+    sprint: Optional[str] = None    # Extracted from GitHub iterations for sprint reconstruction
     comments: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
@@ -129,6 +130,11 @@ class ProcessDataAggregate:
     first_time_yield_clean_tickets: int = 0
     prs_merged_count: int = 0
     safety_issues_open_count: int = 0
+    
+    # Context & Quality Metrics for Forecasting
+    sprint_name: Optional[str] = None
+    debug_pts_completed_30d: float = 0.0
+    total_pts_completed_30d: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -155,6 +161,9 @@ class ProcessDataAggregate:
         prs_merged = sum(1 for p in prs if p.status_normalized == "MERGED" and (not p.merged_date or p.merged_date <= record_date[:10]))
         safety_open = sum(1 for i in issues if i.status == "OPEN" and i.category.lower() == "safety")
 
+        sprints = [t.sprint for t in tickets if t.sprint]
+        current_sprint = sprints[0] if sprints else None
+
         return cls(
             board_id=board_id,
             record_date=record_date[:10],
@@ -164,6 +173,7 @@ class ProcessDataAggregate:
             total_completed_tickets=len(completed_tix),
             first_time_yield_clean_tickets=fty_clean,
             prs_merged_count=prs_merged,
-            safety_issues_open_count=safety_open
+            safety_issues_open_count=safety_open,
+            sprint_name=current_sprint
         )
 

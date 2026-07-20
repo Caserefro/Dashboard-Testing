@@ -7,11 +7,12 @@ coordinated by AnalyticsWorkerFactory (`worker_factory.py`) with zero memory cop
 """
 
 import json
-from backend.worker.s1_normalizer import Normalizer
-from backend.worker.s2_analyzer import Analyzer
-from backend.worker.s3_formatter import Formatter
+from backend.domain.process_data_models import ProcessDataAggregate
+from backend.worker.S1_Normalizer.s1_normalizer import Normalizer
+from backend.worker.S2_Analyzer.s2_analyzer import Analyzer
+from backend.worker.S3_Formatter.s3_formatter import Formatter
 from backend.worker.worker_factory import AnalyticsWorkerFactory
-from backend.orchestrator.daemon import DockerWorkerOrchestrator
+from backend.orchestrator.orchestrator import DockerWorkerOrchestrator
 
 
 SAMPLE_RAW_JSON = {
@@ -38,6 +39,62 @@ SAMPLE_RAW_JSON = {
                 "Microsoft.VSTS.Common.ClosedDate": "2026-07-05T15:00:00Z",
                 "System.Title": "Fix Null Pointer in Widget"
             }
+        }
+    ]
+}
+
+SAMPLE_GITHUB_JSON = {
+    "inspectionDate": "2026-07-13T10:00:00Z",
+    "project": {
+        "id": "PROJ_1",
+        "number": 1,
+        "title": "Alpha Launch",
+        "owner": "team",
+        "org": "corp"
+    },
+    "iterations": [
+        {
+            "id": "ITER_1",
+            "title": "Sprint 1",
+            "startDate": "2026-07-01",
+            "duration": 14
+        }
+    ],
+    "sampleItems": [
+        {
+            "projectItemId": "PVTI_LADOCyFims4BdqvczgzPhMg",
+            "projectItemType": "ISSUE",
+            "id": "I_kwDOTYtncM8AAAABJPh3WA",
+            "content": {
+                "id": "I_kwDOTYtncM8AAAABJPh3WA",
+                "number": 3,
+                "title": "GitHub Real Format Ticket",
+                "state": "OPEN",
+                "createdAt": "2026-07-17T22:24:10Z",
+                "updatedAt": "2026-07-19T05:25:52Z",
+                "closedAt": None,
+                "assignees": ["223138381 aero"],
+                "labels": ["bug", "documentation"],
+                "repository": "ge-aero/ATLAS-backend",
+                "fieldValues": [
+                    {"fieldName": "Status", "fieldType": "SingleSelect", "value": "In Review"},
+                    {"fieldName": "Sprint", "fieldType": "Iteration", "value": "Sprint 1", "startDate": "2026-07-07", "duration": 14},
+                    {"fieldName": "Estimate", "fieldType": "SingleSelect", "value": "8"}
+                ]
+            }
+        },
+        {
+            "id": "GH-202",
+            "type": "Issue",
+            "content": {
+                "title": "Fix API latency",
+                "state": "OPEN"
+            },
+            "populatedFields": [
+                {"fieldName": "Status", "value": "In review"},
+                {"fieldName": "Estimate", "value": "4"},
+                {"fieldName": "Sprint", "value": "Sprint 1"}
+            ]
         }
     ]
 }
@@ -83,6 +140,14 @@ def test_normalizer_entity():
     assert new_tickets[1].is_first_time_yield is False  # 2 reopen loops
     print(f"  [PASS] Normalizer.normalize_raw_json() -> {len(new_tickets)} clean tickets from raw vendor JSON")
 
+    gh_tickets = Normalizer.normalize_raw_json(SAMPLE_GITHUB_JSON, board_id=10, default_record_date="2026-07-12")
+    assert len(gh_tickets) == 2
+    assert gh_tickets[0].ticket_id == "I_kwDOTYtncM8AAAABJPh3WA" and gh_tickets[0].story_points == 8.0
+    assert gh_tickets[0].status_normalized == "IN_REVIEW"
+    assert gh_tickets[1].status_normalized == "IN_REVIEW"
+    assert gh_tickets[0].sprint == "Sprint 1"
+    print(f"  [PASS] Normalizer.normalize_raw_json() -> {len(gh_tickets)} clean tickets from new GitHub JSON")
+
     old_tickets = Normalizer.normalize_db_od(SAMPLE_OD)
     assert len(old_tickets) == 1 and old_tickets[0].ticket_id == "AZ-099"
     print(f"  [PASS] Normalizer.normalize_db_od() -> {len(old_tickets)} clean tickets from historical OD")
@@ -105,8 +170,9 @@ def test_analyzer_entity():
     print(f"  [PASS] Analyzer.first_time_yield() -> {fty}%")
 
     burndown = Analyzer.burndown_curve(combined, "2026-07-01", "2026-07-12", total_ideal_points=100.0)
-    assert len(burndown) == 12
-    print(f"  [PASS] Analyzer.burndown_curve() -> {len(burndown)} daily points calculated")
+    series = burndown.get("series", [])
+    assert len(series) == 12
+    print(f"  [PASS] Analyzer.burndown_curve() -> {len(series)} daily points calculated")
 
     kpis = Analyzer.measure_all(combined, "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
     assert "fty_percentage" in kpis and "burndown_curve" in kpis
@@ -161,7 +227,7 @@ def test_worker_factory():
 def test_orchestrator():
     """Test DockerWorkerOrchestrator driving the worker factory."""
     print("\n--- DockerWorkerOrchestrator ---")
-    orchestrator = DockerWorkerOrchestrator(use_docker_containers=False, master_key_base64="my-secret-key")
+    orchestrator = DockerWorkerOrchestrator(master_key_base64="my-secret-key")
 
     existing_dates = {"2026-07-01", "2026-07-02"}
     missing = orchestrator.identify_missing_date_gap("2026-07-01", "2026-07-05", existing_dates)
@@ -169,7 +235,7 @@ def test_orchestrator():
     print(f"  [PASS] Orchestrator SQL gap detection -> missing dates: {missing}")
 
     encrypted_key = orchestrator.key_codec.encrypt_key("my_azure_pat_12345")
-    graphic_output, sql_upsert = orchestrator.run_sync_cycle(
+    graphic_output, sql_upsert, kpi_record_for_db = orchestrator.run_sync_cycle(
         board_id=10,
         kpi_config_id=42,
         requested_start_date="2026-07-01",

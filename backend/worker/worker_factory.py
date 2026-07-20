@@ -1,22 +1,21 @@
 """
-Unified Analytics Worker Factory (`worker_factory.py`)
+Domain Worker Factory (`backend/worker/worker_factory.py`)
 
 Pure Factory Pattern execution:
-Orchestrates the sequential, in-memory pipeline (`Normalizer -> Analyzer -> Formatter`) within a single process.
-Avoids zero unnecessary serialization/pickling copies to achieve sub-millisecond execution inside the container:
-`docker run --network=none --memory=512m --rm -i analytics-worker:latest`
+Orchestrates the sequential, in-memory pipeline (S1 -> S2 -> S3) within a single process.
+Avoids unnecessary serialization/pickling copies to achieve sub-millisecond execution.
 
-Input:  Single JSON bundle via sys.stdin  (`Raw Json + OD + KPI Config`)
-Output: 2-part JSON via sys.stdout        (`kpi_record_for_db` + `graphic_contract`)
+Input:  Single JSON bundle (`Raw Json + OD + KPI Config`)
+Output: 2-part JSON        (`kpi_record_for_db` + `graphic_contract`)
 """
 
 import sys
 import json
 from typing import Dict, Any, List, Tuple
-from backend.worker.s1_normalizer import Normalizer
-from backend.worker.s2_analyzer import Analyzer
-from backend.worker.s3_formatter import Formatter
-from backend.models.process_data_models import ProcessDataAggregate
+from backend.domain.process_data_models import ProcessDataAggregate
+from backend.worker.S1_Normalizer.s1_normalizer import Normalizer
+from backend.worker.S2_Analyzer.s2_analyzer import Analyzer
+from backend.worker.S3_Formatter.s3_formatter import Formatter
 
 
 class AnalyticsWorkerFactory:
@@ -60,7 +59,8 @@ class AnalyticsWorkerFactory:
             tickets=combined_tickets,
             start_date=start_date,
             end_date=end_date,
-            kpi_config=kpi_config
+            kpi_config=kpi_config,
+            historical_od=orchestrator_data_od
         )
 
         # ============================================================== #

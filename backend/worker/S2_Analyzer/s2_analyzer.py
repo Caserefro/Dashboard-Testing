@@ -8,7 +8,7 @@ in RAM and runs domain-specific mathematical calculations (`First Time Yield > 9
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import math
-from backend.models.process_data_models import NormalizedTicket
+from backend.domain.process_data_models import NormalizedTicket
 
 
 class Analyzer:
@@ -33,11 +33,12 @@ class Analyzer:
         tickets: List[NormalizedTicket],
         start_date_iso: str,
         end_date_iso: str,
-        total_ideal_points: Optional[float] = None
-    ) -> List[Dict[str, Any]]:
+        total_ideal_points: Optional[float] = None,
+        historical_od: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         Computes the daily burndown curve series (`remaining_points`, `ideal_points`, `inverse_root_points`).
-        Implements `Bigger of: Inverse Root vs remaining`.
+        Integrates Method 3: PCHIP Forecasting if burndown_math is available.
         """
         try:
             start_dt = datetime.strptime(start_date_iso[:10], "%Y-%m-%d")
@@ -52,10 +53,16 @@ class Analyzer:
             total_ideal_points = sum(t.story_points for t in tickets) if tickets else 100.0
 
         series: List[Dict[str, Any]] = []
+        live_x = []
+        live_y = []
 
         for day_offset in range(total_days + 1):
             current_dt = start_dt + timedelta(days=day_offset)
             current_date_str = current_dt.strftime("%Y-%m-%d")
+            
+            # Stop collecting live points if we are past today
+            if current_dt > end_dt:
+                pass 
 
             daily_completed = sum(
                 t.story_points for t in tickets
@@ -72,8 +79,35 @@ class Analyzer:
                 "ideal_points": round(ideal, 2),
                 "inverse_root_points": round(inv_root, 2),
             })
+            
+            x_percent = (day_offset / total_days) * 100.0
+            live_x.append(x_percent)
+            live_y.append(remaining)
 
-        return series
+        # Apply Method 3 Forecasting
+        from backend.worker.S2_Analyzer.burndown_math import compute_forecast_tracks
+        
+        # Build Master Baseline from historical_od (fallback to ideal if none)
+        # Note: A full implementation groups historical_od by sprint and averages. 
+        # For now, we fallback to a simple historical ideal to prove pipeline wiring.
+        master_x = [0.0, 100.0]
+        master_y = [total_ideal_points, 0.0]
+        
+        if historical_od and len(historical_od) >= 2:
+            # Very basic extraction: map the historical points to a 0-100 scale
+            master_x.clear()
+            master_y.clear()
+            hist_len = len(historical_od)
+            for i, record in enumerate(historical_od):
+                master_x.append((i / (hist_len - 1)) * 100.0)
+                master_y.append(float(record.get("remaining_story_points", 0.0)))
+                
+        forecast = compute_forecast_tracks(master_x, master_y, live_x, live_y)
+
+        return {
+            "series": series,
+            "forecast": forecast
+        }
 
     @staticmethod
     def tickets_per_day(tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
@@ -102,6 +136,7 @@ class Analyzer:
         start_date: str,
         end_date: str,
         kpi_config: Dict[str, Any],
+        historical_od: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """
         Master Analyzer entrypoint: runs every mathematical calculation cleanly over RAM process data.
@@ -113,6 +148,7 @@ class Analyzer:
                 start_date_iso=start_date,
                 end_date_iso=end_date,
                 total_ideal_points=kpi_config.get("total_ideal_points"),
+                historical_od=historical_od
             ),
             "tickets_per_day_chart": cls.tickets_per_day(tickets),
         }

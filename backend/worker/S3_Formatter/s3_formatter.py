@@ -28,8 +28,16 @@ class Formatter:
         fty_bounded = round(max(0.0, min(100.0, fty_raw)), 2)
 
         # 2. Burndown Curve
+        burndown_data = computed_kpis.get("burndown_curve", {})
+        if isinstance(burndown_data, list):
+            series_list = burndown_data
+            forecast_dict = {}
+        else:
+            series_list = burndown_data.get("series", [])
+            forecast_dict = burndown_data.get("forecast", {})
+            
         burndown_contract: List[Dict[str, Any]] = []
-        for pt in computed_kpis.get("burndown_curve", []):
+        for pt in series_list:
             burndown_contract.append({
                 "date": str(pt.get("date", ""))[:10],
                 "remaining_points": round(max(0.0, float(pt.get("remaining_points", 0.0))), 2),
@@ -47,7 +55,10 @@ class Formatter:
 
         return {
             "first_time_yield_gauge": {"fty_percentage": fty_bounded},
-            "burndown_curve": burndown_contract,
+            "burndown_curve": {
+                "series": burndown_contract,
+                "forecast": forecast_dict
+            },
             "tickets_per_day_chart": velocity_contract,
         }
 
@@ -60,10 +71,13 @@ class Formatter:
         writer.writerow(["Metric Summary", "Value"])
         writer.writerow(["First Time Yield (%)", computed_kpis.get("fty_percentage", 100.0)])
         writer.writerow([])
+        
+        burndown_data = computed_kpis.get("burndown_curve", {})
+        series_list = burndown_data if isinstance(burndown_data, list) else burndown_data.get("series", [])
 
         writer.writerow(["Burndown Curve"])
         writer.writerow(["Date", "Remaining Points", "Ideal Points", "Inverse Root Points"])
-        for pt in computed_kpis.get("burndown_curve", []):
+        for pt in series_list:
             writer.writerow([
                 pt.get("date"),
                 pt.get("remaining_points"),
@@ -91,7 +105,11 @@ class Formatter:
             "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse; width: 100%;'>",
             "<tr style='background-color: #f5f5f5;'><th>Date</th><th>Remaining</th><th>Ideal</th></tr>",
         ]
-        for pt in computed_kpis.get("burndown_curve", []):
+        
+        burndown_data = computed_kpis.get("burndown_curve", {})
+        series_list = burndown_data if isinstance(burndown_data, list) else burndown_data.get("series", [])
+        
+        for pt in series_list:
             html.append(
                 f"<tr><td>{pt.get('date')}</td><td>{pt.get('remaining_points')}</td><td>{pt.get('ideal_points')}</td></tr>")
         html.append("</table></div>")
@@ -113,7 +131,7 @@ class Formatter:
         Takes computed KPIs and process data, shaping them into the exact 2-part dictionary
         output contract (`kpi_record_for_db` + `graphic_contract`) right before sys.stdout.
         """
-        from backend.models.process_data_models import ProcessDataAggregate
+        from backend.domain.process_data_models import ProcessDataAggregate
 
         aggregate_record = ProcessDataAggregate.create_from_items(
             board_id=board_id,
