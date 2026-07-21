@@ -174,7 +174,7 @@ def test_analyzer_entity():
     assert len(series) == 12
     print(f"  [PASS] Analyzer.burndown_curve() -> {len(series)} daily points calculated")
 
-    kpis = Analyzer.measure_all(combined, "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
+    kpis = Analyzer.measure_all(combined, [], "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
     assert "fty_percentage" in kpis and "burndown_curve" in kpis
     print("  [PASS] Analyzer.measure_all() -> all KPIs computed over pointer list")
 
@@ -183,11 +183,11 @@ def test_formatter_entity():
     """Test Stage 3: Formatter entity."""
     print("\n--- Stage 3: Formatter ---")
     new_tickets, old_tickets, new_prs = Normalizer.normalize_all(SAMPLE_RAW_JSON, SAMPLE_OD, 10, "2026-07-12")
-    kpis = Analyzer.measure_all(old_tickets + new_tickets, "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
+    kpis = Analyzer.measure_all(old_tickets + new_tickets, new_prs, "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
 
-    contract = Formatter.to_graphic_contract(kpis)
-    assert "first_time_yield_gauge" in contract and "burndown_curve" in contract
-    print("  [PASS] Formatter.to_graphic_contract() -> bounds enforced, ui_graph_contracts formatted")
+    contract = Formatter.to_spreadsheet_contract(kpis)
+    assert "tickets_per_day_chart" in contract and "advanced_burndown" in contract
+    print("  [PASS] Formatter.to_spreadsheet_contract() -> bounds enforced, ui_graph_contracts formatted")
 
     csv_out = Formatter.to_csv(kpis)
     assert "First Time Yield" in csv_out
@@ -220,7 +220,7 @@ def test_worker_factory():
     print(f"         Aggregate DB payload size: {len(json.dumps(db_record))} bytes (Zero memory copies!)")
 
     contract = result["graphic_contract"]
-    assert "first_time_yield_gauge" in contract and "burndown_curve" in contract
+    assert "first_time_yield_gauge" in contract and "advanced_burndown" in contract
     print("  [PASS] AnalyticsWorkerFactory.execute() -> graphic_contract generated for Qt GUI")
 
 

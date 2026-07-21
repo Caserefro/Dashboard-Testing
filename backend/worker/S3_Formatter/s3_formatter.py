@@ -1,119 +1,35 @@
 """
 Stage 3: Formatter (`s3_formatter.py` -> `Gives Shape to data`)
 
-Receives raw numerical metrics from Stage 2 Analyzer and shapes them strictly into the output contracts:
-1. `Graphic contract` (`ui_graph_contracts` format for Data Sync Endpoint & Visual Layer Qt charts).
-2. `HTML` (For web rendering or email summary reports).
-3. `CSV` (For tabular export or spreadsheet ingestion).
+Receives raw numerical metrics from Stage 2 Analyzer and shapes them strictly into the output contracts via specific formatters:
+1. `SpreadsheetFormatter` (For Data Sync Endpoint & Visual Layer Qt charts).
+2. `HtmlFormatter` (For web rendering or email summary reports).
+3. `CsvFormatter` (For tabular export).
 
 Enforces all bounds (0.0-100.0, ISO-8601 dates, correct key names) right before `sys.stdout`.
 """
 
 from typing import Dict, Any, List
-import csv
-import io
+
+from .formatters.spreadsheet_formatter import SpreadsheetFormatter
+from .formatters.csv_formatter import CsvFormatter
+from .formatters.html_formatter import HtmlFormatter
 
 
 class Formatter:
-    """Stage 3: Formatter entity. Enforces output boundaries and packages the exact dictionary for sys.stdout."""
+    """Stage 3: Formatter Facade. Routes computed KPIs to the requested output format strategy."""
 
     @staticmethod
-    def to_graphic_contract(computed_kpis: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Shapes KPIs into the exact `ui_graph_contracts.json` specification.
-        Enforces all contract bounds (0.0 - 100.0, ISO dates) before returning to Data Sync.
-        """
-        # 1. First Time Yield Gauge
-        fty_raw = float(computed_kpis.get("fty_percentage", 100.0))
-        fty_bounded = round(max(0.0, min(100.0, fty_raw)), 2)
-
-        # 2. Burndown Curve
-        burndown_data = computed_kpis.get("burndown_curve", {})
-        if isinstance(burndown_data, list):
-            series_list = burndown_data
-            forecast_dict = {}
-        else:
-            series_list = burndown_data.get("series", [])
-            forecast_dict = burndown_data.get("forecast", {})
-            
-        burndown_contract: List[Dict[str, Any]] = []
-        for pt in series_list:
-            burndown_contract.append({
-                "date": str(pt.get("date", ""))[:10],
-                "remaining_points": round(max(0.0, float(pt.get("remaining_points", 0.0))), 2),
-                "ideal_points": round(max(0.0, float(pt.get("ideal_points", 0.0))), 2),
-                "inverse_root_points": round(max(0.0, float(pt.get("inverse_root_points", 0.0))), 2),
-            })
-
-        # 3. Tickets Per Day Chart
-        velocity_contract: List[Dict[str, Any]] = []
-        for row in computed_kpis.get("tickets_per_day_chart", []):
-            velocity_contract.append({
-                "day_label": str(row.get("day_label", "Day")),
-                "tickets_merged": max(0, int(row.get("tickets_merged", 0))),
-            })
-
-        return {
-            "first_time_yield_gauge": {"fty_percentage": fty_bounded},
-            "burndown_curve": {
-                "series": burndown_contract,
-                "forecast": forecast_dict
-            },
-            "tickets_per_day_chart": velocity_contract,
-        }
+    def to_spreadsheet_contract(computed_kpis: Dict[str, Any]) -> Dict[str, Any]:
+        return SpreadsheetFormatter.format(computed_kpis)
 
     @staticmethod
     def to_csv(computed_kpis: Dict[str, Any]) -> str:
-        """Shapes computed KPIs into a clean CSV table string."""
-        output = io.StringIO()
-        writer = csv.writer(output)
-
-        writer.writerow(["Metric Summary", "Value"])
-        writer.writerow(["First Time Yield (%)", computed_kpis.get("fty_percentage", 100.0)])
-        writer.writerow([])
-        
-        burndown_data = computed_kpis.get("burndown_curve", {})
-        series_list = burndown_data if isinstance(burndown_data, list) else burndown_data.get("series", [])
-
-        writer.writerow(["Burndown Curve"])
-        writer.writerow(["Date", "Remaining Points", "Ideal Points", "Inverse Root Points"])
-        for pt in series_list:
-            writer.writerow([
-                pt.get("date"),
-                pt.get("remaining_points"),
-                pt.get("ideal_points"),
-                pt.get("inverse_root_points"),
-            ])
-        writer.writerow([])
-
-        writer.writerow(["Tickets Per Day Chart"])
-        writer.writerow(["Day Label", "Tickets Merged"])
-        for row in computed_kpis.get("tickets_per_day_chart", []):
-            writer.writerow([row.get("day_label"), row.get("tickets_merged")])
-
-        return output.getvalue()
+        return CsvFormatter.format(computed_kpis)
 
     @staticmethod
     def to_html(computed_kpis: Dict[str, Any]) -> str:
-        """Shapes computed KPIs into a clean HTML summary card."""
-        fty = computed_kpis.get("fty_percentage", 100.0)
-        html = [
-            "<div style='font-family: Arial, sans-serif; padding: 16px; border: 1px solid #ccc; border-radius: 8px;'>",
-            f"<h2 style='color: #1565c0;'>Project ATLAS - Worker Report</h2>",
-            f"<p><strong>First Time Yield (FTY):</strong> <span style='color: #2e7d32; font-size: 1.2em;'>{fty}%</span></p>",
-            "<h3>Burndown Daily Series</h3>",
-            "<table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse; width: 100%;'>",
-            "<tr style='background-color: #f5f5f5;'><th>Date</th><th>Remaining</th><th>Ideal</th></tr>",
-        ]
-        
-        burndown_data = computed_kpis.get("burndown_curve", {})
-        series_list = burndown_data if isinstance(burndown_data, list) else burndown_data.get("series", [])
-        
-        for pt in series_list:
-            html.append(
-                f"<tr><td>{pt.get('date')}</td><td>{pt.get('remaining_points')}</td><td>{pt.get('ideal_points')}</td></tr>")
-        html.append("</table></div>")
-        return "\n".join(html)
+        return HtmlFormatter.format(computed_kpis)
 
     @classmethod
     def format_all(
@@ -123,36 +39,48 @@ class Formatter:
             computed_kpis: Dict[str, Any],
             tickets: List[Any],
             total_ideal_points: Any,
+            prs: List[Any] = None,
             output_format: str = "graphic_contract",
-            prs: List[Any] = None
-    ) -> Dict[str, Any]:
-        """
-        Master Stage 3 Formatter entrypoint (`Gives Shape to Data`).
-        Takes computed KPIs and process data, shaping them into the exact 2-part dictionary
-        output contract (`kpi_record_for_db` + `graphic_contract`) right before sys.stdout.
-        """
+            project_config: Dict[str, Any] = None
+    ) -> str:
+        import json
         from backend.domain.process_data_models import ProcessDataAggregate
 
-        aggregate_record = ProcessDataAggregate.create_from_items(
+        # Calculate required DB payload properties
+        completed_sp = sum(t.story_points for t in tickets if t.status_normalized == "DONE") if tickets else 0.0
+        total_sp = total_ideal_points if total_ideal_points else (sum(t.story_points for t in tickets) if tickets else 100.0)
+        remaining_sp = max(0.0, total_sp - completed_sp)
+        
+        completed_tickets = [t for t in tickets if t.status_normalized == "DONE"] if tickets else []
+        clean_tickets = sum(1 for t in completed_tickets if t.is_first_time_yield)
+        prs_merged = sum(1 for p in (prs or []) if p.status_normalized == "MERGED")
+
+        agg = ProcessDataAggregate(
             board_id=board_id,
             record_date=record_date,
-            tickets=tickets,
-            prs=prs or [],
-            issues=[],
-            total_ideal_points=total_ideal_points
+            total_story_points=total_sp,
+            completed_story_points=completed_sp,
+            remaining_story_points=remaining_sp,
+            total_completed_tickets=len(completed_tickets),
+            first_time_yield_clean_tickets=clean_tickets,
+            prs_merged_count=prs_merged
         )
 
-        response: Dict[str, Any] = {
-            "board_id": board_id,
-            "record_date": record_date,
-            "kpi_record_for_db": aggregate_record.to_dict(),
-        }
+        db_record = agg.to_dict()
 
+        # Route to the correct strategy based on desired output format
         if output_format == "csv":
-            response["csv_output"] = cls.to_csv(computed_kpis)
+            formatted_output = cls.to_csv(computed_kpis)
         elif output_format == "html":
-            response["html_output"] = cls.to_html(computed_kpis)
+            formatted_output = cls.to_html(computed_kpis)
         else:
-            response["graphic_contract"] = cls.to_graphic_contract(computed_kpis)
+            # Default to spreadsheet/graphic contract
+            contract_dict = cls.to_spreadsheet_contract(computed_kpis)
+            formatted_output = json.dumps(contract_dict)
 
-        return response
+        final_payload = {
+            "board_id": board_id,
+            "kpi_record_for_db": db_record,
+            "graphic_contract": formatted_output
+        }
+        return final_payload

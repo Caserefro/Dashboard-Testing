@@ -76,9 +76,10 @@ class DockerWorkerOrchestrator:
             "missing_dates": missing_dates
         }
 
-        module_name = "backend.worker.S0_Extractor.azure_extractor"
-        if "github" in extractor_image_or_script.lower():
-            module_name = "backend.worker.S0_Extractor.github_extractor"
+        module_name = "backend.worker.S0_Extractor.azure.azure_extractor"
+        # Temporarily we map github explicitly
+        if board_id == 10:
+            module_name = "backend.worker.S0_Extractor.github.github_extractor"
 
         cmd = [sys.executable, "-m", module_name]
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

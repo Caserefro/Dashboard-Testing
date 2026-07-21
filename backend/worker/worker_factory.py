@@ -38,6 +38,8 @@ class AnalyticsWorkerFactory:
         start_date = payload.get("start_date", record_date)
         end_date = payload.get("end_date", record_date)
 
+        debug_mode = payload.get("debug_mode", False)
+
         # ============================================================== #
         # ============================================================== #
         #  STAGE 1: NORMALIZER (`Creates Process Data`)
@@ -57,6 +59,7 @@ class AnalyticsWorkerFactory:
         # ============================================================== #
         computed_kpis = Analyzer.measure_all(
             tickets=combined_tickets,
+            prs=new_prs,
             start_date=start_date,
             end_date=end_date,
             kpi_config=kpi_config,
@@ -66,7 +69,7 @@ class AnalyticsWorkerFactory:
         # ============================================================== #
         #  STAGE 3: FORMATTER (`Gives Shape to Data`)
         # ============================================================== #
-        return Formatter.format_all(
+        formatted_result = Formatter.format_all(
             board_id=board_id,
             record_date=record_date,
             computed_kpis=computed_kpis,
@@ -75,6 +78,29 @@ class AnalyticsWorkerFactory:
             total_ideal_points=kpi_config.get("total_ideal_points"),
             output_format=output_format
         )
+        
+        # ============================================================== #
+        #  DEBUG MODE: Dump Intermediate RAM States to Disk
+        # ============================================================== #
+        if debug_mode:
+            import os
+            debug_dir = os.path.join(os.path.dirname(__file__), "..", "..", "e2e_outputs")
+            os.makedirs(debug_dir, exist_ok=True)
+            
+            def _dump(name: str, data: Any):
+                with open(os.path.join(debug_dir, name), "w", encoding="utf-8") as f:
+                    if isinstance(data, list) and len(data) > 0 and hasattr(data[0], "to_dict"):
+                        json.dump([d.to_dict() for d in data], f, indent=2)
+                    else:
+                        json.dump(data, f, indent=2)
+                        
+            _dump("S0_Extracted_Raw.json", raw_json)
+            _dump("S1_Normalized_Tickets.json", combined_tickets)
+            _dump("S1_Normalized_PRs.json", new_prs)
+            _dump("S2_Analyzed_Math.json", computed_kpis)
+            _dump("S3_Formatted_Contracts.json", formatted_result)
+            
+        return formatted_result
 
 
 # ================================================================== #
