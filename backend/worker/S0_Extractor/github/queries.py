@@ -28,6 +28,20 @@ query($org: String!, $projectNumber: Int!, $cursor: String) {
                 }
               }
             }
+            ... on PullRequest {
+              number
+              title
+              state
+              createdAt
+              updatedAt
+              mergedAt
+              reviews(first: 1) {
+                totalCount
+              }
+              commits {
+                totalCount
+              }
+            }
           }
           fieldValues(first: 20) {
             nodes {

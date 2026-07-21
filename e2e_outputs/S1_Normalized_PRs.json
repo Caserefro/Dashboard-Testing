@@ -1,0 +1,30 @@
+[
+  {
+    "pr_id": "UNKNOWN",
+    "title": "Backend Refactor: Pure Factory Pipeline",
+    "repository": "Caserefro/Dashboard-Testing",
+    "status_normalized": "OPEN",
+    "lines_added": 0,
+    "lines_removed": 0,
+    "created_date": "2026-07-21",
+    "merged_date": null,
+    "board_id": 10,
+    "comment_count": 0,
+    "commits_after_creation": 0,
+    "review_cycles": 0
+  },
+  {
+    "pr_id": "UNKNOWN",
+    "title": "Dummy PR for testing quality metrics",
+    "repository": "Caserefro/Dashboard-Testing",
+    "status_normalized": "OPEN",
+    "lines_added": 0,
+    "lines_removed": 0,
+    "created_date": "2026-07-21",
+    "merged_date": null,
+    "board_id": 10,
+    "comment_count": 0,
+    "commits_after_creation": 0,
+    "review_cycles": 0
+  }
+]

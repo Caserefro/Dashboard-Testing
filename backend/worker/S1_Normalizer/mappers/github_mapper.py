@@ -27,7 +27,7 @@ class GitHubMapper(BaseMapper):
             fields["type"] = item.get("type", item.get("projectItemType", "Issue"))
             sprint_name = gh_fields.get("Sprint")
 
-        ticket_id = str(fields.get("id", "UNKNOWN"))
+        ticket_id = str(fields.get("number", fields.get("id", "UNKNOWN")))
         unit_type = cls.normalize_unit_type(fields.get("type", "Task"))
         
         status_raw = fields.get("Status", fields.get("state", "To Do"))
@@ -41,8 +41,12 @@ class GitHubMapper(BaseMapper):
         completed_date_raw = fields.get("closed_at", fields.get("completed_date"))
         if completed_date_raw:
             completed_date = str(completed_date_raw)[:10]
+        elif status_norm == "DONE":
+            # Fallback: use updatedAt as best-available completion timestamp
+            updated_at = fields.get("updatedAt", fields.get("updated_at"))
+            completed_date = str(updated_at)[:10] if updated_at else default_record_date
         else:
-            completed_date = (default_record_date if status_norm == "DONE" else None)
+            completed_date = None
             
         rework_loops = item.get("rework_loops", 0)
         time_in_todo_sec = float(item.get("time_in_todo_sec", 0.0))

@@ -1,0 +1,254 @@
+{
+  "workItems": [
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzi3AU",
+      "number": 6,
+      "title": "Fix FTY Math Bug",
+      "state": "OPEN",
+      "createdAt": "2026-07-21T09:44:48Z",
+      "updatedAt": "2026-07-21T09:44:48Z",
+      "labels": [
+        "bug"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "In Review",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "8",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        }
+      ],
+      "rework_loops": 0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhq1A",
+      "number": 1,
+      "title": "Clean Ticket (FTY)",
+      "state": "CLOSED",
+      "createdAt": "2026-07-21T06:55:27Z",
+      "updatedAt": "2026-07-21T06:55:38Z",
+      "labels": [],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Merged",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "4",
+          "startDate": null,
+          "duration": null
+        }
+      ],
+      "rework_loops": 0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhq1Y",
+      "number": 2,
+      "title": "Rework Loop Ticket",
+      "state": "CLOSED",
+      "createdAt": "2026-07-21T06:55:28Z",
+      "updatedAt": "2026-07-21T06:55:48Z",
+      "labels": [],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Merged",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "8",
+          "startDate": null,
+          "duration": null
+        }
+      ],
+      "rework_loops": 0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhu6Y",
+      "number": 3,
+      "title": "Production Bug Ticket",
+      "state": "CLOSED",
+      "createdAt": "2026-07-21T07:05:29Z",
+      "updatedAt": "2026-07-21T07:05:37Z",
+      "labels": [
+        "bug"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Merged",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "4",
+          "startDate": null,
+          "duration": null
+        }
+      ],
+      "rework_loops": 0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhu6k",
+      "number": 4,
+      "title": "Scope Creep Ticket",
+      "state": "OPEN",
+      "createdAt": "2026-07-21T07:05:30Z",
+      "updatedAt": "2026-07-21T07:05:30Z",
+      "labels": [
+        "Additional Scope"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "In Progress",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "16",
+          "startDate": null,
+          "duration": null
+        }
+      ],
+      "rework_loops": 0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzi3Bw",
+      "number": 7,
+      "title": "UI Component Overhaul",
+      "state": "OPEN",
+      "createdAt": "2026-07-21T09:44:49Z",
+      "updatedAt": "2026-07-21T09:44:49Z",
+      "labels": [
+        "enhancement"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "In Progress",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "8",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        }
+      ],
+      "rework_loops": 0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzi3AA",
+      "number": 5,
+      "title": "Backend API Integration",
+      "state": "OPEN",
+      "createdAt": "2026-07-21T09:44:47Z",
+      "updatedAt": "2026-07-21T09:44:47Z",
+      "labels": [
+        "enhancement"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Todo",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "4",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        }
+      ],
+      "rework_loops": 0
+    }
+  ],
+  "pullRequests": [
+    {
+      "pullRequestId": 8,
+      "title": "Backend Refactor: Pure Factory Pipeline",
+      "status": "OPEN",
+      "creationDate": "2026-07-21T09:49:45Z",
+      "mergedAt": null,
+      "commentCount": 0,
+      "commitsAfterCreation": 0,
+      "review_cycles": 0
+    },
+    {
+      "pullRequestId": 9,
+      "title": "Dummy PR for testing quality metrics",
+      "status": "OPEN",
+      "creationDate": "2026-07-21T09:49:56Z",
+      "mergedAt": null,
+      "commentCount": 0,
+      "commitsAfterCreation": 0,
+      "review_cycles": 0
+    }
+  ],
+  "repo": "Caserefro/Dashboard-Testing",
+  "cutoff": "2026-04-01T00:00:00Z",
+  "sprint_meta": {
+    "sprint_name": "Sprint 1",
+    "start_date": "2026-07-21",
+    "end_date": "2026-08-04",
+    "total_ideal_points": 52.0
+  }
+}

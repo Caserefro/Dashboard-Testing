@@ -14,6 +14,7 @@ from typing import Dict, Any, List
 
 from .queries import PROJECT_ITEMS_ORG_QUERY, PROJECT_ITEMS_USER_QUERY, ISSUE_TIMELINE_QUERY, PR_TIMELINE_QUERY
 from .timeline_parser import parse_issue_timeline
+from . import utils
 
 class GitHubExtractor:
     @classmethod
@@ -54,42 +55,69 @@ class GitHubExtractor:
             nodes = data.get("data", {}).get("organization" if org else "user", {}).get("projectV2", {}).get("items", {}).get("nodes", [])
             
             work_items = []
+            pull_requests = []
+            
             for n in nodes:
                 content = n.get("content", {})
                 fields = n.get("fieldValues", {}).get("nodes", [])
+                item_type = n.get("type", "ISSUE")
                 
-                # Fetch Timeline (Simulated inline for rate limits during tests)
-                # In full prod, we would fire httpx for each issue
+                parsed_fields = [
+                    {
+                        "fieldName": f.get("field", {}).get("name"), 
+                        "value": f.get("name") or f.get("title") or f.get("number"),
+                        "startDate": f.get("startDate"),
+                        "duration": f.get("duration")
+                    } 
+                    for f in fields if f.get("field")
+                ]
                 
-                work_items.append({
-                    "id": n.get("id"),
-                    "number": content.get("number"),
-                    "title": content.get("title"),
-                    "state": content.get("state"),
-                    "createdAt": content.get("createdAt"),
-                    "updatedAt": content.get("updatedAt"),
-                    "labels": [lbl.get("name") for lbl in content.get("labels", {}).get("nodes", [])],
-                    "fieldValues": [
-                        {
-                            "fieldName": f.get("field", {}).get("name"), 
-                            "value": f.get("name") or f.get("title") or f.get("number"),
-                            "startDate": f.get("startDate"),
-                            "duration": f.get("duration")
-                        } 
-                        for f in fields if f.get("field")
-                    ],
-                    "rework_loops": 0 # Default if we skip timeline
-                })
+                if item_type == "PULL_REQUEST":
+                    # Extract PR-specific data from the expanded content fragment
+                    review_count = content.get("reviews", {}).get("totalCount", 0)
+                    commit_count = content.get("commits", {}).get("totalCount", 0)
+                    
+                    pull_requests.append({
+                        "pullRequestId": content.get("number"),
+                        "title": content.get("title"),
+                        "status": "MERGED" if content.get("mergedAt") else content.get("state", "OPEN"),
+                        "creationDate": content.get("createdAt"),
+                        "mergedAt": content.get("mergedAt"),
+                        "commentCount": 0,
+                        "commitsAfterCreation": max(0, commit_count - 1),
+                        "review_cycles": review_count
+                    })
+                else:
+                    # Standard Issue item
+                    work_items.append({
+                        "id": n.get("id"),
+                        "number": content.get("number"),
+                        "title": content.get("title"),
+                        "state": content.get("state"),
+                        "createdAt": content.get("createdAt"),
+                        "updatedAt": content.get("updatedAt"),
+                        "labels": [lbl.get("name") for lbl in content.get("labels", {}).get("nodes", [])],
+                        "fieldValues": parsed_fields,
+                        "rework_loops": 0
+                    })
+            
+            # Filter out ghost items (incomplete/orphaned project entries)
+            work_items = utils.filter_ghost_items(work_items)
+            
+            # Auto-detect sprint window from the extracted field data
+            sprint_meta = utils.detect_sprint_window(work_items)
                 
             return {
                 "workItems": work_items,
-                "pullRequests": [],
+                "pullRequests": pull_requests,
                 "repo": repo,
-                "cutoff": missing_dates[0] if missing_dates else "2026-04-01T00:00:00Z"
+                "cutoff": missing_dates[0] if missing_dates else "2026-04-01T00:00:00Z",
+                "sprint_meta": sprint_meta
             }
 
         except Exception as e:
             # High-fidelity mock generation for Pipeline testing
+            print(f"[WARNING] GitHub Extractor failed to fetch live data (fallback to mock): {e}", file=sys.stderr)
             return cls._generate_mock_data(missing_dates, repo)
 
     @classmethod

@@ -1,0 +1,309 @@
+{
+  "fty_percentage": 100.0,
+  "burndown_curve": {
+    "series": [
+      {
+        "date": "2026-07-21",
+        "remaining_points": 36.0,
+        "ideal_points": 52.0,
+        "inverse_root_points": 52.0
+      },
+      {
+        "date": "2026-07-22",
+        "remaining_points": 36.0,
+        "ideal_points": 48.29,
+        "inverse_root_points": 38.1
+      },
+      {
+        "date": "2026-07-23",
+        "remaining_points": 36.0,
+        "ideal_points": 44.57,
+        "inverse_root_points": 32.35
+      },
+      {
+        "date": "2026-07-24",
+        "remaining_points": 36.0,
+        "ideal_points": 40.86,
+        "inverse_root_points": 27.93
+      },
+      {
+        "date": "2026-07-25",
+        "remaining_points": 36.0,
+        "ideal_points": 37.14,
+        "inverse_root_points": 24.2
+      },
+      {
+        "date": "2026-07-26",
+        "remaining_points": 36.0,
+        "ideal_points": 33.43,
+        "inverse_root_points": 20.92
+      },
+      {
+        "date": "2026-07-27",
+        "remaining_points": 36.0,
+        "ideal_points": 29.71,
+        "inverse_root_points": 17.96
+      },
+      {
+        "date": "2026-07-28",
+        "remaining_points": 36.0,
+        "ideal_points": 26.0,
+        "inverse_root_points": 15.23
+      },
+      {
+        "date": "2026-07-29",
+        "remaining_points": 36.0,
+        "ideal_points": 22.29,
+        "inverse_root_points": 12.69
+      },
+      {
+        "date": "2026-07-30",
+        "remaining_points": 36.0,
+        "ideal_points": 18.57,
+        "inverse_root_points": 10.31
+      },
+      {
+        "date": "2026-07-31",
+        "remaining_points": 36.0,
+        "ideal_points": 14.86,
+        "inverse_root_points": 8.05
+      },
+      {
+        "date": "2026-08-01",
+        "remaining_points": 36.0,
+        "ideal_points": 11.14,
+        "inverse_root_points": 5.91
+      },
+      {
+        "date": "2026-08-02",
+        "remaining_points": 36.0,
+        "ideal_points": 7.43,
+        "inverse_root_points": 3.86
+      },
+      {
+        "date": "2026-08-03",
+        "remaining_points": 36.0,
+        "ideal_points": 3.71,
+        "inverse_root_points": 1.89
+      },
+      {
+        "date": "2026-08-04",
+        "remaining_points": 36.0,
+        "ideal_points": 0.0,
+        "inverse_root_points": 0.0
+      }
+    ],
+    "forecast": {
+      "future_x": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "catchup_y": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "slip_y": [
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0,
+        36.0
+      ],
+      "forecast_y": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "tickets_per_day_chart": [
+    {
+      "day_label": "Monday",
+      "tickets_merged": 0
+    },
+    {
+      "day_label": "Tuesday",
+      "tickets_merged": 3
+    },
+    {
+      "day_label": "Wednesday",
+      "tickets_merged": 0
+    },
+    {
+      "day_label": "Thursday",
+      "tickets_merged": 0
+    },
+    {
+      "day_label": "Friday",
+      "tickets_merged": 0
+    },
+    {
+      "day_label": "Saturday",
+      "tickets_merged": 0
+    },
+    {
+      "day_label": "Sunday",
+      "tickets_merged": 0
+    }
+  ],
+  "sprint_item_timeline": [
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#6",
+      "Title": "Fix FTY Math Bug",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "IN_REVIEW",
+      "Estimate": 8.0,
+      "IsBug": true
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#1",
+      "Title": "Clean Ticket (FTY)",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "DONE",
+      "Estimate": 4.0,
+      "IsBug": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#2",
+      "Title": "Rework Loop Ticket",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "DONE",
+      "Estimate": 8.0,
+      "IsBug": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#3",
+      "Title": "Production Bug Ticket",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "DONE",
+      "Estimate": 4.0,
+      "IsBug": true
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#4",
+      "Title": "Scope Creep Ticket",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "IN_PROGRESS",
+      "Estimate": 16.0,
+      "IsBug": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#7",
+      "Title": "UI Component Overhaul",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "IN_PROGRESS",
+      "Estimate": 8.0,
+      "IsBug": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#5",
+      "Title": "Backend API Integration",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "TotalCycleDays": 0.0,
+      "CurrentStatus": "TODO",
+      "Estimate": 4.0,
+      "IsBug": false
+    }
+  ],
+  "pr_based_fty": {
+    "TotalMergedPRs": 0,
+    "FirstPassPRs": 0,
+    "ReworkedPRs": 0,
+    "PRFTYPercentage": 100.0,
+    "AvgReviewCycles": 0.0,
+    "AvgCommentsPerPR": 0.0
+  },
+  "issue_loop_fty": {
+    "TotalCompletedItems": 3,
+    "FirstTimeYieldItems": 3,
+    "ReworkedItems": 0,
+    "FTYPercentage": 100.0,
+    "AvgReworkLoopsPerCompletedItem": 0.0,
+    "AvgReworkLoopsPerReworkedItem": 0.0
+  },
+  "average_time_in_step": {
+    "AvgTodoDays": 0.0,
+    "AvgInProgressDays": 0.0,
+    "AvgInReviewDays": 0.0,
+    "AvgCycleDays": 0.0,
+    "ItemCount": 7,
+    "BugItemCount": 2
+  },
+  "sp_breakdown": {
+    "TotalSP": 52.0,
+    "BugSP": 12.0,
+    "BugPercentage": 23.08,
+    "NonBugSP": 40.0
+  }
+}

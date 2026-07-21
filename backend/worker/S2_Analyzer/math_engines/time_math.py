@@ -10,10 +10,19 @@ class TimeMath:
         SEC_TO_DAYS = 86400.0
         result = []
         for t in tickets:
+            # Use human-readable title from comments field, fallback to ticket_id
+            display_title = t.comments if t.comments else t.ticket_id
+            # Try to extract a numeric issue number for display
+            try:
+                issue_num = int(t.ticket_id) if t.ticket_id.isdigit() else None
+            except (ValueError, AttributeError):
+                issue_num = None
+            display_number = f"#{issue_num}" if issue_num else t.ticket_id
+            
             result.append({
                 "Sprint": t.sprint,
-                "IssueNumber": t.ticket_id,
-                "Title": t.ticket_id, 
+                "IssueNumber": display_number,
+                "Title": display_title,
                 "TodoDays": round(t.time_in_todo_sec / SEC_TO_DAYS, 2),
                 "InProgressDays": round(t.time_in_progress_sec / SEC_TO_DAYS, 2),
                 "InReviewDays": round(t.time_in_review_sec / SEC_TO_DAYS, 2),

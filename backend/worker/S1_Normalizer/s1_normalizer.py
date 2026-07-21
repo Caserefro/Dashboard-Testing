@@ -18,12 +18,6 @@ class Normalizer:
     @classmethod
     def _get_mapper(cls, raw_json: Dict[str, Any], board_id: int):
         """Detects the payload source and returns the appropriate mapper strategy."""
-        pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))
-        if pull_requests:
-            if "pullRequestId" in pull_requests[0]:
-                return AzureMapper
-            return GitHubMapper
-            
         work_items = raw_json.get("workItems", raw_json.get("value", []))
         if not work_items and "sampleItems" in raw_json:
             work_items = raw_json["sampleItems"]
@@ -31,12 +25,23 @@ class Normalizer:
         if work_items:
             first_item = work_items[0]
             fields = first_item.get("fields", first_item)
+            # Azure DevOps uses System.* namespaced keys
             if "System.WorkItemType" in fields or "System.State" in fields:
                 return AzureMapper
-            if "type" in fields or "projectItemType" in first_item:
+            # GitHub uses fieldValues array with fieldName keys
+            if "fieldValues" in first_item or "type" in fields or "projectItemType" in first_item:
                 return GitHubMapper
                 
-        # Default fallback
+        # Fallback: check PR shape for Azure-specific format
+        pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))
+        if pull_requests:
+            first_pr = pull_requests[0]
+            # Azure PRs have nested reviewers, completionOptions, etc.
+            if "reviewers" in first_pr or "completionOptions" in first_pr:
+                return AzureMapper
+            return GitHubMapper
+                
+        # Ultimate fallback
         if board_id == 10:
             return GitHubMapper
         return AzureMapper

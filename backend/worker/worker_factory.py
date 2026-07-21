@@ -35,8 +35,15 @@ class AnalyticsWorkerFactory:
         orchestrator_data_od = payload.get("orchestrator_data_od", [])
         kpi_config = payload.get("kpi_config", {})
         output_format = payload.get("output_format", "graphic_contract").lower()
-        start_date = payload.get("start_date", record_date)
-        end_date = payload.get("end_date", record_date)
+        
+        # Auto-detect sprint window from Extractor's sprint_meta (if available)
+        sprint_meta = raw_json.get("sprint_meta", {})
+        start_date = payload.get("start_date") or sprint_meta.get("start_date") or record_date
+        end_date = payload.get("end_date") or sprint_meta.get("end_date") or record_date
+        
+        # Auto-detect total_ideal_points from sprint if not explicitly configured
+        if not kpi_config.get("total_ideal_points") and sprint_meta.get("total_ideal_points"):
+            kpi_config["total_ideal_points"] = sprint_meta["total_ideal_points"]
 
         debug_mode = payload.get("debug_mode", False)
 
