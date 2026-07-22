@@ -1,7 +1,7 @@
 import httpx
 
 def main():
-    pat = "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"
+    pat = ""
     repo = "Caserefro/TestRepo"
     
     headers = {
