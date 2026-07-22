@@ -3,7 +3,7 @@ import requests
 import json
 import time
 
-TOKEN = "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"
+TOKEN = ""
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
     "Content-Type": "application/json",
