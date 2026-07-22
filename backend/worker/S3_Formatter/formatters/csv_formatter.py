@@ -1,99 +1,102 @@
 from typing import Dict, Any
 import csv
 import io
+from itertools import zip_longest
 
 class CsvFormatter:
     """Shapes computed KPIs into a clean CSV table string with all metric sections."""
 
     @staticmethod
     def format(computed_kpis: Dict[str, Any]) -> str:
-        output = io.StringIO()
+        output = io.StringIO(newline="")
         writer = csv.writer(output)
 
-        # --- Section 1: Summary Metrics ---
-        writer.writerow(["Metric Summary", "Value"])
-        writer.writerow(["First Time Yield (%)", computed_kpis.get("fty_percentage", 100.0)])
+        # --- Extrapolate Required Metrics ---
+        timeline = computed_kpis.get("sprint_item_timeline", [])
         
+        # Sprint state aggregations
+        issues_total = len(timeline)
+        issues_todo = sum(1 for t in timeline if t.get("CurrentStatus") == "TODO")
+        issues_in_progress = sum(1 for t in timeline if t.get("CurrentStatus") == "IN_PROGRESS")
+        issues_in_review = sum(1 for t in timeline if t.get("CurrentStatus") == "IN_REVIEW")
+        issues_merged = sum(1 for t in timeline if t.get("CurrentStatus") == "DONE")
+        
+        # Story Points
         sp = computed_kpis.get("sp_breakdown", {})
-        writer.writerow(["Total Story Points", sp.get("TotalSP", 0)])
-        writer.writerow(["Bug Story Points", sp.get("BugSP", 0)])
-        writer.writerow(["Bug SP (%)", sp.get("BugPercentage", 0)])
-        writer.writerow(["Non-Bug Story Points", sp.get("NonBugSP", 0)])
-        writer.writerow([])
+        sp_total = sp.get("TotalSP", 0.0)
+        sp_bug = sp.get("BugSP", 0.0)
+        sp_non_bug = sp.get("NonBugSP", 0.0)
+        sp_clean_pct = sp.get("NonBugPercentage", 100.0)
+        
+        # Quality
+        issue_fty = computed_kpis.get("issue_loop_fty", {})
+        reentries = issue_fty.get("AvgReworkLoopsPerCompletedItem", 0.0)
 
-        # --- Section 2: Burndown Curve ---
+        # --- Build Left Side (Daily Aggregation & Burndown) ---
         burndown_data = computed_kpis.get("burndown_curve", {})
         series_list = burndown_data if isinstance(burndown_data, list) else burndown_data.get("series", [])
-
-        writer.writerow(["Burndown Curve"])
-        writer.writerow(["Date", "Remaining Points", "Ideal Points", "Inverse Root Points"])
+        
+        left_headers = [
+            "record_date", "Sprint", "issues_total", "issues_todo", "issues_in_progress", "issues_in_review", "issues_merged",
+            "avg_time_todo_E2", "avg_time_in_progress_E2", "avg_time_in_review_E2", "avg_time_merged_E2",
+            "avg_time_todo_E4", "avg_time_in_progress_E4", "avg_time_in_review_E4", "avg_time_merged_E4",
+            "avg_time_todo_E8", "avg_time_in_progress_E8", "avg_time_in_review_E8", "avg_time_merged_E8",
+            "avg_time_todo_E16", "avg_time_in_progress_E16", "avg_time_in_review_E16", "avg_time_merged_E16",
+            "story_points_total", "story_points_bug", "story_points_non_bug", "story_points_clean_pct",
+            "average_prs_per_issue", "reentries_per_issue",
+            "BurndownSP", "BurndownAVGSP", "BurndownPredictionSP", "SPDelta"
+        ]
+        
+        left_rows = []
         for pt in series_list:
-            writer.writerow([
-                pt.get("date"),
-                pt.get("remaining_points"),
-                pt.get("ideal_points"),
-                pt.get("inverse_root_points"),
+            date = pt.get("date", "")
+            sprint_name = timeline[0].get("Sprint", "") if timeline else ""
+            
+            b_rem = pt.get("remaining_points", 0.0)
+            b_idl = pt.get("baseline_points", pt.get("ideal_points", 0.0))
+            b_pred = pt.get("prediction_points", 0.0)
+            sp_delta = round(b_rem - b_idl, 2)
+            
+            avg_est = computed_kpis.get("average_time_by_estimate", {})
+            e2 = avg_est.get("E2", {})
+            e4 = avg_est.get("E4", {})
+            e8 = avg_est.get("E8", {})
+            e16 = avg_est.get("E16", {})
+            
+            left_rows.append([
+                date, sprint_name, issues_total, issues_todo, issues_in_progress, issues_in_review, issues_merged,
+                e2.get("todo", 0.0), e2.get("in_progress", 0.0), e2.get("in_review", 0.0), e2.get("merged", 0.0),
+                e4.get("todo", 0.0), e4.get("in_progress", 0.0), e4.get("in_review", 0.0), e4.get("merged", 0.0),
+                e8.get("todo", 0.0), e8.get("in_progress", 0.0), e8.get("in_review", 0.0), e8.get("merged", 0.0),
+                e16.get("todo", 0.0), e16.get("in_progress", 0.0), e16.get("in_review", 0.0), e16.get("merged", 0.0),
+                sp_total, sp_bug, sp_non_bug, sp_clean_pct,
+                computed_kpis.get("average_prs_per_issue", 0.0), reentries,
+                b_rem, b_idl, b_pred, sp_delta
             ])
-        writer.writerow([])
-
-        # --- Section 3: Tickets Per Day ---
-        writer.writerow(["Tickets Per Day Chart"])
-        writer.writerow(["Day Label", "Tickets Merged"])
-        for row in computed_kpis.get("tickets_per_day_chart", []):
-            writer.writerow([row.get("day_label"), row.get("tickets_merged")])
-        writer.writerow([])
-
-        # --- Section 4: Sprint Item Timeline (Gantt Data) ---
-        writer.writerow(["Sprint Item Timeline"])
-        writer.writerow(["Sprint", "IssueNumber", "Title", "TodoDays", "InProgressDays", "InReviewDays", "TotalCycleDays", "Status", "Estimate", "IsBug"])
-        for item in computed_kpis.get("sprint_item_timeline", []):
-            writer.writerow([
-                item.get("Sprint"),
-                item.get("IssueNumber"),
+            
+        # --- Build Right Side (Sprint Timeline) ---
+        right_headers = ["Title", "Sprint", "TodoDays", "InProgressDays", "InReviewDays", "ReworkDays"]
+        right_rows = []
+        for item in timeline:
+            right_rows.append([
                 item.get("Title"),
+                item.get("Sprint"),
                 item.get("TodoDays"),
                 item.get("InProgressDays"),
                 item.get("InReviewDays"),
-                item.get("TotalCycleDays"),
-                item.get("CurrentStatus"),
-                item.get("Estimate"),
-                item.get("IsBug"),
+                item.get("ReworkDays", 0.0)
             ])
-        writer.writerow([])
-
-        # --- Section 5: Issue Loop FTY ---
-        issue_fty = computed_kpis.get("issue_loop_fty", {})
-        writer.writerow(["Issue Loop FTY"])
-        writer.writerow(["Metric", "Value"])
-        writer.writerow(["Total Completed Items", issue_fty.get("TotalCompletedItems", 0)])
-        writer.writerow(["First Time Yield Items", issue_fty.get("FirstTimeYieldItems", 0)])
-        writer.writerow(["Reworked Items", issue_fty.get("ReworkedItems", 0)])
-        writer.writerow(["FTY (%)", issue_fty.get("FTYPercentage", 100.0)])
-        writer.writerow(["Avg Rework Loops (Completed)", issue_fty.get("AvgReworkLoopsPerCompletedItem", 0)])
-        writer.writerow(["Avg Rework Loops (Reworked)", issue_fty.get("AvgReworkLoopsPerReworkedItem", 0)])
-        writer.writerow([])
-
-        # --- Section 6: PR-Based FTY ---
-        pr_fty = computed_kpis.get("pr_based_fty", {})
-        writer.writerow(["PR-Based FTY"])
-        writer.writerow(["Metric", "Value"])
-        writer.writerow(["Total Merged PRs", pr_fty.get("TotalMergedPRs", 0)])
-        writer.writerow(["First Pass PRs", pr_fty.get("FirstPassPRs", 0)])
-        writer.writerow(["Reworked PRs", pr_fty.get("ReworkedPRs", 0)])
-        writer.writerow(["PR FTY (%)", pr_fty.get("PRFTYPercentage", 100.0)])
-        writer.writerow(["Avg Review Cycles", pr_fty.get("AvgReviewCycles", 0)])
-        writer.writerow(["Avg Comments Per PR", pr_fty.get("AvgCommentsPerPR", 0)])
-        writer.writerow([])
-
-        # --- Section 7: Average Time in Step ---
-        avg_time = computed_kpis.get("average_time_in_step", {})
-        writer.writerow(["Average Time in Step"])
-        writer.writerow(["Metric", "Value"])
-        writer.writerow(["Avg Todo Days", avg_time.get("AvgTodoDays", 0)])
-        writer.writerow(["Avg In Progress Days", avg_time.get("AvgInProgressDays", 0)])
-        writer.writerow(["Avg In Review Days", avg_time.get("AvgInReviewDays", 0)])
-        writer.writerow(["Avg Cycle Days", avg_time.get("AvgCycleDays", 0)])
-        writer.writerow(["Item Count", avg_time.get("ItemCount", 0)])
-        writer.writerow(["Bug Item Count", avg_time.get("BugItemCount", 0)])
+            
+        # Write headers with a double empty column separator
+        writer.writerow(left_headers + ["", ""] + right_headers)
+        
+        # Zip them together
+        for left, right in zip_longest(left_rows, right_rows, fillvalue=[]):
+            # Pad left with empty strings if it ran out
+            left_padded = left if left else [""] * len(left_headers)
+            # Pad right with empty strings if it ran out
+            right_padded = right if right else [""] * len(right_headers)
+            
+            writer.writerow(left_padded + ["", ""] + right_padded)
 
         return output.getvalue()

@@ -20,7 +20,8 @@ class BurndownMath:
         start_date_iso: str,
         end_date_iso: str,
         total_ideal_points: Optional[float] = None,
-        historical_od: Optional[List[Dict[str, Any]]] = None
+        historical_od: Optional[List[Dict[str, Any]]] = None,
+        record_date_iso: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Computes the daily burndown curve series (`remaining_points`, `ideal_points`, `inverse_root_points`).
@@ -32,48 +33,20 @@ class BurndownMath:
         except (ValueError, TypeError):
             start_dt = datetime.now() - timedelta(days=14)
             end_dt = datetime.now()
+            
+        try:
+            record_dt = datetime.strptime(record_date_iso[:10], "%Y-%m-%d") if record_date_iso else datetime.now()
+        except (ValueError, TypeError):
+            record_dt = datetime.now()
 
         total_days = max(1, (end_dt - start_dt).days)
 
         if total_ideal_points is None or total_ideal_points <= 0:
             total_ideal_points = sum(t.story_points for t in tickets) if tickets else 100.0
 
-        series: List[Dict[str, Any]] = []
-        live_x = []
-        live_y = []
-
-        for day_offset in range(total_days + 1):
-            current_dt = start_dt + timedelta(days=day_offset)
-            current_date_str = current_dt.strftime("%Y-%m-%d")
-            
-            # Stop collecting live points if we are past today
-            if current_dt > end_dt:
-                pass 
-
-            daily_completed = sum(
-                t.story_points for t in tickets
-                if t.status_normalized == "DONE" and t.completed_date and t.completed_date <= current_date_str
-            )
-
-            remaining = max(0.0, total_ideal_points - daily_completed)
-            ideal = max(0.0, total_ideal_points * (1.0 - day_offset / total_days))
-            inv_root = max(0.0, total_ideal_points * (1.0 - math.sqrt(day_offset / total_days)))
-
-            series.append({
-                "date": current_date_str,
-                "remaining_points": round(remaining, 2),
-                "ideal_points": round(ideal, 2),
-                "inverse_root_points": round(inv_root, 2),
-            })
-            
-            x_percent = (day_offset / total_days) * 100.0
-            live_x.append(x_percent)
-            live_y.append(remaining)
-        
-        # Build Master Baseline from historical_od (fallback to ideal if none)
+        # 1. Build Master Baseline from historical_od (fallback to ideal if none)
         master_x = [0.0, 100.0]
         master_y = [total_ideal_points, 0.0]
-        
         if historical_od and len(historical_od) >= 2:
             master_x.clear()
             master_y.clear()
@@ -82,6 +55,76 @@ class BurndownMath:
                 master_x.append((i / (hist_len - 1)) * 100.0)
                 master_y.append(float(record.get("remaining_story_points", 0.0)))
                 
+        # Handle duplicate x-values (PCHIP requirement)
+        if len(set(master_x)) < len(master_x):
+            master_x = [0.0, 100.0]
+            master_y = [total_ideal_points, 0.0]
+
+        master_pchip = PchipInterpolator(master_x, master_y)
+
+        # 2. Extract live points up to today
+        live_x = []
+        live_y = []
+        for day_offset in range(total_days + 1):
+            current_dt = start_dt + timedelta(days=day_offset)
+            current_date_str = current_dt.strftime("%Y-%m-%d")
+            
+            # Stop collecting live points if we are past TODAY (the record date)
+            if current_dt > record_dt:
+                break
+                
+            daily_completed = sum(
+                t.story_points for t in tickets
+                if t.status_normalized == "DONE" and t.completed_date and t.completed_date <= current_date_str
+            )
+            
+            x_percent = (day_offset / total_days) * 100.0
+            remaining = max(0.0, total_ideal_points - daily_completed)
+            live_x.append(x_percent)
+            live_y.append(remaining)
+
+        current_x = live_x[-1] if live_x else 0.0
+        current_y = live_y[-1] if live_y else total_ideal_points
+        baseline_at_current = float(master_pchip(min(100.0, max(0.0, current_x))))
+        current_delta = current_y - baseline_at_current
+
+        # 3. Generate the full daily series array
+        series: List[Dict[str, Any]] = []
+        for day_offset in range(total_days + 1):
+            current_dt = start_dt + timedelta(days=day_offset)
+            current_date_str = current_dt.strftime("%Y-%m-%d")
+            x_percent = (day_offset / total_days) * 100.0
+            
+            # Straight-line Ideal
+            ideal = max(0.0, total_ideal_points * (1.0 - day_offset / total_days))
+            inv_root = max(0.0, total_ideal_points * (1.0 - math.sqrt(day_offset / total_days)))
+            
+            # Historical Baseline (The Real "AVG")
+            hist_baseline = float(master_pchip(x_percent))
+            
+            # Actual Remaining
+            daily_completed = sum(
+                t.story_points for t in tickets
+                if t.status_normalized == "DONE" and t.completed_date and t.completed_date <= current_date_str
+            )
+            actual_remaining = max(0.0, total_ideal_points - daily_completed)
+            
+            # Catchup Prediction
+            if x_percent <= current_x:
+                prediction = actual_remaining  # In the past/present, prediction is reality
+            else:
+                decay_factor = (100.0 - x_percent) / (100.0 - current_x) if current_x < 100.0 else 0.0
+                prediction = hist_baseline + (current_delta * decay_factor)
+                
+            series.append({
+                "date": current_date_str,
+                "remaining_points": round(actual_remaining, 2) if current_dt <= record_dt else round(current_y, 2),
+                "ideal_points": round(ideal, 2),
+                "baseline_points": round(hist_baseline, 2),
+                "prediction_points": round(max(0.0, prediction), 2),
+                "inverse_root_points": round(inv_root, 2),
+            })
+            
         forecast = BurndownMath.compute_forecast_tracks(master_x, master_y, live_x, live_y)
 
         return {

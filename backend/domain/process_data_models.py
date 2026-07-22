@@ -26,12 +26,14 @@ class NormalizedTicket:
     is_first_time_yield: bool       # True if completed without reopening/rejection loops
     board_id: int                   # FK to BOARDS.board_id
     sprint: Optional[str] = None    # Extracted from GitHub iterations for sprint reconstruction
+    title: str = ""                 # Issue Title
     comments: str = ""
     # New Fields for Advanced Metrics
     rework_loops: int = 0           # How many times it went backwards on the board
     time_in_todo_sec: float = 0.0   # Calculated from GraphQL Timeline API
     time_in_progress_sec: float = 0.0
     time_in_review_sec: float = 0.0
+    time_in_rework_sec: float = 0.0
     is_bug: bool = False            # True if labels include "bug"
     estimate: float = 0.0           # SP assigned
 
@@ -155,6 +157,7 @@ class ProcessDataAggregate:
     total_todo_days: float = 0.0
     total_in_progress_days: float = 0.0
     total_in_review_days: float = 0.0
+    total_in_rework_days: float = 0.0
     total_cycle_days: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
@@ -196,7 +199,8 @@ class ProcessDataAggregate:
         total_todo_days = sum(t.time_in_todo_sec for t in tickets) / SEC_TO_DAYS
         total_in_progress_days = sum(t.time_in_progress_sec for t in tickets) / SEC_TO_DAYS
         total_in_review_days = sum(t.time_in_review_sec for t in tickets) / SEC_TO_DAYS
-        total_cycle_days = total_todo_days + total_in_progress_days + total_in_review_days
+        total_in_rework_days = sum(t.time_in_rework_sec for t in tickets) / SEC_TO_DAYS
+        total_cycle_days = total_todo_days + total_in_progress_days + total_in_review_days + total_in_rework_days
 
         return cls(
             board_id=board_id,
@@ -217,6 +221,7 @@ class ProcessDataAggregate:
             total_todo_days=round(total_todo_days, 2),
             total_in_progress_days=round(total_in_progress_days, 2),
             total_in_review_days=round(total_in_review_days, 2),
+            total_in_rework_days=round(total_in_rework_days, 2),
             total_cycle_days=round(total_cycle_days, 2)
         )
 

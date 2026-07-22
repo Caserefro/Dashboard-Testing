@@ -17,6 +17,10 @@ query($org: String!, $projectNumber: Int!, $cursor: String) {
           type
           content {
             ... on Issue {
+              repository {
+                name
+                owner { login }
+              }
               number
               title
               state
@@ -29,6 +33,10 @@ query($org: String!, $projectNumber: Int!, $cursor: String) {
               }
             }
             ... on PullRequest {
+              repository {
+                name
+                owner { login }
+              }
               number
               title
               state
@@ -84,8 +92,8 @@ query($owner: String!, $repo: String!, $issueNumber: Int!, $cursor: String) {
           __typename
           ... on ProjectV2ItemStatusChangedEvent {
             createdAt
-            previousStatus { name }
-            status { name }
+            previousStatus
+            status
           }
           ... on ClosedEvent {
             createdAt

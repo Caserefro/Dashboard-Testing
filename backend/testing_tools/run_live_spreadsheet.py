@@ -1,8 +1,5 @@
 """
-Live GitHub Runner (`run_live_github.py`)
-
-Dumb runner script. No business logic.
-Just passes credentials to S0 Extractor, feeds the output to the Factory, and saves the result.
+Live GitHub Runner for Spreadsheet API
 """
 
 import sys
@@ -13,12 +10,8 @@ from backend.worker.worker_factory import AnalyticsWorkerFactory
 
 def main():
     REAL_GITHUB_PAT = "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"
-    GITHUB_REPO = "Caserefro/Dashboard-Testing"
-    PROJECT_NUMBER = 1
-
-    if REAL_GITHUB_PAT == "ghp_your_actual_token_here":
-        print("ERROR: Please insert your real GitHub PAT!")
-        sys.exit(1)
+    GITHUB_REPO = "Caserefro/TestRepo"
+    PROJECT_NUMBER = 2
 
     # S0: Extract
     print(f"Extracting from {GITHUB_REPO} Project #{PROJECT_NUMBER}...")
@@ -37,15 +30,24 @@ def main():
         "record_date": "2026-07-21",
         "raw_json": raw_json,
         "orchestrator_data_od": [],
-        "output_format": "csv",
+        "output_format": "spreadsheet",
         "debug_mode": True
     })
 
-    # Save CSV
-    csv_content = result.get("graphic_contract", "")
-    output_path = os.path.abspath("live_dashboard_output.csv")
+    # Save JSON contract
+    output_path = os.path.abspath("live_dashboard_spreadsheet.json")
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write(csv_content)
+        # result["graphic_contract"] is a dict for spreadsheet, or JSON str depending on Formatter
+        if isinstance(result.get("graphic_contract"), dict):
+            json.dump(result["graphic_contract"], f, indent=2)
+        else:
+            # Maybe it's a string from json.dumps
+            try:
+                parsed = json.loads(result.get("graphic_contract", "{}"))
+                json.dump(parsed, f, indent=2)
+            except Exception:
+                f.write(str(result.get("graphic_contract", "")))
+                
     print(f"Success! Saved to {output_path}")
 
 if __name__ == "__main__":

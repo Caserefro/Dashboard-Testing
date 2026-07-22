@@ -52,6 +52,7 @@ class GitHubMapper(BaseMapper):
         time_in_todo_sec = float(item.get("time_in_todo_sec", 0.0))
         time_in_progress_sec = float(item.get("time_in_progress_sec", 0.0))
         time_in_review_sec = float(item.get("time_in_review_sec", 0.0))
+        time_in_rework_sec = float(item.get("time_in_rework_sec", 0.0))
         
         labels = item.get("labels", [])
         is_bug = any("bug" in str(l).lower() for l in labels) if labels else (unit_type == "BUG")
@@ -68,18 +69,20 @@ class GitHubMapper(BaseMapper):
             is_first_time_yield=is_fty,
             board_id=board_id,
             sprint=sprint_name,
-            comments=fields.get("title", ""),
+            title=fields.get("title", ""),
+            comments="",
             rework_loops=rework_loops,
             time_in_todo_sec=time_in_todo_sec,
             time_in_progress_sec=time_in_progress_sec,
             time_in_review_sec=time_in_review_sec,
+            time_in_rework_sec=time_in_rework_sec,
             is_bug=is_bug,
             estimate=story_points
         )
 
     @classmethod
     def map_pr(cls, item: Dict[str, Any], board_id: int, repo_name: str, default_record_date: str) -> NormalizedPR:
-        pr_id = str(item.get("id", item.get("number", "UNKNOWN")))
+        pr_id = str(item.get("pullRequestId", item.get("id", item.get("number", "UNKNOWN"))))
         title = str(item.get("title", ""))
         
         status_raw = str(item.get("state", item.get("status", "open"))).upper()

@@ -124,7 +124,8 @@ SAMPLE_AZURE_PR_JSON = {
             "status": "active",
             "creationDate": "2026-07-13T16:35:06.1245666Z",
             "commentCount": 0,
-            "commitsAfterCreation": 1
+            "commitsAfterCreation": 1,
+            "reviewers": []
         }
     ]
 }
@@ -142,7 +143,7 @@ def test_normalizer_entity():
 
     gh_tickets = Normalizer.normalize_raw_json(SAMPLE_GITHUB_JSON, board_id=10, default_record_date="2026-07-12")
     assert len(gh_tickets) == 2
-    assert gh_tickets[0].ticket_id == "I_kwDOTYtncM8AAAABJPh3WA" and gh_tickets[0].story_points == 8.0
+    assert gh_tickets[0].ticket_id == "3" and gh_tickets[0].story_points == 8.0
     assert gh_tickets[0].status_normalized == "IN_REVIEW"
     assert gh_tickets[1].status_normalized == "IN_REVIEW"
     assert gh_tickets[0].sprint == "Sprint 1"
@@ -174,7 +175,7 @@ def test_analyzer_entity():
     assert len(series) == 12
     print(f"  [PASS] Analyzer.burndown_curve() -> {len(series)} daily points calculated")
 
-    kpis = Analyzer.measure_all(combined, [], "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
+    kpis = Analyzer.measure_all(combined, [], "2026-07-12", "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
     assert "fty_percentage" in kpis and "burndown_curve" in kpis
     print("  [PASS] Analyzer.measure_all() -> all KPIs computed over pointer list")
 
@@ -183,14 +184,15 @@ def test_formatter_entity():
     """Test Stage 3: Formatter entity."""
     print("\n--- Stage 3: Formatter ---")
     new_tickets, old_tickets, new_prs = Normalizer.normalize_all(SAMPLE_RAW_JSON, SAMPLE_OD, 10, "2026-07-12")
-    kpis = Analyzer.measure_all(old_tickets + new_tickets, new_prs, "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
+    kpis = Analyzer.measure_all(old_tickets + new_tickets, new_prs, "2026-07-12", "2026-07-01", "2026-07-12", {"total_ideal_points": 100.0})
 
     contract = Formatter.to_spreadsheet_contract(kpis)
-    assert "tickets_per_day_chart" in contract and "advanced_burndown" in contract
+    assert "productivity_sliding_window" in contract and "advanced_burndown" in contract
     print("  [PASS] Formatter.to_spreadsheet_contract() -> bounds enforced, ui_graph_contracts formatted")
 
     csv_out = Formatter.to_csv(kpis)
-    assert "First Time Yield" in csv_out
+    assert "BurndownSP" in csv_out
+    assert "TodoDays" in csv_out
     print(f"  [PASS] Formatter.to_csv() -> {len(csv_out)} characters generated")
 
 

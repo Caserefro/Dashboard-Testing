@@ -24,11 +24,22 @@ class AnalyticsWorkerFactory:
     @classmethod
     def execute(cls, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Runs the 3-stage pure factory pipeline:
-          1. Normalizer (`Creates Process Data`)
-          2. Analyzer (`Gives meaning to data`)
-          3. Formatter (`Gives shape to data`)
+        The Master Pipeline Method.
+        
+        If backfill=True is passed in the payload, we time-travel the payload
+        and recursively run this pipeline to reconstruct history.
         """
+        if payload.get("backfill"):
+            from backend.worker.backfiller import BackfillEngine
+            return {"graphic_contract": BackfillEngine.execute(payload)}
+            
+        print("[AnalyticsWorkerFactory] Initiating Pipeline...")
+        
+        # Runs the 3-stage pure factory pipeline:
+        #   1. Normalizer (`Creates Process Data`)
+        #   2. Analyzer (`Gives meaning to data`)
+        #   3. Formatter (`Gives shape to data`)
+        
         board_id = int(payload.get("board_id", 1))
         record_date = str(payload.get("record_date", "2026-07-12"))[:10]
         raw_json = payload.get("raw_json", {})
@@ -67,6 +78,7 @@ class AnalyticsWorkerFactory:
         computed_kpis = Analyzer.measure_all(
             tickets=combined_tickets,
             prs=new_prs,
+            record_date=record_date,
             start_date=start_date,
             end_date=end_date,
             kpi_config=kpi_config,

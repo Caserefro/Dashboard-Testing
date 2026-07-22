@@ -13,13 +13,8 @@ class SpreadsheetFormatter:
         fty_raw = float(computed_kpis.get("fty_percentage", 100.0))
         fty_bounded = round(max(0.0, min(100.0, fty_raw)), 2)
 
-        # 2. Tickets Per Day Chart
+        # 2. Tickets Per Day Chart (REMOVED)
         velocity_contract: List[Dict[str, Any]] = []
-        for row in computed_kpis.get("tickets_per_day_chart", []):
-            velocity_contract.append({
-                "day_label": str(row.get("day_label", "Day")),
-                "tickets_merged": max(0, int(row.get("tickets_merged", 0))),
-            })
 
         # --- THE 6 ADVANCED METRICS CONTRACTS ---
         sprint_item_timeline = computed_kpis.get("sprint_item_timeline", [])
@@ -45,16 +40,13 @@ class SpreadsheetFormatter:
         for i in range(10):
             day_idx = i + 1
             if i < len(series_list):
-                flat_burndown[f"Day{day_idx}"] = series_list[i].get("remaining_points", 0.0)
-                flat_burndown[f"Avg{day_idx}"] = series_list[i].get("ideal_points", 0.0)
+                pt = series_list[i]
+                flat_burndown[f"Day{day_idx}"] = pt.get("remaining_points", 0.0)
+                flat_burndown[f"Avg{day_idx}"] = pt.get("baseline_points", pt.get("ideal_points", 0.0))
+                flat_burndown[f"PredDay{day_idx}"] = pt.get("prediction_points", 0.0)
             else:
                 flat_burndown[f"Day{day_idx}"] = None
                 flat_burndown[f"Avg{day_idx}"] = None
-                
-            pred_y = forecast.get("forecast_y", [])
-            if i < len(pred_y):
-                flat_burndown[f"PredDay{day_idx}"] = round(pred_y[i], 2)
-            else:
                 flat_burndown[f"PredDay{day_idx}"] = None
 
         day1_val = flat_burndown.get("Day1")
@@ -63,7 +55,7 @@ class SpreadsheetFormatter:
 
         return {
             "first_time_yield_gauge": {"fty_percentage": fty_bounded},
-            "tickets_per_day_chart": velocity_contract,
+            "productivity_sliding_window": computed_kpis.get("productivity_sliding_window", []),
             "sprint_item_timeline": sprint_item_timeline,
             "pr_based_fty": pr_based_fty,
             "issue_loop_fty": issue_loop_fty,

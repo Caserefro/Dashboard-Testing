@@ -89,9 +89,12 @@ class GitHubExtractor:
                     })
                 else:
                     # Standard Issue item
+                    repo_node = content.get("repository", {})
                     work_items.append({
                         "id": n.get("id"),
                         "number": content.get("number"),
+                        "repo_owner": repo_node.get("owner", {}).get("login"),
+                        "repo_name": repo_node.get("name"),
                         "title": content.get("title"),
                         "state": content.get("state"),
                         "createdAt": content.get("createdAt"),
@@ -103,6 +106,58 @@ class GitHubExtractor:
             
             # Filter out ghost items (incomplete/orphaned project entries)
             work_items = utils.filter_ghost_items(work_items)
+            
+            # Execute N+1 timeline queries to extract deep cycle times
+            for w in work_items:
+                issue_num = w.get("number")
+                if not issue_num:
+                    continue
+                
+                item_owner = w.get("repo_owner") or owner
+                item_repo = w.get("repo_name") or repo.split("/")[-1] if "/" in repo else repo
+                
+                try:
+                    t_resp = httpx.post(
+                        "https://api.github.com/graphql", 
+                        json={"query": ISSUE_TIMELINE_QUERY, "variables": {"owner": item_owner, "repo": item_repo, "issueNumber": issue_num}}, 
+                        headers=headers,
+                        timeout=5.0
+                    )
+                    if t_resp.status_code == 200:
+                        t_data = t_resp.json()
+                        if "errors" in t_data:
+                            print(f"[DEBUG] GraphQL Error on Issue #{issue_num}: {t_data['errors']}", file=sys.stderr)
+                            
+                        data_node = t_data.get("data") or {}
+                        repo_node_resp = data_node.get("repository") or {}
+                        issue_node = repo_node_resp.get("issue") or {}
+                        timeline_node = issue_node.get("timelineItems") or {}
+                        t_nodes = timeline_node.get("nodes") or []
+                        
+                        if t_nodes:
+                            metrics = parse_issue_timeline(t_nodes, w.get("createdAt"))
+                            w["raw_timeline"] = t_nodes
+                            w["rework_loops"] = metrics.get("rework_loops", 0)
+                            w["time_in_todo_sec"] = metrics.get("time_in_todo_sec", 0.0)
+                            w["time_in_progress_sec"] = metrics.get("time_in_progress_sec", 0.0)
+                            w["time_in_review_sec"] = metrics.get("time_in_review_sec", 0.0)
+                        else:
+                            # Fallback if no timeline data
+                            w["raw_timeline"] = []
+                            w["rework_loops"] = 0
+                            w["time_in_todo_sec"] = 0.0
+                            w["time_in_progress_sec"] = 0.0
+                            w["time_in_review_sec"] = 0.0
+                    else:
+                        print(f"[DEBUG] HTTP {t_resp.status_code} on Issue #{issue_num}: {t_resp.text}", file=sys.stderr)
+                except Exception as e:
+                    print(f"[DEBUG] Exception on Issue #{issue_num}: {e}", file=sys.stderr)
+                    # Silently fallback to 0.0 on timeout/failure for individual issues
+                    w["raw_timeline"] = []
+                    w["rework_loops"] = 0
+                    w["time_in_todo_sec"] = 0.0
+                    w["time_in_progress_sec"] = 0.0
+                    w["time_in_review_sec"] = 0.0
             
             # Auto-detect sprint window from the extracted field data
             sprint_meta = utils.detect_sprint_window(work_items)

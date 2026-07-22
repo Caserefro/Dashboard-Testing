@@ -67,31 +67,55 @@ class QualityMath:
         total_sp = sum(t.story_points for t in tickets)
         bug_sp = sum(t.story_points for t in tickets if t.is_bug)
         non_bug_sp = total_sp - bug_sp
-        bug_pct = round((bug_sp / total_sp * 100.0) if total_sp > 0 else 0.0, 2)
+        bug_pct = round((bug_sp / total_sp * 100.0) if total_sp > 0 else 0.0, 1)
+        non_bug_pct = round((non_bug_sp / total_sp * 100.0) if total_sp > 0 else 100.0, 1)
         
         return {
             "TotalSP": total_sp,
             "BugSP": bug_sp,
             "BugPercentage": bug_pct,
-            "NonBugSP": non_bug_sp
+            "NonBugSP": non_bug_sp,
+            "NonBugPercentage": non_bug_pct
         }
 
     @staticmethod
-    def tickets_per_day(tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
-        """Aggregates completed tickets grouped by weekday for the velocity bar chart widget."""
-        day_counts: Dict[str, int] = {
-            "Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0,
-            "Friday": 0, "Saturday": 0, "Sunday": 0,
-        }
+    def prs_per_issue(tickets: List[NormalizedTicket], prs: List[NormalizedPR]) -> float:
+        """Calculates the average number of PRs per completed issue."""
+        completed_issues = sum(1 for t in tickets if t.status_normalized == "DONE")
+        merged_prs = sum(1 for p in prs if p.status_normalized == "MERGED")
+        return round((merged_prs / completed_issues) if completed_issues > 0 else 0.0, 2)
 
+    @staticmethod
+    def productivity_sliding_window(tickets: List[NormalizedTicket], record_date: str) -> List[Dict[str, Any]]:
+        """Aggregates completed tickets over the last 30 business (laboral) days."""
+        from datetime import datetime, timedelta
+        
+        # Parse the record_date
+        try:
+            current_date = datetime.strptime(record_date[:10], "%Y-%m-%d")
+        except ValueError:
+            current_date = datetime.utcnow()
+            
+        # 1. Generate the last 30 business days
+        business_days = []
+        days_to_subtract = 0
+        while len(business_days) < 30:
+            target_date = current_date - timedelta(days=days_to_subtract)
+            # Monday = 0, Sunday = 6. Weekdays are 0-4
+            if target_date.weekday() < 5:
+                business_days.append(target_date.strftime("%Y-%m-%d"))
+            days_to_subtract += 1
+            
+        # Reverse to get chronological order (oldest to newest)
+        business_days.reverse()
+        
+        # 2. Count tickets for each business day
+        day_counts: Dict[str, int] = {day: 0 for day in business_days}
+        
         for t in tickets:
             if t.status_normalized == "DONE" and t.completed_date:
-                try:
-                    dt = datetime.strptime(t.completed_date[:10], "%Y-%m-%d")
-                    day_name = dt.strftime("%A")
-                    if day_name in day_counts:
-                        day_counts[day_name] += 1
-                except ValueError:
-                    continue
-
-        return [{"day_label": d, "tickets_merged": c} for d, c in day_counts.items()]
+                date_str = t.completed_date[:10]
+                if date_str in day_counts:
+                    day_counts[date_str] += 1
+                    
+        return [{"date": d, "tickets_merged": day_counts[d]} for d in business_days]

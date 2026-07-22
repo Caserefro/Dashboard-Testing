@@ -1,15 +1,81 @@
 {
   "workItems": [
     {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzi3AU",
-      "number": 6,
-      "title": "Fix FTY Math Bug",
-      "state": "OPEN",
-      "createdAt": "2026-07-21T09:44:48Z",
-      "updatedAt": "2026-07-21T09:44:48Z",
-      "labels": [
-        "bug"
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzphzg",
+      "number": 1,
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Clean First Pass Ticket",
+      "state": "Todo",
+      "createdAt": "2026-07-22T03:06:02Z",
+      "updatedAt": "2026-07-22T03:20:49Z",
+      "labels": [],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Merged",
+          "startDate": null,
+          "duration": null
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "4",
+          "startDate": null,
+          "duration": null
+        }
       ],
+      "rework_loops": 1,
+      "raw_timeline": [
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:09:08Z",
+          "previousStatus": "",
+          "status": "Todo"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:11:32Z",
+          "previousStatus": "Todo",
+          "status": "In Progress"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:14:01Z",
+          "previousStatus": "In Progress",
+          "status": "In Review"
+        },
+        {
+          "__typename": "ClosedEvent",
+          "createdAt": "2026-07-22T03:20:50Z"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:20:50Z",
+          "previousStatus": "In Review",
+          "status": "Merged"
+        }
+      ],
+      "time_in_todo_sec": 330.0,
+      "time_in_progress_sec": 149.0,
+      "time_in_review_sec": 409.0,
+      "time_in_rework_sec": 95949.0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzphzo",
+      "number": 3,
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Scope Creep Ticket",
+      "state": "InReview",
+      "createdAt": "2026-07-22T03:06:03Z",
+      "updatedAt": "2026-07-22T03:06:03Z",
+      "labels": [],
       "fieldValues": [
         {
           "fieldName": "Status",
@@ -18,66 +84,6 @@
           "duration": null
         },
         {
-          "fieldName": "Estimate",
-          "value": "8",
-          "startDate": null,
-          "duration": null
-        },
-        {
-          "fieldName": "Sprint",
-          "value": "Sprint 1",
-          "startDate": "2026-07-21",
-          "duration": 14
-        }
-      ],
-      "rework_loops": 0
-    },
-    {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhq1A",
-      "number": 1,
-      "title": "Clean Ticket (FTY)",
-      "state": "CLOSED",
-      "createdAt": "2026-07-21T06:55:27Z",
-      "updatedAt": "2026-07-21T06:55:38Z",
-      "labels": [],
-      "fieldValues": [
-        {
-          "fieldName": "Status",
-          "value": "Merged",
-          "startDate": null,
-          "duration": null
-        },
-        {
-          "fieldName": "Sprint",
-          "value": "Sprint 1",
-          "startDate": "2026-07-21",
-          "duration": 14
-        },
-        {
-          "fieldName": "Estimate",
-          "value": "4",
-          "startDate": null,
-          "duration": null
-        }
-      ],
-      "rework_loops": 0
-    },
-    {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhq1Y",
-      "number": 2,
-      "title": "Rework Loop Ticket",
-      "state": "CLOSED",
-      "createdAt": "2026-07-21T06:55:28Z",
-      "updatedAt": "2026-07-21T06:55:48Z",
-      "labels": [],
-      "fieldValues": [
-        {
-          "fieldName": "Status",
-          "value": "Merged",
-          "startDate": null,
-          "duration": null
-        },
-        {
           "fieldName": "Sprint",
           "value": "Sprint 1",
           "startDate": "2026-07-21",
@@ -90,50 +96,42 @@
           "duration": null
         }
       ],
-      "rework_loops": 0
-    },
-    {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhu6Y",
-      "number": 3,
-      "title": "Production Bug Ticket",
-      "state": "CLOSED",
-      "createdAt": "2026-07-21T07:05:29Z",
-      "updatedAt": "2026-07-21T07:05:37Z",
-      "labels": [
-        "bug"
-      ],
-      "fieldValues": [
+      "rework_loops": 0,
+      "raw_timeline": [
         {
-          "fieldName": "Status",
-          "value": "Merged",
-          "startDate": null,
-          "duration": null
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:09:08Z",
+          "previousStatus": "",
+          "status": "Todo"
         },
         {
-          "fieldName": "Sprint",
-          "value": "Sprint 1",
-          "startDate": "2026-07-21",
-          "duration": 14
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:11:35Z",
+          "previousStatus": "Todo",
+          "status": "In Progress"
         },
         {
-          "fieldName": "Estimate",
-          "value": "4",
-          "startDate": null,
-          "duration": null
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:14:11Z",
+          "previousStatus": "In Progress",
+          "status": "In Review"
         }
       ],
-      "rework_loops": 0
+      "time_in_todo_sec": 332.0,
+      "time_in_progress_sec": 156.0,
+      "time_in_review_sec": 96348.0,
+      "time_in_rework_sec": 0.0
     },
     {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzhu6k",
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzphzs",
       "number": 4,
-      "title": "Scope Creep Ticket",
-      "state": "OPEN",
-      "createdAt": "2026-07-21T07:05:30Z",
-      "updatedAt": "2026-07-21T07:05:30Z",
-      "labels": [
-        "Additional Scope"
-      ],
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Standard Feature Ticket",
+      "state": "InProgress",
+      "createdAt": "2026-07-22T03:06:04Z",
+      "updatedAt": "2026-07-22T03:06:04Z",
+      "labels": [],
       "fieldValues": [
         {
           "fieldName": "Status",
@@ -154,18 +152,36 @@
           "duration": null
         }
       ],
-      "rework_loops": 0
+      "rework_loops": 0,
+      "raw_timeline": [
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:09:08Z",
+          "previousStatus": "",
+          "status": "Todo"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:11:58Z",
+          "previousStatus": "Todo",
+          "status": "In Progress"
+        }
+      ],
+      "time_in_todo_sec": 354.0,
+      "time_in_progress_sec": 96481.0,
+      "time_in_review_sec": 0.0,
+      "time_in_rework_sec": 0.0
     },
     {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzi3Bw",
-      "number": 7,
-      "title": "UI Component Overhaul",
-      "state": "OPEN",
-      "createdAt": "2026-07-21T09:44:49Z",
-      "updatedAt": "2026-07-21T09:44:49Z",
-      "labels": [
-        "enhancement"
-      ],
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzphzw",
+      "number": 5,
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Frontend Layout Bug",
+      "state": "InProgress",
+      "createdAt": "2026-07-22T03:06:05Z",
+      "updatedAt": "2026-07-22T03:06:05Z",
+      "labels": [],
       "fieldValues": [
         {
           "fieldName": "Status",
@@ -174,8 +190,52 @@
           "duration": null
         },
         {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
           "fieldName": "Estimate",
-          "value": "8",
+          "value": "4",
+          "startDate": null,
+          "duration": null
+        }
+      ],
+      "rework_loops": 0,
+      "raw_timeline": [
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:09:08Z",
+          "previousStatus": "",
+          "status": "Todo"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:12:01Z",
+          "previousStatus": "Todo",
+          "status": "In Progress"
+        }
+      ],
+      "time_in_todo_sec": 356.0,
+      "time_in_progress_sec": 96478.0,
+      "time_in_review_sec": 0.0,
+      "time_in_rework_sec": 0.0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzphzk",
+      "number": 2,
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Rework Loop Ticket",
+      "state": "Todo",
+      "createdAt": "2026-07-22T03:06:03Z",
+      "updatedAt": "2026-07-22T03:20:52Z",
+      "labels": [],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Merged",
           "startDate": null,
           "duration": null
         },
@@ -184,19 +244,55 @@
           "value": "Sprint 1",
           "startDate": "2026-07-21",
           "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "2",
+          "startDate": null,
+          "duration": null
         }
       ],
-      "rework_loops": 0
+      "rework_loops": 1,
+      "raw_timeline": [
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:09:08Z",
+          "previousStatus": "",
+          "status": "Todo"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:14:06Z",
+          "previousStatus": "Todo",
+          "status": "In Review"
+        },
+        {
+          "__typename": "ClosedEvent",
+          "createdAt": "2026-07-22T03:20:52Z"
+        },
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:20:53Z",
+          "previousStatus": "In Review",
+          "status": "Merged"
+        }
+      ],
+      "time_in_todo_sec": 483.0,
+      "time_in_progress_sec": 0.0,
+      "time_in_review_sec": 407.0,
+      "time_in_rework_sec": 95946.0
     },
     {
-      "id": "PVTI_lAHOB8LB7s4Bd_KJzgzi3AA",
-      "number": 5,
-      "title": "Backend API Integration",
-      "state": "OPEN",
-      "createdAt": "2026-07-21T09:44:47Z",
-      "updatedAt": "2026-07-21T09:44:47Z",
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzpjKg",
+      "number": 6,
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Backend Processing Bug",
+      "state": "Todo",
+      "createdAt": "2026-07-22T03:13:26Z",
+      "updatedAt": "2026-07-22T03:13:26Z",
       "labels": [
-        "enhancement"
+        "bug"
       ],
       "fieldValues": [
         {
@@ -206,8 +302,48 @@
           "duration": null
         },
         {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-21",
+          "duration": 14
+        },
+        {
           "fieldName": "Estimate",
           "value": "4",
+          "startDate": null,
+          "duration": null
+        }
+      ],
+      "rework_loops": 0,
+      "raw_timeline": [
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:13:29Z",
+          "previousStatus": "",
+          "status": "Todo"
+        }
+      ],
+      "time_in_todo_sec": 96393.0,
+      "time_in_progress_sec": 0.0,
+      "time_in_review_sec": 0.0,
+      "time_in_rework_sec": 0.0
+    },
+    {
+      "id": "PVTI_lAHOB8LB7s4BeFLszgzpjKs",
+      "number": 7,
+      "repo_owner": "Caserefro",
+      "repo_name": "TestRepo",
+      "title": "Extra Scope Feature",
+      "state": "Todo",
+      "createdAt": "2026-07-22T03:13:27Z",
+      "updatedAt": "2026-07-22T03:13:27Z",
+      "labels": [
+        "additional scope"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Todo",
           "startDate": null,
           "duration": null
         },
@@ -216,39 +352,67 @@
           "value": "Sprint 1",
           "startDate": "2026-07-21",
           "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "8",
+          "startDate": null,
+          "duration": null
         }
       ],
-      "rework_loops": 0
+      "rework_loops": 0,
+      "raw_timeline": [
+        {
+          "__typename": "ProjectV2ItemStatusChangedEvent",
+          "createdAt": "2026-07-22T03:13:29Z",
+          "previousStatus": "",
+          "status": "Todo"
+        }
+      ],
+      "time_in_todo_sec": 96392.0,
+      "time_in_progress_sec": 0.0,
+      "time_in_review_sec": 0.0,
+      "time_in_rework_sec": 0.0
     }
   ],
   "pullRequests": [
     {
       "pullRequestId": 8,
-      "title": "Backend Refactor: Pure Factory Pipeline",
-      "status": "OPEN",
-      "creationDate": "2026-07-21T09:49:45Z",
-      "mergedAt": null,
+      "title": "Resolve Clean First Pass Ticket (PR for #1)",
+      "status": "MERGED",
+      "creationDate": "2026-07-22T03:13:59Z",
+      "mergedAt": "2026-07-22T03:20:48Z",
       "commentCount": 0,
       "commitsAfterCreation": 0,
       "review_cycles": 0
     },
     {
       "pullRequestId": 9,
-      "title": "Dummy PR for testing quality metrics",
+      "title": "Resolve Rework Loop Ticket (PR for #2)",
+      "status": "MERGED",
+      "creationDate": "2026-07-22T03:14:04Z",
+      "mergedAt": "2026-07-22T03:20:51Z",
+      "commentCount": 0,
+      "commitsAfterCreation": 1,
+      "review_cycles": 0
+    },
+    {
+      "pullRequestId": 10,
+      "title": "Resolve Scope Creep Ticket (PR for #3)",
       "status": "OPEN",
-      "creationDate": "2026-07-21T09:49:56Z",
+      "creationDate": "2026-07-22T03:14:09Z",
       "mergedAt": null,
       "commentCount": 0,
       "commitsAfterCreation": 0,
       "review_cycles": 0
     }
   ],
-  "repo": "Caserefro/Dashboard-Testing",
+  "repo": "Caserefro/TestRepo",
   "cutoff": "2026-04-01T00:00:00Z",
   "sprint_meta": {
     "sprint_name": "Sprint 1",
     "start_date": "2026-07-21",
     "end_date": "2026-08-04",
-    "total_ideal_points": 52.0
+    "total_ideal_points": 46.0
   }
 }

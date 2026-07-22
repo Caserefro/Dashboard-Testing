@@ -27,13 +27,14 @@ class Analyzer:
         start_date_iso: str,
         end_date_iso: str,
         total_ideal_points: Optional[float] = None,
-        historical_od: Optional[List[Dict[str, Any]]] = None
+        historical_od: Optional[List[Dict[str, Any]]] = None,
+        record_date_iso: Optional[str] = None
     ) -> Dict[str, Any]:
-        return BurndownMath.burndown_curve(tickets, start_date_iso, end_date_iso, total_ideal_points, historical_od)
+        return BurndownMath.burndown_curve(tickets, start_date_iso, end_date_iso, total_ideal_points, historical_od, record_date_iso)
 
     @classmethod
-    def tickets_per_day(cls, tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
-        return QualityMath.tickets_per_day(tickets)
+    def prs_per_issue(cls, tickets: List[NormalizedTicket], prs: List[NormalizedPR]) -> float:
+        return QualityMath.prs_per_issue(tickets, prs)
 
     @classmethod
     def sprint_item_timeline(cls, tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
@@ -60,6 +61,7 @@ class Analyzer:
         cls,
         tickets: List[NormalizedTicket],
         prs: List[NormalizedPR],
+        record_date: str,
         start_date: str,
         end_date: str,
         kpi_config: Dict[str, Any],
@@ -75,12 +77,15 @@ class Analyzer:
                 start_date_iso=start_date,
                 end_date_iso=end_date,
                 total_ideal_points=kpi_config.get("total_ideal_points"),
-                historical_od=historical_od
+                historical_od=historical_od,
+                record_date_iso=record_date
             ),
-            "tickets_per_day_chart": cls.tickets_per_day(tickets),
+            "productivity_sliding_window": QualityMath.productivity_sliding_window(tickets, end_date),
+            "average_prs_per_issue": cls.prs_per_issue(tickets, prs),
             "sprint_item_timeline": cls.sprint_item_timeline(tickets),
             "pr_based_fty": cls.pr_based_fty(prs),
             "issue_loop_fty": cls.issue_loop_fty(tickets),
             "average_time_in_step": cls.average_time_in_step(tickets),
+            "average_time_by_estimate": TimeMath.average_time_by_estimate(tickets),
             "sp_breakdown": cls.sp_breakdown(tickets)
         }
