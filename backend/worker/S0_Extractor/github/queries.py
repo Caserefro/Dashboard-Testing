@@ -83,7 +83,7 @@ ISSUE_TIMELINE_QUERY = """
 query($owner: String!, $repo: String!, $issueNumber: Int!, $cursor: String) {
   repository(owner: $owner, name: $repo) {
     issue(number: $issueNumber) {
-      timelineItems(first: 100, after: $cursor, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT, CLOSED_EVENT, REOPENED_EVENT]) {
+      timelineItems(first: 100, after: $cursor, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT, CLOSED_EVENT, REOPENED_EVENT, ISSUE_COMMENT]) {
         pageInfo {
           hasNextPage
           endCursor
@@ -100,6 +100,13 @@ query($owner: String!, $repo: String!, $issueNumber: Int!, $cursor: String) {
           }
           ... on ReopenedEvent {
             createdAt
+          }
+          ... on IssueComment {
+            createdAt
+            author {
+              login
+            }
+            bodyText
           }
         }
       }
@@ -131,3 +138,37 @@ query($owner: String!, $repo: String!, $prNumber: Int!, $cursor: String) {
   }
 }
 """
+
+# Query for fetching official ProjectV2 Iteration Field settings (Sprints) directly from GitHub
+PROJECT_SPRINT_ITERATIONS_ORG_QUERY = """
+query($org: String!, $projectNumber: Int!) {
+  organization(login: $org) {
+    projectV2(number: $projectNumber) {
+      fields(first: 20) {
+        nodes {
+          ... on ProjectV2IterationField {
+            name
+            configuration {
+              iterations {
+                id
+                title
+                startDate
+                duration
+              }
+              completedIterations {
+                id
+                title
+                startDate
+                duration
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+PROJECT_SPRINT_ITERATIONS_USER_QUERY = PROJECT_SPRINT_ITERATIONS_ORG_QUERY.replace("organization", "user")
+

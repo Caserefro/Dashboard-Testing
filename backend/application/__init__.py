@@ -1,12 +1,11 @@
 """
-Application Layer Facade (`backend/application_layer.py`)
+Application Layer (`backend/application`)
 
-Backward-compatibility module forwarding imports to the new `backend.application` package.
+Exports all business use case application services and data transfer objects.
 """
 
-from backend.application import (
-    SyncService,
-    SyncResult,
+from .sync_service import SyncService, SyncResult
+from .sprint_service import (
     SprintInfo,
     SprintCalendarService,
     ExcelSprintCalendarService

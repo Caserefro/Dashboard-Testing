@@ -47,10 +47,18 @@ class CsvFormatter:
             "BurndownSP", "BurndownAVGSP", "BurndownPredictionSP", "SPDelta"
         ]
         
+        from backend.application.sprint_service import ExcelSprintCalendarService, SprintInfo
+        excel_service = ExcelSprintCalendarService()
+
         left_rows = []
         for pt in series_list:
-            date = pt.get("date", "")
-            sprint_name = timeline[0].get("Sprint", "") if timeline else ""
+            raw_date = pt.get("date", "")
+            raw_sprint = timeline[0].get("Sprint", "") if timeline else ""
+            
+            # Format Column 1 & 2 via ExcelSprintCalendarService
+            sinfo = SprintInfo(title=raw_sprint or "Sprint 1", start_date=raw_date, end_date=raw_date, duration=0)
+            cal_rows = excel_service.generate_excel_calendar_rows(sinfo)
+            date, sprint_name = cal_rows[0] if cal_rows else (raw_date, raw_sprint)
             
             b_rem = pt.get("remaining_points", 0.0)
             b_idl = pt.get("baseline_points", pt.get("ideal_points", 0.0))

@@ -279,6 +279,28 @@ def test_cli_stdin_stdout():
     print(f"         Total sys.stdout character output length: {len(process.stdout)} chars")
 
 
+def test_sprint_calendar_services():
+    """Test Application Layer SprintCalendarService and ExcelSprintCalendarService."""
+    print("\n--- Application Layer (SprintCalendarService & ExcelSprintCalendarService) ---")
+    from backend.application import SprintCalendarService, ExcelSprintCalendarService, SprintInfo
+
+    base_service = SprintCalendarService()
+    excel_service = ExcelSprintCalendarService()
+
+    # 1. Date math calculation
+    end_date = base_service.calculate_end_date("2026-07-21", 14)
+    assert end_date == "2026-08-04"
+    print("  [PASS] SprintCalendarService.calculate_end_date() -> 2026-07-21 + 14 days = 2026-08-04")
+
+    # 2. Excel skeleton generation
+    sinfo = SprintInfo(title="Sprint 1", start_date="2026-07-21", end_date="2026-08-04", duration=14)
+    rows = excel_service.generate_excel_calendar_rows(sinfo)
+    assert len(rows) == 15
+    assert rows[0] == ("2026-07-21", "Sprint 1")
+    assert rows[-1] == ("2026-08-04", "Sprint 1")
+    print(f"  [PASS] ExcelSprintCalendarService.generate_excel_calendar_rows() -> {len(rows)} (record_date, Sprint) skeleton rows generated")
+
+
 def main():
     print("=" * 64)
     print("  PROJECT ATLAS - PURE FACTORY BACKEND PIPELINE VERIFICATION")
@@ -290,6 +312,7 @@ def main():
     test_worker_factory()
     test_orchestrator()
     test_cli_stdin_stdout()
+    test_sprint_calendar_services()
 
     print("\n" + "=" * 64)
     print("  ALL PROJECT ATLAS PURE FACTORY TESTS PASSED 100%")

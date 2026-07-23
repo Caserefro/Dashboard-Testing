@@ -12,11 +12,83 @@ import json
 import httpx
 from typing import Dict, Any, List
 
-from .queries import PROJECT_ITEMS_ORG_QUERY, PROJECT_ITEMS_USER_QUERY, ISSUE_TIMELINE_QUERY, PR_TIMELINE_QUERY
+from .queries import (
+    PROJECT_ITEMS_ORG_QUERY,
+    PROJECT_ITEMS_USER_QUERY,
+    ISSUE_TIMELINE_QUERY,
+    PR_TIMELINE_QUERY,
+    PROJECT_SPRINT_ITERATIONS_ORG_QUERY,
+    PROJECT_SPRINT_ITERATIONS_USER_QUERY
+)
 from .timeline_parser import parse_issue_timeline
 from . import utils
 
 class GitHubExtractor:
+    @classmethod
+    def fetch_project_sprints(cls, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Queries GitHub Projects V2 GraphQL API directly for official Iteration Field settings (Sprints).
+        Returns a structured list of configured iterations with start dates and durations.
+        """
+        api_key = payload.get("api_key", "")
+        project_number = int(payload.get("projectNumber", 1))
+        org = payload.get("org", "")
+        owner = payload.get("owner") or (org if org else payload.get("repo", "Caserefro/Repo").split("/")[0])
+        ssl_verify = cls._resolve_ssl_verify(payload)
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+
+        query = PROJECT_SPRINT_ITERATIONS_ORG_QUERY if org else PROJECT_SPRINT_ITERATIONS_USER_QUERY
+        variables = {"org": owner, "owner": owner, "projectNumber": project_number}
+
+        try:
+            if not api_key or api_key.startswith("ghp_dummy"):
+                raise ValueError("Dummy API Key")
+
+            resp = httpx.post(
+                "https://api.github.com/graphql",
+                json={"query": query, "variables": variables},
+                headers=headers,
+                timeout=15.0,
+                verify=ssl_verify
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+            project = data.get("data", {}).get("organization" if org else "user", {}).get("projectV2", {})
+            fields = project.get("fields", {}).get("nodes", [])
+
+            sprints = []
+            for field_node in fields:
+                config = field_node.get("configuration", {})
+                if not config:
+                    continue
+
+                for iter_item in config.get("iterations", []):
+                    sprints.append({
+                        "id": iter_item.get("id"),
+                        "title": iter_item.get("title"),
+                        "start_date": iter_item.get("startDate"),
+                        "duration": int(iter_item.get("duration") or 14),
+                        "is_completed": False
+                    })
+                for iter_item in config.get("completedIterations", []):
+                    sprints.append({
+                        "id": iter_item.get("id"),
+                        "title": iter_item.get("title"),
+                        "start_date": iter_item.get("startDate"),
+                        "duration": int(iter_item.get("duration") or 14),
+                        "is_completed": True
+                    })
+
+            return sprints
+        except Exception as e:
+            print(f"[DEBUG] GraphQL fetch_project_sprints fallback/failed: {e}", file=sys.stderr)
+            return []
+
     @classmethod
     def _resolve_ssl_verify(cls, payload: Dict[str, Any]) -> bool:
         """Parses the SSL verification toggle from payload or environment."""
@@ -214,6 +286,7 @@ class GitHubExtractor:
             dummy_timeline = [
                 {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T10:00:00Z", "status": {"name": "Todo"}},
                 {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T12:00:00Z", "status": {"name": "In Progress"}},
+                {"__typename": "IssueComment", "createdAt": f"{date_str}T13:00:00Z", "author": {"login": "dev_user"}, "bodyText": "Moving to review, PR ready"},
                 {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T14:00:00Z", "status": {"name": "In Review"}},
                 {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T16:00:00Z", "status": {"name": "Done"}}
             ]
@@ -233,6 +306,7 @@ class GitHubExtractor:
                     {"fieldName": "Sprint", "value": "Sprint 1", "startDate": "2026-07-01", "duration": 14},
                     {"fieldName": "Estimate", "value": "8" if is_bug else "3"}
                 ],
+                "raw_timeline": dummy_timeline,
                 # Injected by Extractor using Timeline parser
                 "rework_loops": timeline_metrics.get("rework_loops", 0),
                 "time_in_todo_sec": timeline_metrics.get("time_in_todo_sec", 0.0),

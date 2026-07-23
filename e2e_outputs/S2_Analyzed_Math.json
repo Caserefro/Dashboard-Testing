@@ -1,0 +1,475 @@
+{
+  "fty_percentage": 0.0,
+  "burndown_curve": {
+    "series": [
+      {
+        "date": "2026-07-21",
+        "remaining_points": 46.0,
+        "ideal_points": 46.0,
+        "baseline_points": 46.0,
+        "prediction_points": 46.0,
+        "inverse_root_points": 46.0
+      },
+      {
+        "date": "2026-07-22",
+        "remaining_points": 40.0,
+        "ideal_points": 42.71,
+        "baseline_points": 42.71,
+        "prediction_points": 40.0,
+        "inverse_root_points": 33.71
+      },
+      {
+        "date": "2026-07-23",
+        "remaining_points": 40.0,
+        "ideal_points": 39.43,
+        "baseline_points": 39.43,
+        "prediction_points": 36.92,
+        "inverse_root_points": 28.61
+      },
+      {
+        "date": "2026-07-24",
+        "remaining_points": 40.0,
+        "ideal_points": 36.14,
+        "baseline_points": 36.14,
+        "prediction_points": 33.85,
+        "inverse_root_points": 24.71
+      },
+      {
+        "date": "2026-07-25",
+        "remaining_points": 40.0,
+        "ideal_points": 32.86,
+        "baseline_points": 32.86,
+        "prediction_points": 30.77,
+        "inverse_root_points": 21.41
+      },
+      {
+        "date": "2026-07-26",
+        "remaining_points": 40.0,
+        "ideal_points": 29.57,
+        "baseline_points": 29.57,
+        "prediction_points": 27.69,
+        "inverse_root_points": 18.51
+      },
+      {
+        "date": "2026-07-27",
+        "remaining_points": 40.0,
+        "ideal_points": 26.29,
+        "baseline_points": 26.29,
+        "prediction_points": 24.62,
+        "inverse_root_points": 15.89
+      },
+      {
+        "date": "2026-07-28",
+        "remaining_points": 40.0,
+        "ideal_points": 23.0,
+        "baseline_points": 23.0,
+        "prediction_points": 21.54,
+        "inverse_root_points": 13.47
+      },
+      {
+        "date": "2026-07-29",
+        "remaining_points": 40.0,
+        "ideal_points": 19.71,
+        "baseline_points": 19.71,
+        "prediction_points": 18.46,
+        "inverse_root_points": 11.23
+      },
+      {
+        "date": "2026-07-30",
+        "remaining_points": 40.0,
+        "ideal_points": 16.43,
+        "baseline_points": 16.43,
+        "prediction_points": 15.38,
+        "inverse_root_points": 9.12
+      },
+      {
+        "date": "2026-07-31",
+        "remaining_points": 40.0,
+        "ideal_points": 13.14,
+        "baseline_points": 13.14,
+        "prediction_points": 12.31,
+        "inverse_root_points": 7.12
+      },
+      {
+        "date": "2026-08-01",
+        "remaining_points": 40.0,
+        "ideal_points": 9.86,
+        "baseline_points": 9.86,
+        "prediction_points": 9.23,
+        "inverse_root_points": 5.23
+      },
+      {
+        "date": "2026-08-02",
+        "remaining_points": 40.0,
+        "ideal_points": 6.57,
+        "baseline_points": 6.57,
+        "prediction_points": 6.15,
+        "inverse_root_points": 3.41
+      },
+      {
+        "date": "2026-08-03",
+        "remaining_points": 40.0,
+        "ideal_points": 3.29,
+        "baseline_points": 3.29,
+        "prediction_points": 3.08,
+        "inverse_root_points": 1.67
+      },
+      {
+        "date": "2026-08-04",
+        "remaining_points": 40.0,
+        "ideal_points": 0.0,
+        "baseline_points": 0.0,
+        "prediction_points": 0.0,
+        "inverse_root_points": 0.0
+      }
+    ],
+    "forecast": {
+      "future_x": [
+        7.142857142857142,
+        14.285714285714285,
+        21.42857142857143,
+        28.571428571428573,
+        35.714285714285715,
+        42.85714285714286,
+        50.0,
+        57.14285714285714,
+        64.28571428571429,
+        71.42857142857143,
+        78.57142857142857,
+        85.71428571428571,
+        92.85714285714286,
+        100.0
+      ],
+      "catchup_y": [
+        40.0,
+        36.92307692307693,
+        33.84615384615384,
+        30.769230769230766,
+        27.69230769230769,
+        24.615384615384613,
+        21.538461538461537,
+        18.461538461538463,
+        15.38461538461538,
+        12.307692307692303,
+        9.230769230769228,
+        6.1538461538461515,
+        3.0769230769230758,
+        0.0
+      ],
+      "slip_y": [
+        40.0,
+        36.714285714285715,
+        33.42857142857142,
+        30.14285714285714,
+        26.857142857142854,
+        23.57142857142857,
+        20.285714285714285,
+        17.0,
+        13.714285714285708,
+        10.428571428571423,
+        7.142857142857139,
+        3.857142857142854,
+        0.5714285714285694,
+        -2.7142857142857153
+      ],
+      "forecast_y": [
+        40.0,
+        36.92307692307693,
+        33.84615384615384,
+        30.769230769230766,
+        27.69230769230769,
+        24.615384615384613,
+        21.538461538461537,
+        18.461538461538463,
+        15.38461538461538,
+        12.307692307692303,
+        9.230769230769228,
+        6.1538461538461515,
+        3.0769230769230758,
+        0.0
+      ]
+    }
+  },
+  "productivity_sliding_window": [
+    {
+      "date": "2026-06-24",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-25",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-26",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-29",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-30",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-01",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-02",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-03",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-06",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-07",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-08",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-09",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-10",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-13",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-14",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-15",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-16",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-17",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-20",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-21",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-22",
+      "tickets_merged": 2
+    },
+    {
+      "date": "2026-07-23",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-24",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-27",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-28",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-29",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-30",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-31",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-08-03",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-08-04",
+      "tickets_merged": 0
+    }
+  ],
+  "average_prs_per_issue": 1.0,
+  "sprint_item_timeline": [
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#1",
+      "Title": "Clean First Pass Ticket",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 0.01,
+      "CurrentStatus": "DONE",
+      "Estimate": 4.0,
+      "IsBug": false,
+      "IsOutlier": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#3",
+      "Title": "Scope Creep Ticket",
+      "TodoDays": 0.0,
+      "InProgressDays": 0.0,
+      "InReviewDays": 1.06,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 1.07,
+      "CurrentStatus": "IN_REVIEW",
+      "Estimate": 8.0,
+      "IsBug": false,
+      "IsOutlier": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#4",
+      "Title": "Standard Feature Ticket",
+      "TodoDays": 0.0,
+      "InProgressDays": 1.06,
+      "InReviewDays": 0.0,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 1.07,
+      "CurrentStatus": "IN_PROGRESS",
+      "Estimate": 16.0,
+      "IsBug": false,
+      "IsOutlier": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#5",
+      "Title": "Frontend Layout Bug",
+      "TodoDays": 0.0,
+      "InProgressDays": 1.06,
+      "InReviewDays": 0.0,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 1.07,
+      "CurrentStatus": "IN_PROGRESS",
+      "Estimate": 4.0,
+      "IsBug": false,
+      "IsOutlier": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#2",
+      "Title": "Rework Loop Ticket",
+      "TodoDays": 0.01,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 0.01,
+      "CurrentStatus": "DONE",
+      "Estimate": 2.0,
+      "IsBug": false,
+      "IsOutlier": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#6",
+      "Title": "Backend Processing Bug",
+      "TodoDays": 1.06,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 1.06,
+      "CurrentStatus": "TODO",
+      "Estimate": 4.0,
+      "IsBug": true,
+      "IsOutlier": false
+    },
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#7",
+      "Title": "Extra Scope Feature",
+      "TodoDays": 1.06,
+      "InProgressDays": 0.0,
+      "InReviewDays": 0.0,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 1.06,
+      "CurrentStatus": "TODO",
+      "Estimate": 8.0,
+      "IsBug": false,
+      "IsOutlier": false
+    }
+  ],
+  "pr_based_fty": {
+    "TotalMergedPRs": 2,
+    "FirstPassPRs": 2,
+    "ReworkedPRs": 0,
+    "PRFTYPercentage": 100.0,
+    "AvgReviewCycles": 0.0,
+    "AvgCommentsPerPR": 0.0
+  },
+  "issue_loop_fty": {
+    "TotalCompletedItems": 2,
+    "FirstTimeYieldItems": 0,
+    "ReworkedItems": 2,
+    "FTYPercentage": 0.0,
+    "AvgReworkLoopsPerCompletedItem": 1.0,
+    "AvgReworkLoopsPerReworkedItem": 1.0
+  },
+  "average_time_in_step": {
+    "AvgTodoDays": 0.31,
+    "AvgInProgressDays": 0.3,
+    "AvgInReviewDays": 0.15,
+    "AvgReworkDays": 0.0,
+    "AvgCycleDays": 0.76,
+    "ItemCount": 7,
+    "BugItemCount": 1,
+    "OutliersExcluded": 0
+  },
+  "average_time_by_estimate": {
+    "E4": {
+      "todo": 0.36,
+      "in_progress": 0.36,
+      "in_review": 0.0,
+      "merged": 0.71
+    },
+    "E8": {
+      "todo": 0.53,
+      "in_progress": 0.0,
+      "in_review": 0.53,
+      "merged": 1.07
+    },
+    "E16": {
+      "todo": 0.0,
+      "in_progress": 1.06,
+      "in_review": 0.0,
+      "merged": 1.07
+    },
+    "E2": {
+      "todo": 0.01,
+      "in_progress": 0.0,
+      "in_review": 0.0,
+      "merged": 0.01
+    }
+  },
+  "sp_breakdown": {
+    "TotalSP": 46.0,
+    "BugSP": 4.0,
+    "BugPercentage": 8.7,
+    "NonBugSP": 42.0,
+    "NonBugPercentage": 91.3
+  }
+}

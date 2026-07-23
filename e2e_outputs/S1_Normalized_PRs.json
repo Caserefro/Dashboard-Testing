@@ -1,0 +1,44 @@
+[
+  {
+    "pr_id": "8",
+    "title": "Resolve Clean First Pass Ticket (PR for #1)",
+    "repository": "Caserefro/TestRepo",
+    "status_normalized": "MERGED",
+    "lines_added": 0,
+    "lines_removed": 0,
+    "created_date": "2026-07-22",
+    "merged_date": "2026-07-22",
+    "board_id": 10,
+    "comment_count": 0,
+    "commits_after_creation": 0,
+    "review_cycles": 0
+  },
+  {
+    "pr_id": "9",
+    "title": "Resolve Rework Loop Ticket (PR for #2)",
+    "repository": "Caserefro/TestRepo",
+    "status_normalized": "MERGED",
+    "lines_added": 0,
+    "lines_removed": 0,
+    "created_date": "2026-07-22",
+    "merged_date": "2026-07-22",
+    "board_id": 10,
+    "comment_count": 0,
+    "commits_after_creation": 1,
+    "review_cycles": 0
+  },
+  {
+    "pr_id": "10",
+    "title": "Resolve Scope Creep Ticket (PR for #3)",
+    "repository": "Caserefro/TestRepo",
+    "status_normalized": "OPEN",
+    "lines_added": 0,
+    "lines_removed": 0,
+    "created_date": "2026-07-22",
+    "merged_date": null,
+    "board_id": 10,
+    "comment_count": 0,
+    "commits_after_creation": 0,
+    "review_cycles": 0
+  }
+]

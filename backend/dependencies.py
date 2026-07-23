@@ -7,12 +7,18 @@ import from here to get the same shared singletons.
 """
 
 from backend.repository.repository import Repository
-from backend.application_layer import SyncService
+from backend.application import (
+    SyncService,
+    SprintCalendarService,
+    ExcelSprintCalendarService
+)
 from backend.test_backend_pipeline import SAMPLE_OD
 
 # Singletons
 repository = Repository()
 sync_service = SyncService(repository)
+sprint_calendar_service = SprintCalendarService()
+excel_sprint_calendar_service = ExcelSprintCalendarService()
 
 # Seed board 10 with mock data for development
 repository.seed(

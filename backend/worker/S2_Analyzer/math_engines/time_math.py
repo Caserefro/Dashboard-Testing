@@ -59,8 +59,7 @@ class TimeMath:
                 "TotalCycleDays": round(cycle_times[i], 2),
                 "CurrentStatus": t.status_normalized,
                 "Estimate": t.estimate,
-                "IsBug": t.is_bug,
-                "IsOutlier": is_outlier
+                "IsBug": t.is_bug
             })
         return result
 

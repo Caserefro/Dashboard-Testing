@@ -1,11 +1,11 @@
 record_date,Sprint,issues_total,issues_todo,issues_in_progress,issues_in_review,issues_merged,avg_time_todo_E2,avg_time_in_progress_E2,avg_time_in_review_E2,avg_time_merged_E2,avg_time_todo_E4,avg_time_in_progress_E4,avg_time_in_review_E4,avg_time_merged_E4,avg_time_todo_E8,avg_time_in_progress_E8,avg_time_in_review_E8,avg_time_merged_E8,avg_time_todo_E16,avg_time_in_progress_E16,avg_time_in_review_E16,avg_time_merged_E16,story_points_total,story_points_bug,story_points_non_bug,story_points_clean_pct,average_prs_per_issue,reentries_per_issue,BurndownSP,BurndownAVGSP,BurndownPredictionSP,SPDelta,,,Title,Sprint,TodoDays,InProgressDays,InReviewDays,ReworkDays
-2026-07-21,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,46.0,46.0,,,,Clean First Pass Ticket,Sprint 1,0.0,0.0,0.0,0.0
-2026-07-22,Sprint 1,7,2,2,1,2,0.01,0.0,0.0,0.01,0.35,0.35,0.0,0.71,0.53,0.0,0.53,1.06,0.0,1.06,0.0,1.06,46.0,4.0,42.0,91.3,1.0,1.0,40.0,42.71,40.0,-2.71,,,Scope Creep Ticket,Sprint 1,0.0,0.0,1.05,0.0
-2026-07-23,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,39.43,36.92,,,,Standard Feature Ticket,Sprint 1,0.0,1.06,0.0,0.0
-2026-07-24,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,36.14,33.85,,,,Frontend Layout Bug,Sprint 1,0.0,1.06,0.0,0.0
-2026-07-25,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.86,30.77,,,,Rework Loop Ticket,Sprint 1,0.01,0.0,0.0,0.0
-2026-07-26,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,29.57,27.69,,,,Backend Processing Bug,Sprint 1,1.06,0.0,0.0,0.0
-2026-07-27,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,26.29,24.62,,,,Extra Scope Feature,Sprint 1,1.06,0.0,0.0,0.0
+2026-07-21,Sprint 1,7,2,2,1,2,0.01,0.0,0.0,0.12,0.04,0.04,0.0,0.12,0.06,0.0,0.06,0.12,0.0,0.12,0.0,0.12,46.0,4.0,42.0,91.3,1.0,1.0,46.0,46.0,46.0,0.0,,,Clean First Pass Ticket,Sprint 1,0.0,0.0,0.0,1.11
+2026-07-22,Sprint 1,7,2,2,1,2,0.01,0.0,0.0,1.12,0.37,0.37,0.0,1.12,0.56,0.0,0.56,1.12,0.0,1.12,0.0,1.12,46.0,4.0,42.0,91.3,1.0,1.0,40.0,42.71,40.0,-2.71,,,Scope Creep Ticket,Sprint 1,0.0,0.0,1.12,0.0
+2026-07-23,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,39.43,36.92,,,,Standard Feature Ticket,Sprint 1,0.0,1.12,0.0,0.0
+2026-07-24,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,36.14,33.85,,,,Frontend Layout Bug,Sprint 1,0.0,1.12,0.0,0.0
+2026-07-25,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.86,30.77,,,,Rework Loop Ticket,Sprint 1,0.01,0.0,0.0,1.11
+2026-07-26,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,29.57,27.69,,,,Backend Processing Bug,Sprint 1,1.12,0.0,0.0,0.0
+2026-07-27,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,26.29,24.62,,,,Extra Scope Feature,Sprint 1,1.12,0.0,0.0,0.0
 2026-07-28,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,21.54,,,,,,,,,
 2026-07-29,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,19.71,18.46,,,,,,,,,
 2026-07-30,Sprint 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,16.43,15.38,,,,,,,,,
