@@ -170,7 +170,7 @@ def load_api_key() -> str:
     return key or ""
 
 
-def inspect_schema(owner: str, project_number: int, issue_number: int = None, is_org: bool = False):
+def inspect_schema(owner: str, project_number: int, issue_number: int = None, is_org: bool = False, no_ssl: bool = False):
     api_key = load_api_key()
     if not api_key:
         print("[ERROR] No valid GITHUB_TOKEN or github_config.json API key found.", file=sys.stderr)
@@ -180,7 +180,7 @@ def inspect_schema(owner: str, project_number: int, issue_number: int = None, is
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-    ssl_verify = resolve_ssl_verify()
+    ssl_verify = False if no_ssl else resolve_ssl_verify()
 
     query = INSPECT_PROJECT_SCHEMA_ORG_QUERY if is_org else INSPECT_PROJECT_SCHEMA_QUERY
     variables = {"owner": owner, "projectNumber": project_number}
@@ -281,9 +281,10 @@ def main():
     parser.add_argument("--project", type=int, default=1, help="Project V2 Number")
     parser.add_argument("--issue", type=int, default=None, help="Specific Issue Number (optional)")
     parser.add_argument("--org", action="store_true", help="Set flag if owner is an Organization")
+    parser.add_argument("--no-ssl", action="store_true", help="Bypass SSL certificate verification (for corporate proxy)")
 
     args = parser.parse_args()
-    inspect_schema(owner=args.owner, project_number=args.project, issue_number=args.issue, is_org=args.org)
+    inspect_schema(owner=args.owner, project_number=args.project, issue_number=args.issue, is_org=args.org, no_ssl=args.no_ssl)
 
 
 if __name__ == "__main__":

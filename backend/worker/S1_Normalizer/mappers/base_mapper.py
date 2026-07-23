@@ -31,7 +31,7 @@ class BaseMapper:
             return "DONE"
         elif upper in ("IN PROGRESS", "DOING", "ACTIVE"):
             return "IN_PROGRESS"
-        elif upper in ("IN REVIEW", "REVIEW", "IN_REVIEW"):
+        elif upper in ("IN REVIEW", "REVIEW", "IN_REVIEW", "DEV TESTING", "DEV_TESTING"):
             return "IN_REVIEW"
         elif upper in ("CANCELLED", "REJECTED", "REMOVED"):
             return "CANCELLED"

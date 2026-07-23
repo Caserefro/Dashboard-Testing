@@ -69,6 +69,8 @@ def parse_issue_timeline(timeline_events: List[Dict[str, Any]], created_at: str,
         "doing": "InProgress",
         "in review": "InReview",
         "review": "InReview",
+        "dev testing": "InReview",
+        "dev_testing": "InReview",
         "done": "Done",
         "closed": "Done"
     }
