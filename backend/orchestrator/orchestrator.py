@@ -55,12 +55,24 @@ class DockerWorkerOrchestrator:
         missing_dates = sorted(list(requested_set - existing_db_dates))
         return missing_dates
 
+    def _resolve_extractor_module(self, board_id: int, vendor_type: str = "") -> str:
+        if vendor_type == "github_projects":
+            return "backend.worker.S0_Extractor.github.github_extractor"
+        elif vendor_type == "azure_devops":
+            return "backend.worker.S0_Extractor.azure.azure_extractor"
+            
+        # Fallbacks if vendor_type is missing
+        if board_id == 10:
+            return "backend.worker.S0_Extractor.github.github_extractor"
+        return "backend.worker.S0_Extractor.azure.azure_extractor"
+
     def trigger_extractor_layer(
         self,
         board_id: int,
         missing_dates: List[str],
         encrypted_api_key: str,
-        extractor_image_or_script: str = "extractor-api:latest"
+        extractor_image_or_script: str = "extractor-api:latest",
+        vendor_type: str = ""
     ) -> Dict[str, Any]:
         """
         Step 2: Spawns `Dockerized API extractors` via `stdin` memory pipe.
@@ -73,12 +85,11 @@ class DockerWorkerOrchestrator:
         extractor_payload = {
             "board_id": board_id,
             "api_key": decrypted_key,
-            "missing_dates": missing_dates
+            "missing_dates": missing_dates,
+            "vendor_type": vendor_type
         }
 
-        module_name = "backend.worker.S0_Extractor.azure_extractor"
-        if "github" in extractor_image_or_script.lower():
-            module_name = "backend.worker.S0_Extractor.github_extractor"
+        module_name = self._resolve_extractor_module(board_id, vendor_type)
 
         cmd = [sys.executable, "-m", module_name]
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -144,7 +155,8 @@ class DockerWorkerOrchestrator:
         existing_db_dates: Set[str],
         existing_db_process_data_od: List[Dict[str, Any]],
         encrypted_api_key: str,
-        kpi_config: Dict[str, Any]
+        kpi_config: Dict[str, Any],
+        vendor_type: str = ""
     ) -> Tuple[Dict[str, Any], str, List[Dict[str, Any]]]:
         """
         Master orchestration cycle (`Syncs Data Extraction and Docker Worker`).
@@ -154,7 +166,7 @@ class DockerWorkerOrchestrator:
         missing_dates = self.identify_missing_date_gap(requested_start_date, requested_end_date, existing_db_dates)
         
         # 2. Extract
-        raw_dump = self.trigger_extractor_layer(board_id, missing_dates, encrypted_api_key)
+        raw_dump = self.trigger_extractor_layer(board_id, missing_dates, encrypted_api_key, vendor_type=vendor_type)
 
         # 3. Analyze (`Normalizer -> Analizer -> Parser`)
         worker_output = self.trigger_analizer_worker(

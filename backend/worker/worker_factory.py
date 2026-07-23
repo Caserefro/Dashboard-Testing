@@ -24,19 +24,40 @@ class AnalyticsWorkerFactory:
     @classmethod
     def execute(cls, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Runs the 3-stage pure factory pipeline:
-          1. Normalizer (`Creates Process Data`)
-          2. Analyzer (`Gives meaning to data`)
-          3. Formatter (`Gives shape to data`)
+        The Master Pipeline Method.
+        
+        If backfill=True is passed in the payload, we time-travel the payload
+        and recursively run this pipeline to reconstruct history.
         """
+        if payload.get("backfill"):
+            from backend.worker.backfiller import BackfillEngine
+            return {"graphic_contract": BackfillEngine.execute(payload)}
+            
+        import sys
+        print("[AnalyticsWorkerFactory] Initiating Pipeline...", file=sys.stderr)
+        
+        # Runs the 3-stage pure factory pipeline:
+        #   1. Normalizer (`Creates Process Data`)
+        #   2. Analyzer (`Gives meaning to data`)
+        #   3. Formatter (`Gives shape to data`)
+        
         board_id = int(payload.get("board_id", 1))
         record_date = str(payload.get("record_date", "2026-07-12"))[:10]
         raw_json = payload.get("raw_json", {})
         orchestrator_data_od = payload.get("orchestrator_data_od", [])
         kpi_config = payload.get("kpi_config", {})
         output_format = payload.get("output_format", "graphic_contract").lower()
-        start_date = payload.get("start_date", record_date)
-        end_date = payload.get("end_date", record_date)
+        
+        # Auto-detect sprint window from Extractor's sprint_meta (if available)
+        sprint_meta = raw_json.get("sprint_meta", {})
+        start_date = payload.get("start_date") or sprint_meta.get("start_date") or record_date
+        end_date = payload.get("end_date") or sprint_meta.get("end_date") or record_date
+        
+        # Auto-detect total_ideal_points from sprint if not explicitly configured
+        if not kpi_config.get("total_ideal_points") and sprint_meta.get("total_ideal_points"):
+            kpi_config["total_ideal_points"] = sprint_meta["total_ideal_points"]
+
+        debug_mode = payload.get("debug_mode", False)
 
         # ============================================================== #
         # ============================================================== #
@@ -57,6 +78,8 @@ class AnalyticsWorkerFactory:
         # ============================================================== #
         computed_kpis = Analyzer.measure_all(
             tickets=combined_tickets,
+            prs=new_prs,
+            record_date=record_date,
             start_date=start_date,
             end_date=end_date,
             kpi_config=kpi_config,
@@ -66,7 +89,7 @@ class AnalyticsWorkerFactory:
         # ============================================================== #
         #  STAGE 3: FORMATTER (`Gives Shape to Data`)
         # ============================================================== #
-        return Formatter.format_all(
+        formatted_result = Formatter.format_all(
             board_id=board_id,
             record_date=record_date,
             computed_kpis=computed_kpis,
@@ -75,6 +98,29 @@ class AnalyticsWorkerFactory:
             total_ideal_points=kpi_config.get("total_ideal_points"),
             output_format=output_format
         )
+        
+        # ============================================================== #
+        #  DEBUG MODE: Dump Intermediate RAM States to Disk
+        # ============================================================== #
+        if debug_mode:
+            import os
+            debug_dir = os.path.join(os.path.dirname(__file__), "..", "..", "e2e_outputs")
+            os.makedirs(debug_dir, exist_ok=True)
+            
+            def _dump(name: str, data: Any):
+                with open(os.path.join(debug_dir, name), "w", encoding="utf-8") as f:
+                    if isinstance(data, list) and len(data) > 0 and hasattr(data[0], "to_dict"):
+                        json.dump([d.to_dict() for d in data], f, indent=2)
+                    else:
+                        json.dump(data, f, indent=2)
+                        
+            _dump("S0_Extracted_Raw.json", raw_json)
+            _dump("S1_Normalized_Tickets.json", combined_tickets)
+            _dump("S1_Normalized_PRs.json", new_prs)
+            _dump("S2_Analyzed_Math.json", computed_kpis)
+            _dump("S3_Formatted_Contracts.json", formatted_result)
+            
+        return formatted_result
 
 
 # ================================================================== #

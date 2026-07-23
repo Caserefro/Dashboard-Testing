@@ -9,116 +9,71 @@ traps anomalies/human entry typos (`"TBD"` in numeric fields, null dates), and r
 from typing import List, Dict, Any, Tuple
 from backend.domain.process_data_models import NormalizedTicket
 
+from .mappers.azure_mapper import AzureMapper
+from .mappers.github_mapper import GitHubMapper
 
 class Normalizer:
     """Stage 1: Normalizer entity. Transforms raw vendor payloads and historical OD into canonical Process Data."""
 
-    @staticmethod
-    def _parse_story_points(raw_val: Any) -> float:
-        """Safely converts raw story point entry into a float. Handles typos ('TBD', None, empty strings)."""
-        if raw_val is None or raw_val == "":
-            return 0.0
-        try:
-            return float(raw_val)
-        except (ValueError, TypeError):
-            return 0.0
-
-    @staticmethod
-    def _normalize_unit_type(raw_type: str) -> str:
-        """Maps vendor-specific work item types to canonical unit_type."""
-        upper = raw_type.upper()
-        if "STORY" in upper or "FEATURE" in upper:
-            return "USER_STORY"
-        elif "BUG" in upper:
-            return "BUG"
-        return "TASK"
-
-    @staticmethod
-    def _normalize_status(raw_status: str) -> str:
-        """Maps vendor-specific statuses to canonical status_normalized."""
-        upper = raw_status.upper()
-        if upper in ("DONE", "CLOSED", "RESOLVED", "MERGED"):
-            return "DONE"
-        elif upper in ("IN PROGRESS", "DOING", "ACTIVE"):
-            return "IN_PROGRESS"
-        elif upper in ("IN REVIEW", "REVIEW", "IN_REVIEW"):
-            return "IN_REVIEW"
-        elif upper in ("CANCELLED", "REJECTED", "REMOVED"):
-            return "CANCELLED"
-        return "TODO"
+    @classmethod
+    def _get_mapper(cls, raw_json: Dict[str, Any], board_id: int):
+        """Detects the payload source and returns the appropriate mapper strategy."""
+        # 1. Explicit Routing (Absolute Source of Truth)
+        vendor_type = raw_json.get("vendor_type")
+        if vendor_type == "github_projects":
+            return GitHubMapper
+        elif vendor_type == "azure_devops":
+            return AzureMapper
+            
+        # 2. Heuristic Routing (Fallback)
+        work_items = raw_json.get("workItems", raw_json.get("value", []))
+        if not work_items and "sampleItems" in raw_json:
+            work_items = raw_json["sampleItems"]
+            
+        if work_items:
+            first_item = work_items[0]
+            fields = first_item.get("fields", first_item)
+            # Azure DevOps uses System.* namespaced keys
+            if "System.WorkItemType" in fields or "System.State" in fields:
+                return AzureMapper
+            # GitHub uses fieldValues array with fieldName keys
+            if "fieldValues" in first_item or "type" in fields or "projectItemType" in first_item:
+                return GitHubMapper
+                
+        # Fallback: check PR shape for Azure-specific format
+        pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))
+        if pull_requests:
+            first_pr = pull_requests[0]
+            # Azure PRs have nested reviewers, completionOptions, etc.
+            if "reviewers" in first_pr or "completionOptions" in first_pr:
+                return AzureMapper
+            return GitHubMapper
+                
+        # Ultimate fallback
+        if board_id == 10:
+            return GitHubMapper
+        return AzureMapper
 
     @classmethod
     def normalize_raw_json(cls, raw_json: Dict[str, Any], board_id: int, default_record_date: str) -> List[NormalizedTicket]:
         """
         Scrubs 100% Raw JSON dumped by Azure API / GitHub API into canonical NormalizedTicket instances.
+        Delegates mapping to the vendor-specific strategy.
         """
+        mapper = cls._get_mapper(raw_json, board_id)
+        
         tickets: List[NormalizedTicket] = []
         work_items = raw_json.get("workItems", raw_json.get("value", []))
         if not work_items and "sampleItems" in raw_json:
             work_items = raw_json["sampleItems"]
 
         for item in work_items:
-            fields = item.get("fields", item)
-            sprint_name = None
-            
-            # Handle new GitHub schema with populatedFields or fieldValues
-            gh_fields = {}
-            if "populatedFields" in item:
-                gh_fields = {f["fieldName"]: f.get("value") for f in item["populatedFields"]}
-            elif "content" in item and "fieldValues" in item["content"]:
-                gh_fields = {f["fieldName"]: f.get("value") for f in item["content"]["fieldValues"]}
-            
-            if gh_fields:
-                fields = item.get("content", item)
-                fields.update(gh_fields)
-                fields["id"] = item.get("id", fields.get("id"))
-                fields["type"] = item.get("type", item.get("projectItemType"))
-                sprint_name = gh_fields.get("Sprint")
-
-            ticket_id = str(item.get("id", fields.get("System.Id", fields.get("id", "UNKNOWN"))))
-
-            # Multi-vendor Type detection: checks Azure `System.WorkItemType` then GitHub/Jira `type` or labels
-            unit_type_raw = fields.get("System.WorkItemType", fields.get("type", "Task"))
-            unit_type = cls._normalize_unit_type(unit_type_raw)
-
-            # Multi-vendor State detection: checks Azure `System.State` then GitHub `state` (`closed`/`open`), and Status
-            status_raw = fields.get("System.State", fields.get("Status", fields.get("state", item.get("state", "To Do"))))
-            status_norm = cls._normalize_status(status_raw)
-
-            # Multi-vendor Story Points: checks Azure, then GitHub `story_points`, then GitHub `Estimate`
-            story_points = cls._parse_story_points(
-                fields.get("Microsoft.VSTS.Scheduling.StoryPoints", fields.get("story_points", fields.get("Estimate", item.get("story_points", 0))))
-            )
-
-            # Multi-vendor Created Date: checks Azure `System.CreatedDate` then GitHub `created_at`
-            created_raw = fields.get("System.CreatedDate", fields.get("created_at", item.get("created_at", default_record_date)))
-            created_date = str(created_raw)[:10]
-
-            # Multi-vendor Closed Date: checks Azure `ClosedDate` then GitHub `closed_at` / `completed_date`
-            completed_date_raw = fields.get("Microsoft.VSTS.Common.ClosedDate", fields.get("closed_at", fields.get("completed_date", item.get("closed_at"))))
-            if completed_date_raw:
-                completed_date = str(completed_date_raw)[:10]
-            else:
-                completed_date = (default_record_date if status_norm == "DONE" else None)
-
-            # FTY: clean completion with zero reopen/rejection loops
-            reopen_count = int(cls._parse_story_points(
-                fields.get("Microsoft.VSTS.Common.StateChangeDate_Reopened", 0)
-            ))
-            is_fty = (status_norm == "DONE" and reopen_count == 0)
-
-            tickets.append(NormalizedTicket(
-                ticket_id=ticket_id,
-                unit_type=unit_type,
-                status_normalized=status_norm,
-                story_points=story_points,
-                created_date=created_date,
-                completed_date=completed_date,
-                is_first_time_yield=is_fty,
-                board_id=board_id,
-                sprint=sprint_name,
-                comments=fields.get("System.Title", fields.get("title", item.get("title", "")))
-            ))
+            try:
+                ticket = mapper.map_ticket(item, board_id, default_record_date)
+                tickets.append(ticket)
+            except Exception as e:
+                # In production we might log this or skip the corrupt record
+                pass
 
         return tickets
 
@@ -138,48 +93,20 @@ class Normalizer:
     @classmethod
     def normalize_prs(cls, raw_json: Dict[str, Any], board_id: int, default_record_date: str) -> List[Any]:
         """
-        Scrubs exact Azure DevOps pullRequests package (`pullRequestId`, `status`, `creationDate`, `commentCount`, `commitsAfterCreation`)
-        and GitHub PR payloads into canonical NormalizedPR instances.
+        Scrubs exact PR packages and delegates to the vendor-specific strategy.
         """
-        from backend.domain.process_data_models import NormalizedPR
-
-        prs: List[NormalizedPR] = []
-        pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))
+        mapper = cls._get_mapper(raw_json, board_id)
         repo_name = str(raw_json.get("repo", "UNKNOWN"))
+        
+        prs = []
+        pull_requests = raw_json.get("pullRequests", raw_json.get("pull_requests", []))
 
         for item in pull_requests:
-            pr_id = str(item.get("pullRequestId", item.get("id", item.get("number", "UNKNOWN"))))
-            title = str(item.get("title", ""))
-            
-            # Multi-vendor PR status: Azure (`active`/`completed`) vs GitHub (`open`/`closed`/`merged`)
-            status_raw = str(item.get("status", item.get("state", "active"))).upper()
-
-            if status_raw in ("COMPLETED", "MERGED", "CLOSED"):
-                status_norm = "MERGED" if status_raw != "ABANDONED" else "CLOSED"
-            elif status_raw in ("ABANDONED", "CANCELLED", "REJECTED"):
-                status_norm = "CLOSED"
-            else:
-                status_norm = "OPEN"
-
-            created_date_raw = str(item.get("creationDate", item.get("created_at", default_record_date)))[:10]
-            merged_date = created_date_raw if status_norm == "MERGED" else None
-
-            comment_count = int(item.get("commentCount", item.get("comments", 0)))
-            commits_after = int(item.get("commitsAfterCreation", item.get("review_commits", 0)))
-
-            prs.append(NormalizedPR(
-                pr_id=pr_id,
-                title=title,
-                repository=repo_name,
-                status_normalized=status_norm,
-                lines_added=0,
-                lines_removed=0,
-                created_date=created_date_raw,
-                merged_date=merged_date,
-                board_id=board_id,
-                comment_count=comment_count,
-                commits_after_creation=commits_after
-            ))
+            try:
+                pr = mapper.map_pr(item, board_id, repo_name, default_record_date)
+                prs.append(pr)
+            except Exception as e:
+                pass
 
         return prs
 

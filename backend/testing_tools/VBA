@@ -1,0 +1,63 @@
+Sub RefreshDashboard()
+    Dim wsh As Object
+    Dim waitOnReturn As Boolean
+    Dim windowStyle As Integer
+    Dim errorCode As Integer
+    Dim projectPath As String
+    Dim conn As WorkbookConnection
+
+    ' --- CONFIGURATION ---
+    ' Set this to the exact folder path where run_live_github.py lives
+    projectPath = "C:\Users\caser\PycharmProjects\Dashboard Testing"
+    ' ---------------------
+
+    Set wsh = CreateObject("WScript.Shell")
+    waitOnReturn = True ' Pause Excel until Python finishes extracting data
+    windowStyle = 1     ' Show the command prompt (use 0 to hide it)
+
+    ' 1. Run the Python script
+    errorCode = wsh.Run("cmd.exe /c cd /d """ & projectPath & """ && python run_live_github.py", windowStyle, waitOnReturn)
+
+    If errorCode = 0 Then
+        ' 2. Disable Background Refresh on all Power Query connections
+        ' (This forces Excel to completely finish loading the data before moving on)
+        For Each conn In ThisWorkbook.Connections
+            If conn.Type = xlConnectionTypeOLEDB Then
+                conn.OLEDBConnection.BackgroundQuery = False
+            ElseIf conn.Type = xlConnectionTypeODBC Then
+                conn.ODBCConnection.BackgroundQuery = False
+            End If
+        Next conn
+
+        ' 3. Now that background loading is disabled, refresh all tables!
+        ThisWorkbook.RefreshAll
+
+        ' 4. Tell the user it worked (this box won't appear until the data is fully loaded!)
+        MsgBox "Dashboard updated successfully with live GitHub data!", vbInformation, "Success"
+    Else
+        ' Tell the user if Python crashed (e.g., no internet, bad token)
+        MsgBox "Error: The data extraction script failed to run. Check your internet or GitHub token.", vbCritical, "Update Failed"
+    End If
+
+    Set wsh = Nothing
+End Sub
+
+
+How to Implement Option A (VBA + Power Query)
+Here is the exact VBA macro you can assign to a button in your Excel Dashboard.
+
+Step 1: Add the VBA Macro
+Open your Excel Dashboard.
+Press ALT + F11 to open the VBA Editor.
+Go to Insert > Module.
+Paste the following code:
+
+Step 2: Assign to a Button
+In Excel, go to the Insert tab -> Shapes -> Pick a rounded rectangle.
+Draw the button and type "Refresh Data" on it.
+Right-click the button -> Assign Macro... -> Select RefreshDashboard -> click OK.
+Step 3: Link Power Query
+Go to Data > Get Data > From File > From Text/CSV.
+Select your live_dashboard_output_v2.csv file.
+Click Load (or Transform Data if you need to adjust column types).
+Now, every time you click the button, Excel will wait for Python to fetch the live GitHub data, create the CSV, and then Power Query will instantly suck it in!

@@ -2,137 +2,66 @@
 Stage 2: Analyzer (`s2_analyzer.py` -> `Gives meaning to data`)
 
 Takes clean, canonical Process Data (`Tickets, Issues, PRs, Story Points`) directly from Stage 1 Normalizer
-in RAM and runs domain-specific mathematical calculations (`First Time Yield > 96%`, `Bigger of: Inverse Root vs remaining`).
+in RAM and runs domain-specific mathematical calculations via specialized Math Engines.
 """
 
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
-import math
-from backend.domain.process_data_models import NormalizedTicket
+from backend.domain.process_data_models import NormalizedTicket, NormalizedPR
+
+from .math_engines.time_math import TimeMath
+from .math_engines.quality_math import QualityMath
+from .burndown_math import BurndownMath
 
 
 class Analyzer:
-    """Stage 2: Analyzer entity. Computes mathematical KPIs over canonical process data."""
+    """Stage 2: Analyzer Facade. Routes arrays of Process Data to domain-specific Math Engines."""
 
-    @staticmethod
-    def first_time_yield(tickets: List[NormalizedTicket]) -> float:
-        """
-        FTY = (Completed Tickets with ZERO Reopen Loops / Total Completed Tickets) * 100.0
-        Target: > 96%
-        """
-        completed = [t for t in tickets if t.status_normalized == "DONE"]
-        if not completed:
-            return 100.0  # Clean default state when zero tickets are completed yet
+    @classmethod
+    def first_time_yield(cls, tickets: List[NormalizedTicket]) -> float:
+        return QualityMath.first_time_yield(tickets)
 
-        clean_count = sum(1 for t in completed if t.is_first_time_yield)
-        fty_raw = (clean_count / len(completed)) * 100.0
-        return round(max(0.0, min(100.0, fty_raw)), 2)
-
-    @staticmethod
+    @classmethod
     def burndown_curve(
+        cls,
         tickets: List[NormalizedTicket],
         start_date_iso: str,
         end_date_iso: str,
         total_ideal_points: Optional[float] = None,
-        historical_od: Optional[List[Dict[str, Any]]] = None
+        historical_od: Optional[List[Dict[str, Any]]] = None,
+        record_date_iso: Optional[str] = None
     ) -> Dict[str, Any]:
-        """
-        Computes the daily burndown curve series (`remaining_points`, `ideal_points`, `inverse_root_points`).
-        Integrates Method 3: PCHIP Forecasting if burndown_math is available.
-        """
-        try:
-            start_dt = datetime.strptime(start_date_iso[:10], "%Y-%m-%d")
-            end_dt = datetime.strptime(end_date_iso[:10], "%Y-%m-%d")
-        except (ValueError, TypeError):
-            start_dt = datetime.now() - timedelta(days=14)
-            end_dt = datetime.now()
+        return BurndownMath.burndown_curve(tickets, start_date_iso, end_date_iso, total_ideal_points, historical_od, record_date_iso)
 
-        total_days = max(1, (end_dt - start_dt).days)
+    @classmethod
+    def prs_per_issue(cls, tickets: List[NormalizedTicket], prs: List[NormalizedPR]) -> float:
+        return QualityMath.prs_per_issue(tickets, prs)
 
-        if total_ideal_points is None or total_ideal_points <= 0:
-            total_ideal_points = sum(t.story_points for t in tickets) if tickets else 100.0
+    @classmethod
+    def sprint_item_timeline(cls, tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
+        return TimeMath.sprint_item_timeline(tickets)
 
-        series: List[Dict[str, Any]] = []
-        live_x = []
-        live_y = []
+    @classmethod
+    def pr_based_fty(cls, prs: List[NormalizedPR]) -> Dict[str, Any]:
+        return QualityMath.pr_based_fty(prs)
 
-        for day_offset in range(total_days + 1):
-            current_dt = start_dt + timedelta(days=day_offset)
-            current_date_str = current_dt.strftime("%Y-%m-%d")
-            
-            # Stop collecting live points if we are past today
-            if current_dt > end_dt:
-                pass 
+    @classmethod
+    def issue_loop_fty(cls, tickets: List[NormalizedTicket]) -> Dict[str, Any]:
+        return QualityMath.issue_loop_fty(tickets)
 
-            daily_completed = sum(
-                t.story_points for t in tickets
-                if t.status_normalized == "DONE" and t.completed_date and t.completed_date <= current_date_str
-            )
+    @classmethod
+    def average_time_in_step(cls, tickets: List[NormalizedTicket]) -> Dict[str, Any]:
+        return TimeMath.average_time_in_step(tickets)
 
-            remaining = max(0.0, total_ideal_points - daily_completed)
-            ideal = max(0.0, total_ideal_points * (1.0 - day_offset / total_days))
-            inv_root = max(0.0, total_ideal_points * (1.0 - math.sqrt(day_offset / total_days)))
-
-            series.append({
-                "date": current_date_str,
-                "remaining_points": round(remaining, 2),
-                "ideal_points": round(ideal, 2),
-                "inverse_root_points": round(inv_root, 2),
-            })
-            
-            x_percent = (day_offset / total_days) * 100.0
-            live_x.append(x_percent)
-            live_y.append(remaining)
-
-        # Apply Method 3 Forecasting
-        from backend.worker.S2_Analyzer.burndown_math import compute_forecast_tracks
-        
-        # Build Master Baseline from historical_od (fallback to ideal if none)
-        # Note: A full implementation groups historical_od by sprint and averages. 
-        # For now, we fallback to a simple historical ideal to prove pipeline wiring.
-        master_x = [0.0, 100.0]
-        master_y = [total_ideal_points, 0.0]
-        
-        if historical_od and len(historical_od) >= 2:
-            # Very basic extraction: map the historical points to a 0-100 scale
-            master_x.clear()
-            master_y.clear()
-            hist_len = len(historical_od)
-            for i, record in enumerate(historical_od):
-                master_x.append((i / (hist_len - 1)) * 100.0)
-                master_y.append(float(record.get("remaining_story_points", 0.0)))
-                
-        forecast = compute_forecast_tracks(master_x, master_y, live_x, live_y)
-
-        return {
-            "series": series,
-            "forecast": forecast
-        }
-
-    @staticmethod
-    def tickets_per_day(tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
-        """Aggregates completed tickets grouped by weekday for the velocity bar chart widget."""
-        day_counts: Dict[str, int] = {
-            "Monday": 0, "Tuesday": 0, "Wednesday": 0, "Thursday": 0,
-            "Friday": 0, "Saturday": 0, "Sunday": 0,
-        }
-
-        for t in tickets:
-            if t.status_normalized == "DONE" and t.completed_date:
-                try:
-                    dt = datetime.strptime(t.completed_date[:10], "%Y-%m-%d")
-                    day_name = dt.strftime("%A")
-                    if day_name in day_counts:
-                        day_counts[day_name] += 1
-                except ValueError:
-                    continue
-
-        return [{"day_label": d, "tickets_merged": c} for d, c in day_counts.items()]
+    @classmethod
+    def sp_breakdown(cls, tickets: List[NormalizedTicket]) -> Dict[str, Any]:
+        return QualityMath.sp_breakdown(tickets)
 
     @classmethod
     def measure_all(
         cls,
         tickets: List[NormalizedTicket],
+        prs: List[NormalizedPR],
+        record_date: str,
         start_date: str,
         end_date: str,
         kpi_config: Dict[str, Any],
@@ -148,7 +77,15 @@ class Analyzer:
                 start_date_iso=start_date,
                 end_date_iso=end_date,
                 total_ideal_points=kpi_config.get("total_ideal_points"),
-                historical_od=historical_od
+                historical_od=historical_od,
+                record_date_iso=record_date
             ),
-            "tickets_per_day_chart": cls.tickets_per_day(tickets),
+            "productivity_sliding_window": QualityMath.productivity_sliding_window(tickets, end_date),
+            "average_prs_per_issue": cls.prs_per_issue(tickets, prs),
+            "sprint_item_timeline": cls.sprint_item_timeline(tickets),
+            "pr_based_fty": cls.pr_based_fty(prs),
+            "issue_loop_fty": cls.issue_loop_fty(tickets),
+            "average_time_in_step": cls.average_time_in_step(tickets),
+            "average_time_by_estimate": TimeMath.average_time_by_estimate(tickets),
+            "sp_breakdown": cls.sp_breakdown(tickets)
         }

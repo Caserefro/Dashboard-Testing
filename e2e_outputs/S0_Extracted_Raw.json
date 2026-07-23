@@ -1,0 +1,50 @@
+{
+  "workItems": [
+    {
+      "id": "GH-100",
+      "number": 100,
+      "title": "Test Ticket #100",
+      "state": "CLOSED",
+      "createdAt": "2026-07-01T08:30:00Z",
+      "updatedAt": "2026-07-01T16:45:00Z",
+      "labels": [
+        "bug",
+        "Additional Scope"
+      ],
+      "fieldValues": [
+        {
+          "fieldName": "Status",
+          "value": "Done"
+        },
+        {
+          "fieldName": "Sprint",
+          "value": "Sprint 1",
+          "startDate": "2026-07-01",
+          "duration": 14
+        },
+        {
+          "fieldName": "Estimate",
+          "value": "8"
+        }
+      ],
+      "rework_loops": 0,
+      "time_in_todo_sec": 14400.0,
+      "time_in_progress_sec": 7200.0,
+      "time_in_review_sec": 7200.0
+    }
+  ],
+  "pullRequests": [
+    {
+      "pullRequestId": 200,
+      "title": "Fix/Feature PR #200",
+      "status": "MERGED",
+      "creationDate": "2026-07-01T11:00:00Z",
+      "commentCount": 0,
+      "commitsAfterCreation": 0,
+      "review_cycles": 1
+    }
+  ],
+  "repo": "Caserefro/TestRepo",
+  "cutoff": "2026-07-01",
+  "vendor_type": "github_projects"
+}

@@ -1,0 +1,29 @@
+{
+  "board_id": 10,
+  "kpi_record_for_db": {
+    "board_id": 10,
+    "record_date": "2026-07-22",
+    "total_story_points": 8.0,
+    "completed_story_points": 8.0,
+    "remaining_story_points": 0.0,
+    "total_completed_tickets": 1,
+    "first_time_yield_clean_tickets": 1,
+    "prs_merged_count": 1,
+    "safety_issues_open_count": 0,
+    "sprint_name": null,
+    "debug_pts_completed_30d": 0.0,
+    "total_pts_completed_30d": 0.0,
+    "checkpoint": 0,
+    "progress_pct": 0.0,
+    "total_bug_sp": 0.0,
+    "total_reworked_items": 0,
+    "total_rework_loops": 0,
+    "total_pr_review_cycles": 0,
+    "total_todo_days": 0.0,
+    "total_in_progress_days": 0.0,
+    "total_in_review_days": 0.0,
+    "total_in_rework_days": 0.0,
+    "total_cycle_days": 0.0
+  },
+  "graphic_contract": "record_date,Sprint,issues_total,issues_todo,issues_in_progress,issues_in_review,issues_merged,avg_time_todo_E2,avg_time_in_progress_E2,avg_time_in_review_E2,avg_time_merged_E2,avg_time_todo_E4,avg_time_in_progress_E4,avg_time_in_review_E4,avg_time_merged_E4,avg_time_todo_E8,avg_time_in_progress_E8,avg_time_in_review_E8,avg_time_merged_E8,avg_time_todo_E16,avg_time_in_progress_E16,avg_time_in_review_E16,avg_time_merged_E16,story_points_total,story_points_bug,story_points_non_bug,story_points_clean_pct,average_prs_per_issue,reentries_per_issue,BurndownSP,BurndownAVGSP,BurndownPredictionSP,SPDelta,,,Title,Sprint,TodoDays,InProgressDays,InReviewDays,ReworkDays\r\n2026-07-22,Sprint 1,1,0,0,0,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.17,0.08,0.08,0.33,0.0,0.0,0.0,0.0,8.0,8.0,0.0,0.0,1.0,0.0,0.0,8.0,0.0,-8.0,,,Test Ticket #100,Sprint 1,0.17,0.08,0.08,0.0\r\n2026-07-23,Sprint 1,1,0,0,0,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.17,0.08,0.08,0.33,0.0,0.0,0.0,0.0,8.0,8.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,\r\n"
+}

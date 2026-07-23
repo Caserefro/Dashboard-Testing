@@ -1,0 +1,71 @@
+Metric Summary,Value
+First Time Yield (%),100.0
+Total Story Points,52.0
+Bug Story Points,12.0
+Bug SP (%),23.08
+Non-Bug Story Points,40.0
+
+Burndown Curve
+Date,Remaining Points,Ideal Points,Inverse Root Points
+2026-07-21,36.0,52.0,52.0
+2026-07-22,36.0,48.29,38.1
+2026-07-23,36.0,44.57,32.35
+2026-07-24,36.0,40.86,27.93
+2026-07-25,36.0,37.14,24.2
+2026-07-26,36.0,33.43,20.92
+2026-07-27,36.0,29.71,17.96
+2026-07-28,36.0,26.0,15.23
+2026-07-29,36.0,22.29,12.69
+2026-07-30,36.0,18.57,10.31
+2026-07-31,36.0,14.86,8.05
+2026-08-01,36.0,11.14,5.91
+2026-08-02,36.0,7.43,3.86
+2026-08-03,36.0,3.71,1.89
+2026-08-04,36.0,0.0,0.0
+
+Tickets Per Day Chart
+Day Label,Tickets Merged
+Monday,0
+Tuesday,3
+Wednesday,0
+Thursday,0
+Friday,0
+Saturday,0
+Sunday,0
+
+Sprint Item Timeline
+Sprint,IssueNumber,Title,TodoDays,InProgressDays,InReviewDays,TotalCycleDays,Status,Estimate,IsBug
+Sprint 1,#6,Fix FTY Math Bug,0.0,0.0,0.0,0.0,IN_REVIEW,8.0,True
+Sprint 1,#1,Clean Ticket (FTY),0.0,0.0,0.0,0.0,DONE,4.0,False
+Sprint 1,#2,Rework Loop Ticket,0.0,0.0,0.0,0.0,DONE,8.0,False
+Sprint 1,#3,Production Bug Ticket,0.0,0.0,0.0,0.0,DONE,4.0,True
+Sprint 1,#4,Scope Creep Ticket,0.0,0.0,0.0,0.0,IN_PROGRESS,16.0,False
+Sprint 1,#7,UI Component Overhaul,0.0,0.0,0.0,0.0,IN_PROGRESS,8.0,False
+Sprint 1,#5,Backend API Integration,0.0,0.0,0.0,0.0,TODO,4.0,False
+
+Issue Loop FTY
+Metric,Value
+Total Completed Items,3
+First Time Yield Items,3
+Reworked Items,0
+FTY (%),100.0
+Avg Rework Loops (Completed),0.0
+Avg Rework Loops (Reworked),0.0
+
+PR-Based FTY
+Metric,Value
+Total Merged PRs,0
+First Pass PRs,0
+Reworked PRs,0
+PR FTY (%),100.0
+Avg Review Cycles,0.0
+Avg Comments Per PR,0.0
+
+Average Time in Step
+Metric,Value
+Avg Todo Days,0.0
+Avg In Progress Days,0.0
+Avg In Review Days,0.0
+Avg Cycle Days,0.0
+Item Count,7
+Bug Item Count,2

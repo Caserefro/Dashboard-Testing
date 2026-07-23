@@ -66,7 +66,8 @@ class AzureDevOpsExtractor:
             "pullRequests": pull_requests,
             "team": team,
             "repo": repo,
-            "cutoff": missing_dates[0] if missing_dates else "2026-04-01T00:00:00+00:00"
+            "cutoff": missing_dates[0] if missing_dates else "2026-04-01T00:00:00+00:00",
+            "vendor_type": "azure_devops"
         }
 
 

@@ -1,0 +1,269 @@
+{
+  "fty_percentage": 100.0,
+  "burndown_curve": {
+    "series": [
+      {
+        "date": "2026-07-22",
+        "remaining_points": 0.0,
+        "ideal_points": 8.0,
+        "baseline_points": 8.0,
+        "prediction_points": 0.0,
+        "inverse_root_points": 8.0
+      },
+      {
+        "date": "2026-07-23",
+        "remaining_points": 0.0,
+        "ideal_points": 0.0,
+        "baseline_points": 0.0,
+        "prediction_points": 0.0,
+        "inverse_root_points": 0.0
+      }
+    ],
+    "forecast": {
+      "future_x": [
+        0.0,
+        7.6923076923076925,
+        15.384615384615385,
+        23.076923076923077,
+        30.76923076923077,
+        38.46153846153846,
+        46.15384615384615,
+        53.84615384615385,
+        61.53846153846154,
+        69.23076923076923,
+        76.92307692307692,
+        84.61538461538461,
+        92.3076923076923,
+        100.0
+      ],
+      "catchup_y": [
+        0.0,
+        8.881784197001252e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        4.440892098500626e-16,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        0.0,
+        -4.440892098500626e-16,
+        0.0
+      ],
+      "slip_y": [
+        0.0,
+        -0.615384615384615,
+        -1.2307692307692308,
+        -1.8461538461538467,
+        -2.4615384615384617,
+        -3.0769230769230766,
+        -3.6923076923076925,
+        -4.3076923076923075,
+        -4.923076923076923,
+        -5.538461538461538,
+        -6.153846153846153,
+        -6.769230769230769,
+        -7.384615384615385,
+        -8.0
+      ],
+      "forecast_y": [
+        0.0,
+        8.881784197001252e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        4.440892098500626e-16,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        0.0,
+        -4.440892098500626e-16,
+        0.0
+      ]
+    }
+  },
+  "productivity_sliding_window": [
+    {
+      "date": "2026-06-11",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-12",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-15",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-16",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-17",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-18",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-19",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-22",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-23",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-24",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-25",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-26",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-29",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-06-30",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-01",
+      "tickets_merged": 1
+    },
+    {
+      "date": "2026-07-02",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-03",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-06",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-07",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-08",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-09",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-10",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-13",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-14",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-15",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-16",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-17",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-20",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-21",
+      "tickets_merged": 0
+    },
+    {
+      "date": "2026-07-22",
+      "tickets_merged": 0
+    }
+  ],
+  "average_prs_per_issue": 1.0,
+  "sprint_item_timeline": [
+    {
+      "Sprint": "Sprint 1",
+      "IssueNumber": "#100",
+      "Title": "Test Ticket #100",
+      "TodoDays": 0.17,
+      "InProgressDays": 0.08,
+      "InReviewDays": 0.08,
+      "ReworkDays": 0.0,
+      "TotalCycleDays": 0.33,
+      "CurrentStatus": "DONE",
+      "Estimate": 8.0,
+      "IsBug": true,
+      "IsOutlier": false
+    }
+  ],
+  "pr_based_fty": {
+    "TotalMergedPRs": 1,
+    "FirstPassPRs": 0,
+    "ReworkedPRs": 1,
+    "PRFTYPercentage": 0.0,
+    "AvgReviewCycles": 1.0,
+    "AvgCommentsPerPR": 0.0
+  },
+  "issue_loop_fty": {
+    "TotalCompletedItems": 1,
+    "FirstTimeYieldItems": 1,
+    "ReworkedItems": 0,
+    "FTYPercentage": 100.0,
+    "AvgReworkLoopsPerCompletedItem": 0.0,
+    "AvgReworkLoopsPerReworkedItem": 0.0
+  },
+  "average_time_in_step": {
+    "AvgTodoDays": 0.17,
+    "AvgInProgressDays": 0.08,
+    "AvgInReviewDays": 0.08,
+    "AvgReworkDays": 0.0,
+    "AvgCycleDays": 0.33,
+    "ItemCount": 1,
+    "BugItemCount": 1,
+    "OutliersExcluded": 0
+  },
+  "average_time_by_estimate": {
+    "E8": {
+      "todo": 0.17,
+      "in_progress": 0.08,
+      "in_review": 0.08,
+      "merged": 0.33
+    }
+  },
+  "sp_breakdown": {
+    "TotalSP": 8.0,
+    "BugSP": 8.0,
+    "BugPercentage": 100.0,
+    "NonBugSP": 0.0,
+    "NonBugPercentage": 0.0
+  }
+}

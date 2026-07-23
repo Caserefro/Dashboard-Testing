@@ -26,7 +26,16 @@ class NormalizedTicket:
     is_first_time_yield: bool       # True if completed without reopening/rejection loops
     board_id: int                   # FK to BOARDS.board_id
     sprint: Optional[str] = None    # Extracted from GitHub iterations for sprint reconstruction
+    title: str = ""                 # Issue Title
     comments: str = ""
+    # New Fields for Advanced Metrics
+    rework_loops: int = 0           # How many times it went backwards on the board
+    time_in_todo_sec: float = 0.0   # Calculated from GraphQL Timeline API
+    time_in_progress_sec: float = 0.0
+    time_in_review_sec: float = 0.0
+    time_in_rework_sec: float = 0.0
+    is_bug: bool = False            # True if labels include "bug"
+    estimate: float = 0.0           # SP assigned
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -50,6 +59,8 @@ class NormalizedPR:
     board_id: int                   # FK to BOARDS.board_id
     comment_count: int = 0          # Number of comments on the PR
     commits_after_creation: int = 0 # Commits pushed after initial creation (rework loops)
+    # New Fields for Advanced Metrics
+    review_cycles: int = 0          # How many review iteration events happened
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -136,6 +147,19 @@ class ProcessDataAggregate:
     debug_pts_completed_30d: float = 0.0
     total_pts_completed_30d: float = 0.0
 
+    # New Fields for Advanced Metrics / Retrospective
+    checkpoint: int = 0
+    progress_pct: float = 0.0
+    total_bug_sp: float = 0.0
+    total_reworked_items: int = 0
+    total_rework_loops: int = 0
+    total_pr_review_cycles: int = 0
+    total_todo_days: float = 0.0
+    total_in_progress_days: float = 0.0
+    total_in_review_days: float = 0.0
+    total_in_rework_days: float = 0.0
+    total_cycle_days: float = 0.0
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
@@ -164,6 +188,20 @@ class ProcessDataAggregate:
         sprints = [t.sprint for t in tickets if t.sprint]
         current_sprint = sprints[0] if sprints else None
 
+        # New aggregations
+        progress_pct = (completed_pts / total_pts * 100.0) if total_pts > 0 else 0.0
+        total_bug_sp = sum(t.story_points for t in tickets if t.is_bug)
+        total_reworked_items = sum(1 for t in completed_tix if t.rework_loops > 0)
+        total_rework_loops = sum(t.rework_loops for t in completed_tix)
+        total_pr_review_cycles = sum(p.review_cycles for p in prs if p.status_normalized == "MERGED")
+        
+        SEC_TO_DAYS = 86400.0
+        total_todo_days = sum(t.time_in_todo_sec for t in tickets) / SEC_TO_DAYS
+        total_in_progress_days = sum(t.time_in_progress_sec for t in tickets) / SEC_TO_DAYS
+        total_in_review_days = sum(t.time_in_review_sec for t in tickets) / SEC_TO_DAYS
+        total_in_rework_days = sum(t.time_in_rework_sec for t in tickets) / SEC_TO_DAYS
+        total_cycle_days = total_todo_days + total_in_progress_days + total_in_review_days + total_in_rework_days
+
         return cls(
             board_id=board_id,
             record_date=record_date[:10],
@@ -174,6 +212,16 @@ class ProcessDataAggregate:
             first_time_yield_clean_tickets=fty_clean,
             prs_merged_count=prs_merged,
             safety_issues_open_count=safety_open,
-            sprint_name=current_sprint
+            sprint_name=current_sprint,
+            progress_pct=round(progress_pct, 2),
+            total_bug_sp=round(total_bug_sp, 2),
+            total_reworked_items=total_reworked_items,
+            total_rework_loops=total_rework_loops,
+            total_pr_review_cycles=total_pr_review_cycles,
+            total_todo_days=round(total_todo_days, 2),
+            total_in_progress_days=round(total_in_progress_days, 2),
+            total_in_review_days=round(total_in_review_days, 2),
+            total_in_rework_days=round(total_in_rework_days, 2),
+            total_cycle_days=round(total_cycle_days, 2)
         )
 
