@@ -18,12 +18,29 @@ from . import utils
 
 class GitHubExtractor:
     @classmethod
+    def _resolve_ssl_verify(cls, payload: Dict[str, Any]) -> bool:
+        """Parses the SSL verification toggle from payload or environment."""
+        import os
+        # Payload explicit takes precedence over environment variable
+        if "ssl_verify" in payload:
+            return bool(payload["ssl_verify"])
+        if "sslVerify" in payload:
+            return bool(payload["sslVerify"])
+            
+        env_override = os.environ.get("ATLAS_SSL_VERIFY")
+        if env_override is not None:
+            return env_override.lower() in ("true", "1", "yes")
+            
+        return True
+
+    @classmethod
     def execute(cls, payload: Dict[str, Any]) -> Dict[str, Any]:
         api_key = payload.get("api_key", "")
         repo = payload.get("repo", "owner/github-repo")
         project_number = int(payload.get("projectNumber", 1))
         org = payload.get("org", "")
         missing_dates = payload.get("missing_dates", [])
+        ssl_verify = cls._resolve_ssl_verify(payload)
         
         # Determine owner
         owner = org if org else repo.split("/")[0] if "/" in repo else "Caserefro"
@@ -45,7 +62,8 @@ class GitHubExtractor:
                 "https://api.github.com/graphql", 
                 json={"query": query, "variables": variables}, 
                 headers=headers,
-                timeout=15.0
+                timeout=15.0,
+                verify=ssl_verify
             )
             resp.raise_for_status()
             data = resp.json()
@@ -121,7 +139,8 @@ class GitHubExtractor:
                         "https://api.github.com/graphql", 
                         json={"query": ISSUE_TIMELINE_QUERY, "variables": {"owner": item_owner, "repo": item_repo, "issueNumber": issue_num}}, 
                         headers=headers,
-                        timeout=5.0
+                        timeout=5.0,
+                        verify=ssl_verify
                     )
                     if t_resp.status_code == 200:
                         t_data = t_resp.json()
@@ -167,7 +186,8 @@ class GitHubExtractor:
                 "pullRequests": pull_requests,
                 "repo": repo,
                 "cutoff": missing_dates[0] if missing_dates else "2026-04-01T00:00:00Z",
-                "sprint_meta": sprint_meta
+                "sprint_meta": sprint_meta,
+                "vendor_type": "github_projects"
             }
 
         except Exception as e:
@@ -234,7 +254,8 @@ class GitHubExtractor:
             "workItems": work_items,
             "pullRequests": pull_requests,
             "repo": repo,
-            "cutoff": dates_to_gen[0]
+            "cutoff": dates_to_gen[0],
+            "vendor_type": "github_projects"
         }
 
 def main() -> None:

@@ -18,9 +18,10 @@ def main():
         {"title": "Frontend Layout Bug", "body": "A bug ticket to test Bug SP."}
     ]
     
+    from http_utils import resolve_ssl_verify
     print(f"Creating issues in {repo}...")
     for issue in issues_to_create:
-        resp = httpx.post(f"https://api.github.com/repos/{repo}/issues", headers=headers, json=issue)
+        resp = httpx.post(f"https://api.github.com/repos/{repo}/issues", headers=headers, json=issue, verify=resolve_ssl_verify())
         if resp.status_code == 201:
             print(f"Created: {issue['title']} (URL: {resp.json()['html_url']})")
         else:

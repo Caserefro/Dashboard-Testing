@@ -18,6 +18,14 @@ class Normalizer:
     @classmethod
     def _get_mapper(cls, raw_json: Dict[str, Any], board_id: int):
         """Detects the payload source and returns the appropriate mapper strategy."""
+        # 1. Explicit Routing (Absolute Source of Truth)
+        vendor_type = raw_json.get("vendor_type")
+        if vendor_type == "github_projects":
+            return GitHubMapper
+        elif vendor_type == "azure_devops":
+            return AzureMapper
+            
+        # 2. Heuristic Routing (Fallback)
         work_items = raw_json.get("workItems", raw_json.get("value", []))
         if not work_items and "sampleItems" in raw_json:
             work_items = raw_json["sampleItems"]

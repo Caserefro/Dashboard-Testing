@@ -33,7 +33,8 @@ class AnalyticsWorkerFactory:
             from backend.worker.backfiller import BackfillEngine
             return {"graphic_contract": BackfillEngine.execute(payload)}
             
-        print("[AnalyticsWorkerFactory] Initiating Pipeline...")
+        import sys
+        print("[AnalyticsWorkerFactory] Initiating Pipeline...", file=sys.stderr)
         
         # Runs the 3-stage pure factory pipeline:
         #   1. Normalizer (`Creates Process Data`)

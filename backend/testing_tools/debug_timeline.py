@@ -6,6 +6,7 @@ from datetime import datetime
 # Load queries from our extractor
 from backend.worker.S0_Extractor.github.queries import PROJECT_ITEMS_USER_QUERY, PROJECT_ITEMS_ORG_QUERY, ISSUE_TIMELINE_QUERY
 from backend.worker.S0_Extractor.github.timeline_parser import parse_iso_date
+from http_utils import resolve_ssl_verify
 
 def load_api_key():
     try:
@@ -51,7 +52,8 @@ def main():
     resp = httpx.post(
         "https://api.github.com/graphql", 
         json={"query": PROJECT_ITEMS_USER_QUERY, "variables": {"org": owner, "projectNumber": project_number}}, 
-        headers=headers
+        headers=headers,
+        verify=resolve_ssl_verify()
     )
     data = resp.json()
     
@@ -87,7 +89,8 @@ def main():
         t_resp = httpx.post(
             "https://api.github.com/graphql", 
             json={"query": ISSUE_TIMELINE_QUERY, "variables": {"owner": repo_owner, "repo": repo_name, "issueNumber": issue_num}}, 
-            headers=headers
+            headers=headers,
+            verify=resolve_ssl_verify()
         )
         t_data = t_resp.json()
         

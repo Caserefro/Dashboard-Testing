@@ -9,6 +9,7 @@ def main():
         "Accept": "application/vnd.github.v3+json"
     }
     
+    from http_utils import resolve_ssl_verify
     # We want to merge PR #8 (Clean) and PR #9 (Rework Loop)
     prs_to_merge = [8, 9]
     
@@ -20,7 +21,8 @@ def main():
             json={
                 "commit_title": f"Merge PR #{pr_num}",
                 "merge_method": "merge"
-            }
+            },
+            verify=resolve_ssl_verify()
         )
         
         if resp.status_code == 200:
