@@ -1,0 +1,11 @@
+record_date,Sprint,sprint_progress_pct,BurndownSP,BurndownAVGSP,BurndownPredictionSP,SPDelta,CatchUpSP,SlipSP
+2026-07-01,Sprint 1 (Method 3 Model),0.0,100.0,100.0,100.0,0.0,100.0,101.2
+2026-07-02,Sprint 1 (Method 3 Model),11.1,101.5,94.3,101.5,7.2,101.5,95.5
+2026-07-03,Sprint 1 (Method 3 Model),22.2,102.1,93.1,102.1,9.0,102.1,94.3
+2026-07-06,Sprint 1 (Method 3 Model),33.3,101.8,91.4,101.8,10.4,101.8,92.6
+2026-07-07,Sprint 1 (Method 3 Model),44.4,98.4,90.6,98.4,7.8,98.4,91.8
+2026-07-08,Sprint 1 (Method 3 Model),55.6,90.5,89.3,90.5,1.2,90.5,90.5
+2026-07-09,Sprint 1 (Method 3 Model),66.7,90.5,85.4,86.3,5.1,86.3,86.6
+2026-07-10,Sprint 1 (Method 3 Model),77.8,90.5,73.5,74.1,17.0,74.1,74.7
+2026-07-13,Sprint 1 (Method 3 Model),88.9,90.5,35.5,35.8,55.0,35.8,36.7
+2026-07-14,Sprint 1 (Method 3 Model),100.0,90.5,2.2,2.2,88.3,2.2,3.4

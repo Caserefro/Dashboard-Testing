@@ -269,45 +269,54 @@ class GitHubExtractor:
 
     @classmethod
     def _generate_mock_data(cls, missing_dates: List[str], repo: str) -> Dict[str, Any]:
-        """Generates the EXACT authentic JSON schema provided in the user's screenshot."""
+        """Generates realistic Method 3 mock burndown dataset for offline development."""
         work_items: List[Dict[str, Any]] = []
         pull_requests: List[Dict[str, Any]] = []
 
-        # If empty, just generate one for today
-        dates_to_gen = missing_dates if missing_dates else ["2026-07-01"]
+        dates_to_gen = missing_dates if missing_dates else ["2026-07-01", "2026-07-02", "2026-07-03"]
+        start_date = dates_to_gen[0]
 
-        for idx, date_str in enumerate(dates_to_gen):
-            issue_num = 100 + idx
-            pr_num = 200 + idx
+        # Method 3 Mock Ticket Schedule (100 Total Points, scope creep + realistic burndown)
+        mock_schedule = [
+            {"num": 101, "title": "Core Architecture Refactor", "points": 20, "status": "Done", "day": "2026-07-01", "is_bug": False},
+            {"num": 102, "title": "Database Schema Migration", "points": 15, "status": "Done", "day": "2026-07-02", "is_bug": False},
+            {"num": 103, "title": "Fix High-Severity Security Bug", "points": 10, "status": "Done", "day": "2026-07-06", "is_bug": True},
+            {"num": 104, "title": "Implement GraphQL Iteration Extractor", "points": 15, "status": "In Progress", "day": "2026-07-08", "is_bug": False},
+            {"num": 105, "title": "Fix Burndown Delta Decay Logic", "points": 20, "status": "In Review", "day": "2026-07-09", "is_bug": True},
+            {"num": 106, "title": "Update UI Qt Graph Contracts", "points": 20, "status": "Todo", "day": "2026-07-10", "is_bug": False},
+        ]
 
-            is_bug = (idx % 2 == 0)
-            
-            # Dummy timeline events to test S2 Math
+        for item in mock_schedule:
+            issue_num = item["num"]
+            pr_num = 200 + issue_num
+            date_str = item["day"]
+            is_bug = item["is_bug"]
+            status_val = item["status"]
+
             dummy_timeline = [
-                {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T10:00:00Z", "status": {"name": "Todo"}},
-                {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T12:00:00Z", "status": {"name": "In Progress"}},
-                {"__typename": "IssueComment", "createdAt": f"{date_str}T13:00:00Z", "author": {"login": "dev_user"}, "bodyText": "Moving to review, PR ready"},
+                {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T09:00:00Z", "status": {"name": "Todo"}},
+                {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T11:00:00Z", "status": {"name": "In Progress"}},
+                {"__typename": "IssueComment", "createdAt": f"{date_str}T13:00:00Z", "author": {"login": "dev_user"}, "bodyText": f"PR submitted for #{issue_num}"},
                 {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T14:00:00Z", "status": {"name": "In Review"}},
-                {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T16:00:00Z", "status": {"name": "Done"}}
+                {"__typename": "ProjectV2ItemStatusChangedEvent", "createdAt": f"{date_str}T16:00:00Z", "status": {"name": status_val if status_val != "In Progress" else "In Review"}}
             ]
-            
+
             timeline_metrics = parse_issue_timeline(dummy_timeline, f"{date_str}T08:00:00Z")
 
             work_items.append({
                 "id": f"GH-{issue_num}",
                 "number": issue_num,
-                "title": f"Test Ticket #{issue_num}",
-                "state": "CLOSED",
+                "title": item["title"],
+                "state": "CLOSED" if status_val == "Done" else "OPEN",
                 "createdAt": f"{date_str}T08:30:00Z",
                 "updatedAt": f"{date_str}T16:45:00Z",
                 "labels": ["bug", "Additional Scope"] if is_bug else ["enhancement"],
                 "fieldValues": [
-                    {"fieldName": "Status", "value": "Done"},
-                    {"fieldName": "Sprint", "value": "Sprint 1", "startDate": "2026-07-01", "duration": 14},
-                    {"fieldName": "Estimate", "value": "8" if is_bug else "3"}
+                    {"fieldName": "Status", "value": status_val},
+                    {"fieldName": "Sprint", "value": "Sprint 1 (Method 3)", "startDate": start_date, "duration": 14},
+                    {"fieldName": "Estimate", "value": str(item["points"])}
                 ],
                 "raw_timeline": dummy_timeline,
-                # Injected by Extractor using Timeline parser
                 "rework_loops": timeline_metrics.get("rework_loops", 0),
                 "time_in_todo_sec": timeline_metrics.get("time_in_todo_sec", 0.0),
                 "time_in_progress_sec": timeline_metrics.get("time_in_progress_sec", 0.0),
@@ -316,19 +325,27 @@ class GitHubExtractor:
 
             pull_requests.append({
                 "pullRequestId": pr_num,
-                "title": f"Fix/Feature PR #{pr_num}",
-                "status": "MERGED",
+                "title": f"PR #{pr_num} - {item['title']}",
+                "status": "MERGED" if status_val == "Done" else "OPEN",
                 "creationDate": f"{date_str}T11:00:00Z",
                 "commentCount": 1 if not is_bug else 0,
                 "commitsAfterCreation": 2 if not is_bug else 0,
                 "review_cycles": 1 if is_bug else 0
             })
 
+        sprint_meta = {
+            "sprint_name": "Sprint 1 (Method 3)",
+            "start_date": start_date,
+            "end_date": "2026-07-14",
+            "total_ideal_points": 100.0
+        }
+
         return {
             "workItems": work_items,
             "pullRequests": pull_requests,
             "repo": repo,
             "cutoff": dates_to_gen[0],
+            "sprint_meta": sprint_meta,
             "vendor_type": "github_projects"
         }
 
