@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import numpy as np
 from backend.domain.process_data_models import NormalizedTicket
 
@@ -30,9 +30,27 @@ class TimeMath:
         return cycle_times, upper_bound
 
     @staticmethod
-    def sprint_item_timeline(tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
-        """Calculates exact days spent in each stage for Gantt charts."""
+    def sprint_item_timeline(tickets: List[NormalizedTicket], target_sprint: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Calculates exact days spent in each stage for Gantt charts, filtered strictly to target_sprint items."""
         SEC_TO_DAYS = 86400.0
+        
+        # Filter tickets to target_sprint if specified
+        if target_sprint:
+            filtered = [t for t in tickets if t.sprint == target_sprint]
+            if filtered:
+                tickets = filtered
+        else:
+            # Fallback: Auto-detect primary non-null sprint among tickets
+            sprint_counts: Dict[str, int] = {}
+            for t in tickets:
+                if t.sprint:
+                    sprint_counts[t.sprint] = sprint_counts.get(t.sprint, 0) + 1
+            if sprint_counts:
+                primary_sprint = max(sprint_counts, key=sprint_counts.get)
+                filtered = [t for t in tickets if t.sprint == primary_sprint]
+                if filtered:
+                    tickets = filtered
+
         cycle_times, upper_bound = TimeMath._get_cycle_times_and_bound(tickets)
         
         result = []
@@ -45,8 +63,6 @@ class TimeMath:
             except (ValueError, AttributeError):
                 issue_num = None
             display_number = f"#{issue_num}" if issue_num else t.ticket_id
-            
-            is_outlier = bool(cycle_times[i] > upper_bound) if cycle_times else False
             
             result.append({
                 "Sprint": t.sprint,

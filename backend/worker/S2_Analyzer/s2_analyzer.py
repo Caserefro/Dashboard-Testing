@@ -13,6 +13,9 @@ from .math_engines.quality_math import QualityMath
 from .burndown_math import BurndownMath
 
 
+from backend.worker.S0_Extractor.github.utils import detect_sprint_window
+
+
 class Analyzer:
     """Stage 2: Analyzer Facade. Routes arrays of Process Data to domain-specific Math Engines."""
 
@@ -30,15 +33,22 @@ class Analyzer:
         historical_od: Optional[List[Dict[str, Any]]] = None,
         record_date_iso: Optional[str] = None
     ) -> Dict[str, Any]:
-        return BurndownMath.burndown_curve(tickets, start_date_iso, end_date_iso, total_ideal_points, historical_od, record_date_iso)
+        return BurndownMath.burndown_curve(
+            tickets=tickets,
+            start_date_iso=start_date_iso,
+            end_date_iso=end_date_iso,
+            total_ideal_points=total_ideal_points,
+            historical_od=historical_od,
+            record_date_iso=record_date_iso
+        )
 
     @classmethod
     def prs_per_issue(cls, tickets: List[NormalizedTicket], prs: List[NormalizedPR]) -> float:
         return QualityMath.prs_per_issue(tickets, prs)
 
     @classmethod
-    def sprint_item_timeline(cls, tickets: List[NormalizedTicket]) -> List[Dict[str, Any]]:
-        return TimeMath.sprint_item_timeline(tickets)
+    def sprint_item_timeline(cls, tickets: List[NormalizedTicket], target_sprint: Optional[str] = None) -> List[Dict[str, Any]]:
+        return TimeMath.sprint_item_timeline(tickets, target_sprint=target_sprint)
 
     @classmethod
     def pr_based_fty(cls, prs: List[NormalizedPR]) -> Dict[str, Any]:
@@ -70,6 +80,13 @@ class Analyzer:
         """
         Master Analyzer entrypoint: runs every mathematical calculation cleanly over RAM process data.
         """
+        target_sprint = kpi_config.get("sprint_name")
+        if not target_sprint:
+            # Auto-detect target sprint from tickets
+            raw_dict = [{"fieldValues": [{"fieldName": "Sprint", "value": t.sprint, "startDate": start_date}]} for t in tickets if t.sprint]
+            smeta = detect_sprint_window(raw_dict, record_date=record_date) if raw_dict else {}
+            target_sprint = smeta.get("sprint_name")
+
         return {
             "fty_percentage": cls.first_time_yield(tickets),
             "burndown_curve": cls.burndown_curve(
@@ -82,7 +99,7 @@ class Analyzer:
             ),
             "productivity_sliding_window": QualityMath.productivity_sliding_window(tickets, end_date),
             "average_prs_per_issue": cls.prs_per_issue(tickets, prs),
-            "sprint_item_timeline": cls.sprint_item_timeline(tickets),
+            "sprint_item_timeline": cls.sprint_item_timeline(tickets, target_sprint=target_sprint),
             "pr_based_fty": cls.pr_based_fty(prs),
             "issue_loop_fty": cls.issue_loop_fty(tickets),
             "average_time_in_step": cls.average_time_in_step(tickets),
