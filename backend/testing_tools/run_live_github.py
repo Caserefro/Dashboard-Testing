@@ -16,7 +16,7 @@ from backend.worker.S0_Extractor.github.github_extractor import GitHubExtractor
 from backend.worker.worker_factory import AnalyticsWorkerFactory
 
 def main():
-    REAL_GITHUB_PAT = ""
+    REAL_GITHUB_PAT = "dummy"
     GITHUB_REPO = "Caserefro/TestRepo"
     PROJECT_NUMBER = 2
 
