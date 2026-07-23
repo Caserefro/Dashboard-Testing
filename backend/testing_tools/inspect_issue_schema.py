@@ -269,7 +269,12 @@ def inspect_schema(owner: str, project_number: int, issue_number: int = None, is
         name = fld.get("name")
         dtype = fld.get("dataType")
         opts = [o.get("name") for o in fld.get("options", [])] if "options" in fld else []
-        opt_str = f" Options: {opts}" if opts else ""
+        if dtype == "ITERATION" and "configuration" in fld:
+            config = fld.get("configuration", {})
+            iters = [f"{i.get('title')} ({i.get('startDate')})" for i in config.get("iterations", [])]
+            opt_str = f" Iterations: {iters}"
+        else:
+            opt_str = f" Options: {opts}" if opts else ""
         print(f" - Field: '{name}' | Type: {dtype}{opt_str}")
 
     print(f"\n[DONE] Full raw JSON dump saved to:\n  {output_path}")

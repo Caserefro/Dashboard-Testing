@@ -21,13 +21,17 @@ def filter_ghost_items(work_items: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     ]
 
 
-def detect_sprint_window(work_items: List[Dict[str, Any]]) -> Dict[str, Any]:
+def detect_sprint_window(work_items: List[Dict[str, Any]], record_date: str = None) -> Dict[str, Any]:
     """
-    Scans all extracted items' Sprint fieldValues to auto-detect the current sprint window.
+    Scans all extracted items' Sprint fieldValues to auto-detect the current active sprint window.
     Returns a dict with sprint_name, start_date, end_date, and total_ideal_points (sum of estimates).
 
-    If multiple sprints exist, picks the one with the most items.
+    Prioritizes the sprint active on record_date (or today). If no active sprint covers today,
+    picks the most recent completed/active sprint before picking future sprints.
     """
+    if record_date is None:
+        record_date = datetime.now().strftime("%Y-%m-%d")
+
     sprint_data: Dict[str, Dict[str, Any]] = {}
 
     for item in work_items:
@@ -39,8 +43,16 @@ def detect_sprint_window(work_items: List[Dict[str, Any]]) -> Dict[str, Any]:
                 duration = int(fv.get("duration") or 14)
 
                 if sprint_name not in sprint_data:
+                    try:
+                        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                        end_dt = start_dt + timedelta(days=duration)
+                        end_date_str = end_dt.strftime("%Y-%m-%d")
+                    except ValueError:
+                        end_date_str = start_date
+
                     sprint_data[sprint_name] = {
                         "start_date": start_date,
+                        "end_date": end_date_str,
                         "duration": duration,
                         "item_count": 0,
                         "total_sp": 0.0
@@ -65,20 +77,32 @@ def detect_sprint_window(work_items: List[Dict[str, Any]]) -> Dict[str, Any]:
             "total_ideal_points": 0.0
         }
 
-    # Pick the sprint with the most items
-    best_sprint_name = max(sprint_data, key=lambda k: sprint_data[k]["item_count"])
-    best = sprint_data[best_sprint_name]
+    # 1. Look for active sprint covering record_date
+    active_sprints = [
+        sname for sname, sinfo in sprint_data.items()
+        if sinfo["start_date"] <= record_date <= sinfo["end_date"]
+    ]
 
-    try:
-        start_dt = datetime.strptime(best["start_date"], "%Y-%m-%d")
-        end_dt = start_dt + timedelta(days=best["duration"])
-        end_date_str = end_dt.strftime("%Y-%m-%d")
-    except ValueError:
-        end_date_str = best["start_date"]
+    if active_sprints:
+        # If multiple overlap, pick the one with most items
+        best_sprint_name = max(active_sprints, key=lambda k: sprint_data[k]["item_count"])
+    else:
+        # 2. Pick the sprint with start_date closest to record_date (avoiding distant future sprints)
+        past_or_current = [
+            sname for sname, sinfo in sprint_data.items()
+            if sinfo["start_date"] <= record_date
+        ]
+        if past_or_current:
+            best_sprint_name = max(past_or_current, key=lambda k: sprint_data[k]["start_date"])
+        else:
+            # Fallback to sprint with most items
+            best_sprint_name = max(sprint_data, key=lambda k: sprint_data[k]["item_count"])
+
+    best = sprint_data[best_sprint_name]
 
     return {
         "sprint_name": best_sprint_name,
         "start_date": best["start_date"],
-        "end_date": end_date_str,
+        "end_date": best["end_date"],
         "total_ideal_points": best["total_sp"]
     }
