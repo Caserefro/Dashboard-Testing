@@ -52,6 +52,7 @@ class GitHubMapper(BaseMapper):
         time_in_todo_sec = float(item.get("time_in_todo_sec", 0.0))
         time_in_progress_sec = float(item.get("time_in_progress_sec", 0.0))
         time_in_review_sec = float(item.get("time_in_review_sec", 0.0))
+        time_in_dev_testing_sec = float(item.get("time_in_dev_testing_sec", 0.0))
         time_in_rework_sec = float(item.get("time_in_rework_sec", 0.0))
         
         labels = item.get("labels", [])
@@ -75,6 +76,7 @@ class GitHubMapper(BaseMapper):
             time_in_todo_sec=time_in_todo_sec,
             time_in_progress_sec=time_in_progress_sec,
             time_in_review_sec=time_in_review_sec,
+            time_in_dev_testing_sec=time_in_dev_testing_sec,
             time_in_rework_sec=time_in_rework_sec,
             is_bug=is_bug,
             estimate=story_points

@@ -16,10 +16,10 @@ class CsvFormatter:
         
         # Sprint state aggregations
         issues_total = len(timeline)
-        issues_todo = sum(1 for t in timeline if t.get("CurrentStatus") == "TODO")
-        issues_in_progress = sum(1 for t in timeline if t.get("CurrentStatus") == "IN_PROGRESS")
-        issues_in_review = sum(1 for t in timeline if t.get("CurrentStatus") == "IN_REVIEW")
-        issues_merged = sum(1 for t in timeline if t.get("CurrentStatus") == "DONE")
+        issues_todo = sum(1 for t in timeline if str(t.get("CurrentStatus")).upper() in ("TODO", "BACKLOG"))
+        issues_in_progress = sum(1 for t in timeline if str(t.get("CurrentStatus")).upper() in ("INPROGRESS", "IN_PROGRESS"))
+        issues_in_review = sum(1 for t in timeline if str(t.get("CurrentStatus")).upper() in ("INREVIEW", "IN_REVIEW", "DEVTESTING", "DEV_TESTING"))
+        issues_merged = sum(1 for t in timeline if str(t.get("CurrentStatus")).upper() in ("DONE", "CLOSED", "MERGED"))
         
         # Story Points
         sp = computed_kpis.get("sp_breakdown", {})
@@ -36,13 +36,22 @@ class CsvFormatter:
         burndown_data = computed_kpis.get("burndown_curve", {})
         series_list = burndown_data if isinstance(burndown_data, list) else burndown_data.get("series", [])
         avg_est = computed_kpis.get("average_time_by_estimate", {})
-        # Determine the estimate key for the header (e.g. E20, E2, E4)
-        est_keys = list(avg_est.keys()) if avg_est else ["E20"]
-        primary_key = est_keys[0] if est_keys else "E20"
+
+        # Determine estimate keys (default to E2, E4, E8, E16 if none present)
+        est_keys = list(avg_est.keys()) if avg_est else ["E2", "E4", "E8", "E16"]
         
+        est_headers = []
+        for k in est_keys:
+            est_headers.extend([
+                f"avg_time_todo_{k}",
+                f"avg_time_in_progress_{k}",
+                f"avg_time_in_review_{k}",
+                f"avg_time_merged_{k}"
+            ])
+
         left_headers = [
-            "record_date", "Sprint", "issues_total", "issues_todo", "issues_in_progress", "issues_in_review", "issues_merged",
-            f"avg_time_todo_{primary_key}", f"avg_time_in_progress_{primary_key}", f"avg_time_in_review_{primary_key}", f"avg_time_merged_{primary_key}",
+            "record_date", "Sprint", "issues_total", "issues_todo", "issues_in_progress", "issues_in_review", "issues_merged"
+        ] + est_headers + [
             "story_points_total", "story_points_bug", "story_points_non_bug", "story_points_clean_pct",
             "average_prs_per_issue", "reentries_per_issue",
             "BurndownSP", "BurndownAVGSP", "BurndownPredictionSP", "SPDelta"
@@ -66,11 +75,17 @@ class CsvFormatter:
             b_pred = pt.get("prediction_points", 0.0)
             sp_delta = round(b_rem - b_idl, 2)
             
-            e_dict = avg_est.get(primary_key, {})
+            est_vals = []
+            for k in est_keys:
+                e_dict = avg_est.get(k, {})
+                est_vals.extend([
+                    e_dict.get("todo", 0.0),
+                    e_dict.get("in_progress", 0.0),
+                    e_dict.get("in_review", 0.0),
+                    e_dict.get("merged", 0.0)
+                ])
             
-            row = [
-                date, sprint_name, issues_total, issues_todo, issues_in_progress, issues_in_review, issues_merged,
-                e_dict.get("todo", 0.0), e_dict.get("in_progress", 0.0), e_dict.get("in_review", 0.0), e_dict.get("merged", 0.0),
+            row = [date, sprint_name, issues_total, issues_todo, issues_in_progress, issues_in_review, issues_merged] + est_vals + [
                 sp_total, sp_bug, sp_non_bug, sp_clean_pct,
                 computed_kpis.get("average_prs_per_issue", 0.0), reentries,
                 b_rem, b_idl, b_pred, sp_delta
