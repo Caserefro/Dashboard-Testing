@@ -11,7 +11,7 @@ from typing import Dict, Any
 #   - "RAW": Outputs exact raw numeric estimate keys (E1, E2, E3, E4, E5, E6, etc.)
 #   - "BUCKETED": Maps numeric estimates into the defined ranges below
 ESTIMATE_BUCKET_CONFIG: Dict[str, Any] = {
-    "MODE": "RAW",  # Change to "BUCKETED" to combine numeric estimates into ranges
+    "MODE": "BUCKETED",  # Maps numeric estimates into E2, E4, E8, E16 standard contract columns
     "RANGES": {
         "E2": (0.0, 3.0),
         "E4": (3.0, 6.0),
