@@ -13,9 +13,9 @@ import sys
 import json
 from typing import Dict, Any, List, Tuple
 from backend.domain.process_data_models import ProcessDataAggregate
-from backend.worker.S1_Normalizer.s1_normalizer import Normalizer
-from backend.worker.S2_Analyzer.s2_analyzer import Analyzer
-from backend.worker.S3_Formatter.s3_formatter import Formatter
+from backend.AnalyticsWorkerFactory.S1_Normalizer.s1_normalizer import Normalizer
+from backend.AnalyticsWorkerFactory.S2_Analyzer.s2_analyzer import Analyzer
+from backend.AnalyticsWorkerFactory.S3_Formatter.s3_formatter import Formatter
 
 
 class AnalyticsWorkerFactory:
@@ -30,7 +30,7 @@ class AnalyticsWorkerFactory:
         and recursively run this pipeline to reconstruct history.
         """
         if payload.get("backfill"):
-            from backend.worker.backfiller import BackfillEngine
+            from backend.AnalyticsWorkerFactory.backfiller import BackfillEngine
             return {"graphic_contract": BackfillEngine.execute(payload)}
             
         import sys

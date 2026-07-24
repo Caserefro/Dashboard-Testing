@@ -5,8 +5,8 @@ Live GitHub Runner for Spreadsheet API
 import sys
 import json
 import os
-from backend.worker.S0_Extractor.github.github_extractor import GitHubExtractor
-from backend.worker.worker_factory import AnalyticsWorkerFactory
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.github_extractor import GitHubExtractor
+from backend.AnalyticsWorkerFactory.worker_factory import AnalyticsWorkerFactory
 
 def main():
     REAL_GITHUB_PAT = ""

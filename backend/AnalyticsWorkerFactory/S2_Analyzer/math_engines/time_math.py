@@ -11,7 +11,7 @@ class TimeMath:
         SEC_TO_DAYS = 86400.0
         cycle_times = []
         for t in tickets:
-            ct = (t.time_in_todo_sec + t.time_in_progress_sec + t.time_in_review_sec + t.time_in_rework_sec) / SEC_TO_DAYS
+            ct = (t.time_in_progress_sec + t.time_in_review_sec + getattr(t, "time_in_dev_testing_sec", 0.0) + t.time_in_rework_sec) / SEC_TO_DAYS
             cycle_times.append(ct)
             
         if not cycle_times or len(cycle_times) < 4:
@@ -71,6 +71,7 @@ class TimeMath:
                 "TodoDays": round(t.time_in_todo_sec / SEC_TO_DAYS, 2),
                 "InProgressDays": round(t.time_in_progress_sec / SEC_TO_DAYS, 2),
                 "InReviewDays": round(t.time_in_review_sec / SEC_TO_DAYS, 2),
+                "DevTestingDays": round(getattr(t, "time_in_dev_testing_sec", 0.0) / SEC_TO_DAYS, 2),
                 "ReworkDays": round(t.time_in_rework_sec / SEC_TO_DAYS, 2),
                 "TotalCycleDays": round(cycle_times[i], 2),
                 "CurrentStatus": t.status_normalized,
@@ -96,15 +97,18 @@ class TimeMath:
         avg_todo = sum(t.time_in_todo_sec for t in valid_tickets) / SEC_TO_DAYS / total_items if total_items > 0 else 0.0
         avg_in_progress = sum(t.time_in_progress_sec for t in valid_tickets) / SEC_TO_DAYS / total_items if total_items > 0 else 0.0
         avg_in_review = sum(t.time_in_review_sec for t in valid_tickets) / SEC_TO_DAYS / total_items if total_items > 0 else 0.0
+        avg_dev_testing = sum(getattr(t, "time_in_dev_testing_sec", 0.0) for t in valid_tickets) / SEC_TO_DAYS / total_items if total_items > 0 else 0.0
         avg_rework = sum(t.time_in_rework_sec for t in valid_tickets) / SEC_TO_DAYS / total_items if total_items > 0 else 0.0
-        avg_cycle = avg_todo + avg_in_progress + avg_in_review + avg_rework
+        # Active Engineering Cycle Time = In Progress + In Review + Dev Testing + Rework
+        avg_active_cycle = avg_in_progress + avg_in_review + avg_dev_testing + avg_rework
 
         return {
             "AvgTodoDays": round(avg_todo, 2),
             "AvgInProgressDays": round(avg_in_progress, 2),
             "AvgInReviewDays": round(avg_in_review, 2),
+            "AvgDevTestingDays": round(avg_dev_testing, 2),
             "AvgReworkDays": round(avg_rework, 2),
-            "AvgCycleDays": round(avg_cycle, 2),
+            "AvgCycleDays": round(avg_active_cycle, 2),
             "ItemCount": total_items,
             "BugItemCount": bug_items,
             "OutliersExcluded": len(tickets) - total_items
@@ -112,42 +116,75 @@ class TimeMath:
 
     @staticmethod
     def average_time_by_estimate(tickets: List[NormalizedTicket]) -> Dict[str, Dict[str, float]]:
-        """Calculates the average stage time grouped by ticket estimate (e.g., E2, E4, E8, E16)."""
+        """Calculates average stage time for estimates in RAW or BUCKETED mode from board_config."""
         SEC_TO_DAYS = 86400.0
         cycle_times, upper_bound = TimeMath._get_cycle_times_and_bound(tickets)
         
+        try:
+            from backend.AnalyticsWorkerFactory.S2_Analyzer.analyzer_config import ESTIMATE_BUCKET_CONFIG
+        except ImportError:
+            ESTIMATE_BUCKET_CONFIG = {"MODE": "RAW"}
+
         valid_tickets = []
         for i, t in enumerate(tickets):
             if cycle_times[i] <= upper_bound:
                 valid_tickets.append(t)
 
-        groups: Dict[float, List[NormalizedTicket]] = {}
-        for t in valid_tickets:
-            # We group by the float value of the estimate, defaulting to 0.0 if not found
-            est = float(t.estimate) if t.estimate is not None else 0.0
-            if est not in groups:
-                groups[est] = []
-            groups[est].append(t)
+        mode = ESTIMATE_BUCKET_CONFIG.get("MODE", "RAW")
+        buckets: Dict[str, List[NormalizedTicket]] = {}
+
+        if mode == "RAW":
+            # Group by exact numeric estimate value (e.g. E1, E2, E3, E4, E5, E6...)
+            for t in valid_tickets:
+                est = float(t.estimate) if t.estimate is not None else 0.0
+                est_key = f"E{int(est)}" if est.is_integer() else f"E{est}"
+                if est_key not in buckets:
+                    buckets[est_key] = []
+                buckets[est_key].append(t)
+            
+            # Sort keys numerically (E1, E2, E3, E4, E5, E6...)
+            sorted_keys = sorted(buckets.keys(), key=lambda k: float(k[1:]) if k[1:].replace('.', '', 1).isdigit() else 0.0)
+            sorted_buckets = {k: buckets[k] for k in sorted_keys}
+            buckets = sorted_buckets
+        else:
+            # Bucketed mode using defined ranges
+            ranges = ESTIMATE_BUCKET_CONFIG.get("RANGES", {"E2": (0.0, 3.0), "E4": (3.0, 6.0), "E8": (6.0, 12.0), "E16": (12.0, 999.0)})
+            for key in ranges:
+                buckets[key] = []
+            for t in valid_tickets:
+                est = float(t.estimate) if t.estimate is not None else 0.0
+                matched = False
+                for bkey, (low, high) in ranges.items():
+                    if low < est <= high or (low == 0.0 and est <= high):
+                        buckets[bkey].append(t)
+                        matched = True
+                        break
+                if not matched and ranges:
+                    last_key = list(ranges.keys())[-1]
+                    buckets[last_key].append(t)
 
         result: Dict[str, Dict[str, float]] = {}
-        for est, group_tix in groups.items():
+        for bucket_key, group_tix in buckets.items():
             count = len(group_tix)
             if count == 0:
+                result[bucket_key] = {"todo": 0.0, "in_progress": 0.0, "in_review": 0.0, "dev_testing": 0.0, "merged": 0.0}
                 continue
                 
             avg_todo = sum(t.time_in_todo_sec for t in group_tix) / SEC_TO_DAYS / count
             avg_in_progress = sum(t.time_in_progress_sec for t in group_tix) / SEC_TO_DAYS / count
             avg_in_review = sum(t.time_in_review_sec for t in group_tix) / SEC_TO_DAYS / count
+            avg_dev_testing = sum(getattr(t, "time_in_dev_testing_sec", 0.0) for t in group_tix) / SEC_TO_DAYS / count
             avg_rework = sum(t.time_in_rework_sec for t in group_tix) / SEC_TO_DAYS / count
-            avg_cycle = avg_todo + avg_in_progress + avg_in_review + avg_rework
             
-            # Format as E2, E4, E8 etc. if it is a whole number, else E2.5
-            est_key = f"E{int(est)}" if est.is_integer() else f"E{est}"
-            result[est_key] = {
+            # Active Engineering Effort = In Progress + In Review + Dev Testing + Rework
+            avg_active_cycle = avg_in_progress + avg_in_review + avg_dev_testing + avg_rework
+            
+            result[bucket_key] = {
                 "todo": round(avg_todo, 2),
                 "in_progress": round(avg_in_progress, 2),
                 "in_review": round(avg_in_review, 2),
-                "merged": round(avg_cycle, 2)  # Treating 'merged' column in CSV as total cycle/merged time
+                "dev_testing": round(avg_dev_testing, 2),
+                "merged": round(avg_active_cycle, 2)
             }
             
         return result

@@ -12,8 +12,8 @@ import json
 # Add the project root to sys.path so we can import 'backend'
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from backend.worker.S0_Extractor.github.github_extractor import GitHubExtractor
-from backend.worker.worker_factory import AnalyticsWorkerFactory
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.github_extractor import GitHubExtractor
+from backend.AnalyticsWorkerFactory.worker_factory import AnalyticsWorkerFactory
 
 def main():
     REAL_GITHUB_PAT = "dummy"

@@ -1,6 +1,6 @@
 import httpx
 import json
-from backend.worker.S0_Extractor.github.queries import PROJECT_ITEMS_USER_QUERY
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.queries import PROJECT_ITEMS_USER_QUERY
 from http_utils import resolve_ssl_verify
 
 resp = httpx.post(

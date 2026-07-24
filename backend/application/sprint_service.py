@@ -11,8 +11,8 @@ Adheres strictly to SOLID principles:
 from dataclasses import dataclass
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime, timedelta
-from backend.worker.S0_Extractor.github.github_extractor import GitHubExtractor
-from backend.worker.S0_Extractor.github.utils import detect_sprint_window
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.github_extractor import GitHubExtractor
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.utils import detect_sprint_window
 
 
 @dataclass

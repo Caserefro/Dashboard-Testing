@@ -33,6 +33,7 @@ class NormalizedTicket:
     time_in_todo_sec: float = 0.0   # Calculated from GraphQL Timeline API
     time_in_progress_sec: float = 0.0
     time_in_review_sec: float = 0.0
+    time_in_dev_testing_sec: float = 0.0  # Dev Testing stage cycle time
     time_in_rework_sec: float = 0.0
     is_bug: bool = False            # True if labels include "bug"
     estimate: float = 0.0           # SP assigned
@@ -157,6 +158,7 @@ class ProcessDataAggregate:
     total_todo_days: float = 0.0
     total_in_progress_days: float = 0.0
     total_in_review_days: float = 0.0
+    total_in_dev_testing_days: float = 0.0
     total_in_rework_days: float = 0.0
     total_cycle_days: float = 0.0
 
@@ -199,8 +201,10 @@ class ProcessDataAggregate:
         total_todo_days = sum(t.time_in_todo_sec for t in tickets) / SEC_TO_DAYS
         total_in_progress_days = sum(t.time_in_progress_sec for t in tickets) / SEC_TO_DAYS
         total_in_review_days = sum(t.time_in_review_sec for t in tickets) / SEC_TO_DAYS
+        total_in_dev_testing_days = sum(getattr(t, "time_in_dev_testing_sec", 0.0) for t in tickets) / SEC_TO_DAYS
         total_in_rework_days = sum(t.time_in_rework_sec for t in tickets) / SEC_TO_DAYS
-        total_cycle_days = total_todo_days + total_in_progress_days + total_in_review_days + total_in_rework_days
+        # Active Engineering Cycle Time = In Progress + In Review + Dev Testing + Rework
+        total_cycle_days = total_in_progress_days + total_in_review_days + total_in_dev_testing_days + total_in_rework_days
 
         return cls(
             board_id=board_id,
@@ -221,6 +225,7 @@ class ProcessDataAggregate:
             total_todo_days=round(total_todo_days, 2),
             total_in_progress_days=round(total_in_progress_days, 2),
             total_in_review_days=round(total_in_review_days, 2),
+            total_in_dev_testing_days=round(total_in_dev_testing_days, 2),
             total_in_rework_days=round(total_in_rework_days, 2),
             total_cycle_days=round(total_cycle_days, 2)
         )

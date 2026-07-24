@@ -4,8 +4,8 @@ import io
 from datetime import datetime, timedelta
 from typing import Dict, Any
 
-from backend.worker.S0_Extractor.github.timeline_parser import parse_issue_timeline, parse_iso_date
-from backend.worker.S0_Extractor.github.utils import detect_sprint_window
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.timeline_parser import parse_issue_timeline, parse_iso_date
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.utils import detect_sprint_window
 
 class BackfillEngine:
     """
@@ -40,7 +40,7 @@ class BackfillEngine:
         loop_end = min(record_date_dt, sprint_end_dt)
         
         # We need to import AnalyticsWorkerFactory dynamically to avoid circular imports
-        from backend.worker.worker_factory import AnalyticsWorkerFactory
+        from backend.AnalyticsWorkerFactory.worker_factory import AnalyticsWorkerFactory
         
         left_rows_by_date = {}
         headers = []

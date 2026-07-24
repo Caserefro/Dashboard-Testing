@@ -4,8 +4,8 @@ import httpx
 from datetime import datetime
 
 # Load queries from our extractor
-from backend.worker.S0_Extractor.github.queries import PROJECT_ITEMS_USER_QUERY, PROJECT_ITEMS_ORG_QUERY, ISSUE_TIMELINE_QUERY
-from backend.worker.S0_Extractor.github.timeline_parser import parse_iso_date
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.queries import PROJECT_ITEMS_USER_QUERY, PROJECT_ITEMS_ORG_QUERY, ISSUE_TIMELINE_QUERY
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.timeline_parser import parse_iso_date
 from http_utils import resolve_ssl_verify
 
 def load_api_key():

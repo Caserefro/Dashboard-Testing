@@ -8,10 +8,10 @@ coordinated by AnalyticsWorkerFactory (`worker_factory.py`) with zero memory cop
 
 import json
 from backend.domain.process_data_models import ProcessDataAggregate
-from backend.worker.S1_Normalizer.s1_normalizer import Normalizer
-from backend.worker.S2_Analyzer.s2_analyzer import Analyzer
-from backend.worker.S3_Formatter.s3_formatter import Formatter
-from backend.worker.worker_factory import AnalyticsWorkerFactory
+from backend.AnalyticsWorkerFactory.S1_Normalizer.s1_normalizer import Normalizer
+from backend.AnalyticsWorkerFactory.S2_Analyzer.s2_analyzer import Analyzer
+from backend.AnalyticsWorkerFactory.S3_Formatter.s3_formatter import Formatter
+from backend.AnalyticsWorkerFactory.worker_factory import AnalyticsWorkerFactory
 from backend.orchestrator.orchestrator import DockerWorkerOrchestrator
 
 
@@ -258,7 +258,7 @@ def test_cli_stdin_stdout():
     import subprocess
     import sys
 
-    cmd = [sys.executable, "-m", "backend.worker.worker_factory"]
+    cmd = [sys.executable, "-m", "backend.AnalyticsWorkerFactory.worker_factory"]
     payload_json = json.dumps({
         "board_id": 10,
         "record_date": "2026-07-12",

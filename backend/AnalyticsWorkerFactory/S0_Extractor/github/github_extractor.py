@@ -194,9 +194,10 @@ class GitHubExtractor:
                         "rework_loops": 0
                     })
             
-            # Filter out ghost items (incomplete/orphaned project entries)
-            work_items = utils.filter_ghost_items(work_items)
-            
+            # Auto-detect sprint window from extracted items first for timeline clamping
+            sprint_meta = utils.detect_sprint_window(work_items)
+            sprint_start_date = sprint_meta.get("start_date")
+
             # Execute N+1 timeline queries to extract deep cycle times
             for w in work_items:
                 issue_num = w.get("number")
@@ -226,12 +227,13 @@ class GitHubExtractor:
                         t_nodes = timeline_node.get("nodes") or []
                         
                         if t_nodes:
-                            metrics = parse_issue_timeline(t_nodes, w.get("createdAt"))
+                            metrics = parse_issue_timeline(t_nodes, w.get("createdAt"), sprint_start_date=sprint_start_date)
                             w["raw_timeline"] = t_nodes
                             w["rework_loops"] = metrics.get("rework_loops", 0)
                             w["time_in_todo_sec"] = metrics.get("time_in_todo_sec", 0.0)
                             w["time_in_progress_sec"] = metrics.get("time_in_progress_sec", 0.0)
                             w["time_in_review_sec"] = metrics.get("time_in_review_sec", 0.0)
+                            w["time_in_dev_testing_sec"] = metrics.get("time_in_dev_testing_sec", 0.0)
                         else:
                             # Fallback if no timeline data
                             w["raw_timeline"] = []
@@ -239,6 +241,7 @@ class GitHubExtractor:
                             w["time_in_todo_sec"] = 0.0
                             w["time_in_progress_sec"] = 0.0
                             w["time_in_review_sec"] = 0.0
+                            w["time_in_dev_testing_sec"] = 0.0
                     else:
                         print(f"[DEBUG] HTTP {t_resp.status_code} on Issue #{issue_num}: {t_resp.text}", file=sys.stderr)
                 except Exception as e:
@@ -249,9 +252,7 @@ class GitHubExtractor:
                     w["time_in_todo_sec"] = 0.0
                     w["time_in_progress_sec"] = 0.0
                     w["time_in_review_sec"] = 0.0
-            
-            # Auto-detect sprint window from the extracted field data
-            sprint_meta = utils.detect_sprint_window(work_items)
+                    w["time_in_dev_testing_sec"] = 0.0
                 
             return {
                 "workItems": work_items,

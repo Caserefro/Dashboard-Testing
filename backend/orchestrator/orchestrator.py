@@ -19,7 +19,7 @@ import json
 import base64
 from typing import List, Set, Dict, Any, Tuple, Optional
 from datetime import datetime, timedelta
-from backend.worker.worker_factory import AnalyticsWorkerFactory
+from backend.AnalyticsWorkerFactory.worker_factory import AnalyticsWorkerFactory
 
 from backend.repository.crypto import KeyVaultMemoryCodec
 
@@ -57,14 +57,14 @@ class DockerWorkerOrchestrator:
 
     def _resolve_extractor_module(self, board_id: int, vendor_type: str = "") -> str:
         if vendor_type == "github_projects":
-            return "backend.worker.S0_Extractor.github.github_extractor"
+            return "backend.AnalyticsWorkerFactory.S0_Extractor.github.github_extractor"
         elif vendor_type == "azure_devops":
-            return "backend.worker.S0_Extractor.azure.azure_extractor"
+            return "backend.AnalyticsWorkerFactory.S0_Extractor.azure.azure_extractor"
             
         # Fallbacks if vendor_type is missing
         if board_id == 10:
-            return "backend.worker.S0_Extractor.github.github_extractor"
-        return "backend.worker.S0_Extractor.azure.azure_extractor"
+            return "backend.AnalyticsWorkerFactory.S0_Extractor.github.github_extractor"
+        return "backend.AnalyticsWorkerFactory.S0_Extractor.azure.azure_extractor"
 
     def trigger_extractor_layer(
         self,

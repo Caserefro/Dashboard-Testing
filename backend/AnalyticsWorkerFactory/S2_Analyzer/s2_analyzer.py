@@ -13,7 +13,7 @@ from .math_engines.quality_math import QualityMath
 from .burndown_math import BurndownMath
 
 
-from backend.worker.S0_Extractor.github.utils import detect_sprint_window
+from backend.AnalyticsWorkerFactory.S0_Extractor.github.utils import detect_sprint_window
 
 
 class Analyzer:
