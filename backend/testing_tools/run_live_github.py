@@ -19,6 +19,7 @@ def main():
     REAL_GITHUB_PAT = "dummy"
     GITHUB_REPO = "Caserefro/TestRepo"
     PROJECT_NUMBER = 2
+    ORG = ""
 
     if REAL_GITHUB_PAT == "ghp_your_actual_token_here":
         print("ERROR: Please insert your real GitHub PAT!")
@@ -30,7 +31,7 @@ def main():
         "api_key": REAL_GITHUB_PAT,
         "repo": GITHUB_REPO,
         "projectNumber": PROJECT_NUMBER,
-        "org": "",
+        "org": ORG,
         "missing_dates": [],
         "ssl_verify": False
     })
